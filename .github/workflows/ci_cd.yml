@@ -1,0 +1,130 @@
+name: Qota CI/CD
+
+# Déclenché sur chaque push/PR — cohérent avec l'exigence du cahier
+# des charges : "permettre CI/CD, tests, staging et production."
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  FLUTTER_VERSION: '3.24.0'
+
+jobs:
+  # ============================================================
+  # 1. ANALYSE STATIQUE + TESTS — bloque la fusion si échec
+  # ============================================================
+  analyze_and_test:
+    name: Analyse & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Générer les fichiers l10n
+        run: flutter gen-l10n
+
+      - name: Analyse statique (flutter analyze)
+        run: flutter analyze --fatal-infos
+
+      - name: Vérifier le formatage
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Tests unitaires et widgets
+        run: flutter test --coverage
+
+      - name: Publier la couverture de tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/lcov.info
+
+  # ============================================================
+  # 2. BUILD WEB — déployé sur Render (staging sur `develop`,
+  #    production sur `main`)
+  # ============================================================
+  build_web:
+    name: Build Web
+    needs: analyze_and_test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Générer les fichiers l10n
+        run: flutter gen-l10n
+
+      - name: Build Web (release)
+        run: |
+          flutter build web --release \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Publier l'artefact Web
+        uses: actions/upload-artifact@v4
+        with:
+          name: qota-web-build
+          path: build/web
+
+      # Render redéploie automatiquement depuis le dépôt GitHub connecté
+      # (voir render.yaml) — ce job garantit que le build passe AVANT
+      # que Render ne tente de le déployer, via un statut de commit.
+
+  # ============================================================
+  # 3. BUILD ANDROID (APK de test — signature release séparée du CI)
+  # ============================================================
+  build_android:
+    name: Build Android
+    needs: analyze_and_test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Générer les fichiers l10n
+        run: flutter gen-l10n
+
+      - name: Build APK (release)
+        run: |
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Publier l'APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: qota-android-release
+          path: build/app/outputs/flutter-apk/app-release.apk
