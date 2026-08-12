@@ -44,5 +44,11 @@ flutter:
   uses-material-design: true
   generate: true # active la génération l10n depuis lib/l10n/*.arb
 
-  assets:
-    - assets/icons/
+  # Pas de section `assets:` pour l'instant — toutes les icônes
+  # utilisées actuellement viennent du Material Icon Font intégré à
+  # Flutter (Icons.xxx), aucun asset custom n'est encore nécessaire.
+  # Le jour où de vraies icônes/images sont ajoutées dans assets/icons/,
+  # décommenter ces 2 lignes ET s'assurer que le dossier contient au
+  # moins un fichier réel (Git ne suit jamais un dossier vide) :
+  # assets:
+  #   - assets/icons/
