@@ -79,7 +79,7 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                 onTap: () => _openForm(existing: category),
                 trailing: Switch(
                   value: active,
-                  activeColor: AppColors.primaryOrange,
+                  activeThumbColor: AppColors.primaryOrange,
                   onChanged: (value) async {
                     await _repository.toggleCategoryActive(category['id'] as String, value);
                     _reload();

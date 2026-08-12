@@ -80,7 +80,7 @@ class _AdminStatesScreenState extends State<AdminStatesScreen> {
                 onTap: () => _openForm(existing: state),
                 trailing: Switch(
                   value: active,
-                  activeColor: AppColors.primaryOrange,
+                  activeThumbColor: AppColors.primaryOrange,
                   onChanged: (value) async {
                     await _repository.toggleStateActive(state['id'] as String, value);
                     _reload();

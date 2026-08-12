@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 40),
-                Text(
+                const Text(
                   'Qota',
                   textAlign: TextAlign.center,
                   style: TextStyle(

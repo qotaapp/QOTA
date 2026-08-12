@@ -1,5 +1,6 @@
 /// Modèles légers reflétant le schéma Supabase (qota_schema.sql).
 /// name_fr/name_ar : jamais de texte codé en dur (§2).
+library;
 
 class QotaState {
   final String id;

@@ -16,7 +16,11 @@ class SupabaseConstants {
     defaultValue: 'https://YOUR_PROJECT_REF.supabase.co',
   );
 
-  static const String anonKey = String.fromEnvironment(
+  /// Le champ s'appelle `publishableKey` côté Dart (nouvelle API
+  /// supabase_flutter, anciennement `anonKey`), mais on garde le même
+  /// nom de variable d'environnement `SUPABASE_ANON_KEY` partout
+  /// ailleurs (CI/CD, Render, README) pour ne rien casser.
+  static const String publishableKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
     defaultValue: 'YOUR_SUPABASE_ANON_KEY',
   );

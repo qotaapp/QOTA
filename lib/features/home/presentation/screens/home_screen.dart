@@ -176,14 +176,14 @@ class _QotaLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
+    return const Text(
       'Qota',
       style: TextStyle(
         fontSize: 34,
         fontWeight: FontWeight.w900,
         color: AppColors.primaryOrange,
         letterSpacing: -0.5,
-        shadows: const [
+        shadows: [
           Shadow(offset: Offset(0.6, 0.6), color: Colors.black26),
         ],
       ),
