@@ -49,7 +49,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   }
 
   Future<void> _pickImage() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final image =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (image != null) {
       setState(() => _pickedImage = image);
     }
@@ -114,7 +115,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     try {
       final bytes = await _pickedImage!.readAsBytes();
       final extension = _pickedImage!.name.split('.').last;
-      final imageUrl = await _repository.uploadImage(bytes: bytes, fileExtension: extension);
+      final imageUrl =
+          await _repository.uploadImage(bytes: bytes, fileExtension: extension);
 
       await _repository.createService(
         name: name,
@@ -169,14 +171,17 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.add_a_photo_outlined, size: 32, color: AppColors.iconInactive),
+                                Icon(Icons.add_a_photo_outlined,
+                                    size: 32, color: AppColors.iconInactive),
                                 SizedBox(height: 8),
                                 Text('Ajouter une image (obligatoire)',
-                                    style: TextStyle(color: AppColors.textSecondary)),
+                                    style: TextStyle(
+                                        color: AppColors.textSecondary)),
                               ],
                             ),
                           )
-                        : Image.file(File(_pickedImage!.path), fit: BoxFit.cover, width: double.infinity),
+                        : Image.file(File(_pickedImage!.path),
+                            fit: BoxFit.cover, width: double.infinity),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -187,12 +192,14 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     labelText: 'Nom de la service',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
                 ),
 
                 if (_errorMessage != null) ...[
                   const SizedBox(height: 12),
-                  Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                  Text(_errorMessage!,
+                      style: const TextStyle(color: Colors.red)),
                 ],
 
                 const SizedBox(height: 28),
@@ -204,8 +211,10 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   onPressed: _isSubmitting ? null : _handleSubmit,
                   child: _isSubmitting
                       ? const SizedBox(
-                          height: 20, width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
                         )
                       : const Text('Publier'),
                 ),

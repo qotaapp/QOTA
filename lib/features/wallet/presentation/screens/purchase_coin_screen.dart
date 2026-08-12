@@ -26,7 +26,9 @@ class _PurchaseCoinScreenState extends State<PurchaseCoinScreen> {
       await _repository.requestPurchase(_selectedAmount);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Demande envoyée — en attente de validation par Qota.')),
+          const SnackBar(
+              content:
+                  Text('Demande envoyée — en attente de validation par Qota.')),
         );
         Navigator.of(context).pop();
       }
@@ -45,7 +47,8 @@ class _PurchaseCoinScreenState extends State<PurchaseCoinScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Choisissez un montant', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              const Text('Choisissez un montant',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
               const SizedBox(height: 16),
               Wrap(
                 spacing: 12,
@@ -55,10 +58,14 @@ class _PurchaseCoinScreenState extends State<PurchaseCoinScreen> {
                   return ChoiceChip(
                     label: Text('${amount.toStringAsFixed(0)} QC'),
                     selected: selected,
-                    selectedColor: AppColors.primaryOrange.withValues(alpha: 0.15),
+                    selectedColor:
+                        AppColors.primaryOrange.withValues(alpha: 0.15),
                     labelStyle: TextStyle(
-                      color: selected ? AppColors.primaryOrange : AppColors.textPrimary,
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.normal,
+                      color: selected
+                          ? AppColors.primaryOrange
+                          : AppColors.textPrimary,
+                      fontWeight:
+                          selected ? FontWeight.w700 : FontWeight.normal,
                     ),
                     onSelected: (_) => setState(() => _selectedAmount = amount),
                   );
@@ -72,8 +79,13 @@ class _PurchaseCoinScreenState extends State<PurchaseCoinScreen> {
                 ),
                 onPressed: _isSubmitting ? null : _submit,
                 child: _isSubmitting
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text('Demander ${_selectedAmount.toStringAsFixed(0)} Qota Coin'),
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
+                    : Text(
+                        'Demander ${_selectedAmount.toStringAsFixed(0)} Qota Coin'),
               ),
               const SizedBox(height: 12),
               const Text(

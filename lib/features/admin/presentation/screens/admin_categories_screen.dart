@@ -23,24 +23,36 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
   void _reload() => setState(() => _future = _repository.getAllCategories());
 
   Future<void> _openForm({Map<String, dynamic>? existing}) async {
-    final nameFrController = TextEditingController(text: existing?['name_fr'] ?? '');
-    final nameArController = TextEditingController(text: existing?['name_ar'] ?? '');
+    final nameFrController =
+        TextEditingController(text: existing?['name_fr'] ?? '');
+    final nameArController =
+        TextEditingController(text: existing?['name_ar'] ?? '');
 
     final saved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(existing == null ? 'Nouvelle catégorie' : 'Modifier la catégorie'),
+        title: Text(
+            existing == null ? 'Nouvelle catégorie' : 'Modifier la catégorie'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameFrController, decoration: const InputDecoration(labelText: 'Nom (Français)')),
+            TextField(
+                controller: nameFrController,
+                decoration: const InputDecoration(labelText: 'Nom (Français)')),
             const SizedBox(height: 8),
-            TextField(controller: nameArController, decoration: const InputDecoration(labelText: 'الاسم (Arabe)'), textDirection: TextDirection.rtl),
+            TextField(
+                controller: nameArController,
+                decoration: const InputDecoration(labelText: 'الاسم (Arabe)'),
+                textDirection: TextDirection.rtl),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Enregistrer')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Enregistrer')),
         ],
       ),
     );
@@ -48,10 +60,13 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
     if (saved != true) return;
 
     if (existing == null) {
-      await _repository.createCategory(nameFr: nameFrController.text.trim(), nameAr: nameArController.text.trim());
+      await _repository.createCategory(
+          nameFr: nameFrController.text.trim(),
+          nameAr: nameArController.text.trim());
     } else {
       await _repository.updateCategory(existing['id'] as String,
-          nameFr: nameFrController.text.trim(), nameAr: nameArController.text.trim());
+          nameFr: nameFrController.text.trim(),
+          nameAr: nameArController.text.trim());
     }
     _reload();
   }
@@ -75,13 +90,15 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
               final active = category['active'] as bool;
               return ListTile(
                 title: Text(category['name_fr'] as String),
-                subtitle: Text(category['name_ar'] as String, textDirection: TextDirection.rtl),
+                subtitle: Text(category['name_ar'] as String,
+                    textDirection: TextDirection.rtl),
                 onTap: () => _openForm(existing: category),
                 trailing: Switch(
                   value: active,
                   activeThumbColor: AppColors.primaryOrange,
                   onChanged: (value) async {
-                    await _repository.toggleCategoryActive(category['id'] as String, value);
+                    await _repository.toggleCategoryActive(
+                        category['id'] as String, value);
                     _reload();
                   },
                 ),

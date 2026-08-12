@@ -24,8 +24,10 @@ class _AdminStatesScreenState extends State<AdminStatesScreen> {
   void _reload() => setState(() => _future = _repository.getAllStates());
 
   Future<void> _openForm({Map<String, dynamic>? existing}) async {
-    final nameFrController = TextEditingController(text: existing?['name_fr'] ?? '');
-    final nameArController = TextEditingController(text: existing?['name_ar'] ?? '');
+    final nameFrController =
+        TextEditingController(text: existing?['name_fr'] ?? '');
+    final nameArController =
+        TextEditingController(text: existing?['name_ar'] ?? '');
 
     final saved = await showDialog<bool>(
       context: context,
@@ -34,14 +36,23 @@ class _AdminStatesScreenState extends State<AdminStatesScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameFrController, decoration: const InputDecoration(labelText: 'Nom (Français)')),
+            TextField(
+                controller: nameFrController,
+                decoration: const InputDecoration(labelText: 'Nom (Français)')),
             const SizedBox(height: 8),
-            TextField(controller: nameArController, decoration: const InputDecoration(labelText: 'الاسم (Arabe)'), textDirection: TextDirection.rtl),
+            TextField(
+                controller: nameArController,
+                decoration: const InputDecoration(labelText: 'الاسم (Arabe)'),
+                textDirection: TextDirection.rtl),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Enregistrer')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Enregistrer')),
         ],
       ),
     );
@@ -49,10 +60,13 @@ class _AdminStatesScreenState extends State<AdminStatesScreen> {
     if (saved != true) return;
 
     if (existing == null) {
-      await _repository.createState(nameFr: nameFrController.text.trim(), nameAr: nameArController.text.trim());
+      await _repository.createState(
+          nameFr: nameFrController.text.trim(),
+          nameAr: nameArController.text.trim());
     } else {
       await _repository.updateState(existing['id'] as String,
-          nameFr: nameFrController.text.trim(), nameAr: nameArController.text.trim());
+          nameFr: nameFrController.text.trim(),
+          nameAr: nameArController.text.trim());
     }
     _reload();
   }
@@ -76,13 +90,15 @@ class _AdminStatesScreenState extends State<AdminStatesScreen> {
               final active = state['active'] as bool;
               return ListTile(
                 title: Text(state['name_fr'] as String),
-                subtitle: Text(state['name_ar'] as String, textDirection: TextDirection.rtl),
+                subtitle: Text(state['name_ar'] as String,
+                    textDirection: TextDirection.rtl),
                 onTap: () => _openForm(existing: state),
                 trailing: Switch(
                   value: active,
                   activeThumbColor: AppColors.primaryOrange,
                   onChanged: (value) async {
-                    await _repository.toggleStateActive(state['id'] as String, value);
+                    await _repository.toggleStateActive(
+                        state['id'] as String, value);
                     _reload();
                   },
                 ),

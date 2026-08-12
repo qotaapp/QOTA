@@ -39,7 +39,9 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
     final categories = await _repository.getCategories();
     setState(() {
       _categoriesById = {for (final c in categories) c.id: c};
-      _items = categories.map((c) => SelectionItem(id: c.id, label: c.nameFr)).toList();
+      _items = categories
+          .map((c) => SelectionItem(id: c.id, label: c.nameFr))
+          .toList();
       _isLoading = false;
     });
   }

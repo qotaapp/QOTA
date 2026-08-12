@@ -22,7 +22,11 @@ class QotaCity {
   final String nameFr;
   final String nameAr;
 
-  QotaCity({required this.id, required this.stateId, required this.nameFr, required this.nameAr});
+  QotaCity(
+      {required this.id,
+      required this.stateId,
+      required this.nameFr,
+      required this.nameAr});
 
   factory QotaCity.fromMap(Map<String, dynamic> map) => QotaCity(
         id: map['id'] as String,
@@ -38,7 +42,11 @@ class QotaZone {
   final String nameFr;
   final String nameAr;
 
-  QotaZone({required this.id, required this.cityId, required this.nameFr, required this.nameAr});
+  QotaZone(
+      {required this.id,
+      required this.cityId,
+      required this.nameFr,
+      required this.nameAr});
 
   factory QotaZone.fromMap(Map<String, dynamic> map) => QotaZone(
         id: map['id'] as String,
@@ -54,7 +62,11 @@ class QotaCategory {
   final String nameAr;
   final String? icon;
 
-  QotaCategory({required this.id, required this.nameFr, required this.nameAr, this.icon});
+  QotaCategory(
+      {required this.id,
+      required this.nameFr,
+      required this.nameAr,
+      this.icon});
 
   factory QotaCategory.fromMap(Map<String, dynamic> map) => QotaCategory(
         id: map['id'] as String,
@@ -117,6 +129,7 @@ class QotaEntity {
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,
       );
 
-  String get locationLabel =>
-      [zoneNameFr, cityNameFr].where((e) => e != null && e.isNotEmpty).join(', ');
+  String get locationLabel => [zoneNameFr, cityNameFr]
+      .where((e) => e != null && e.isNotEmpty)
+      .join(', ');
 }

@@ -52,7 +52,8 @@ class RatingRepository {
     required String fileExtension,
   }) async {
     final userId = _client.auth.currentUser!.id;
-    final path = '$userId/ratings/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    final path =
+        '$userId/ratings/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
     await _client.storage.from('user-content').uploadBinary(path, bytes);
     return _client.storage.from('user-content').getPublicUrl(path);
   }

@@ -16,7 +16,8 @@ class QotaNotification {
     required this.createdAt,
   });
 
-  factory QotaNotification.fromMap(Map<String, dynamic> map) => QotaNotification(
+  factory QotaNotification.fromMap(Map<String, dynamic> map) =>
+      QotaNotification(
         id: map['id'] as String,
         type: map['type'] as String,
         payload: Map<String, dynamic>.from(map['payload'] as Map),
@@ -97,10 +98,8 @@ class NotificationsRepository {
   }
 
   Future<void> markAsRead(String notificationId) async {
-    await _client
-        .from('notifications')
-        .update({'read_at': DateTime.now().toIso8601String()})
-        .eq('id', notificationId);
+    await _client.from('notifications').update(
+        {'read_at': DateTime.now().toIso8601String()}).eq('id', notificationId);
   }
 
   Future<void> markAllAsRead() async {

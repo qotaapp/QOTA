@@ -47,7 +47,8 @@ class ServiceCard extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: entity.imageUrl,
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(color: AppColors.surfaceChip),
+                  placeholder: (_, __) =>
+                      Container(color: AppColors.surfaceChip),
                   errorWidget: (_, __, ___) => Container(
                     color: AppColors.surfaceChip,
                     child: const Icon(Icons.image_not_supported_outlined),
@@ -62,13 +63,15 @@ class ServiceCard extends StatelessWidget {
                 children: [
                   Text(
                     entity.name,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 16),
                   ),
                   if (entity.locationLabel.isNotEmpty) ...[
                     const SizedBox(height: 2),
                     Text(
                       entity.locationLabel,
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                      style: const TextStyle(
+                          color: AppColors.textSecondary, fontSize: 13),
                     ),
                   ],
                   const SizedBox(height: 10),
@@ -78,16 +81,20 @@ class ServiceCard extends StatelessWidget {
                         onTap: onOpenRatingSheet,
                         borderRadius: BorderRadius.circular(20),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 4),
                           child: Row(
                             children: [
-                              const Icon(Icons.star_rounded, size: 18, color: AppColors.starFilled),
+                              const Icon(Icons.star_rounded,
+                                  size: 18, color: AppColors.starFilled),
                               const SizedBox(width: 4),
                               Text(entity.averageScore.toStringAsFixed(1),
-                                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600)),
                               const SizedBox(width: 6),
                               Text('${entity.ratingsCount}',
-                                  style: const TextStyle(color: AppColors.textSecondary)),
+                                  style: const TextStyle(
+                                      color: AppColors.textSecondary)),
                             ],
                           ),
                         ),
@@ -97,14 +104,16 @@ class ServiceCard extends StatelessWidget {
                         onTap: onOpenComments,
                         borderRadius: BorderRadius.circular(20),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 4),
                           child: Row(
                             children: [
                               const Icon(Icons.chat_bubble_outline_rounded,
                                   size: 16, color: AppColors.iconDefault),
                               const SizedBox(width: 4),
                               Text('${entity.commentsCount}',
-                                  style: const TextStyle(color: AppColors.textSecondary)),
+                                  style: const TextStyle(
+                                      color: AppColors.textSecondary)),
                             ],
                           ),
                         ),

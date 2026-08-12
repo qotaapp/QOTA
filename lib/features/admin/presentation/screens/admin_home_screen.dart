@@ -51,9 +51,12 @@ class AdminHomeScreen extends StatelessWidget {
             return ListTile(
               leading: Icon(section.icon, color: AppColors.iconDefault),
               title: Text(section.title),
-              subtitle: Text(section.subtitle, style: const TextStyle(fontSize: 12)),
-              trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.iconInactive),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: section.builder)),
+              subtitle:
+                  Text(section.subtitle, style: const TextStyle(fontSize: 12)),
+              trailing: const Icon(Icons.chevron_right_rounded,
+                  color: AppColors.iconInactive),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: section.builder)),
             );
           },
         ),
@@ -68,5 +71,9 @@ class _AdminSection {
   final String subtitle;
   final WidgetBuilder builder;
 
-  _AdminSection({required this.icon, required this.title, required this.subtitle, required this.builder});
+  _AdminSection(
+      {required this.icon,
+      required this.title,
+      required this.subtitle,
+      required this.builder});
 }

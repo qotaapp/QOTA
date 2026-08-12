@@ -23,9 +23,12 @@ class _ScanTransferScreenState extends State<ScanTransferScreen> {
     final recipientId = code.replaceFirst('qota:user:', '');
     setState(() => _hasScanned = true);
 
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => _TransferAmountScreen(recipientId: recipientId)),
-    ).then((_) => setState(() => _hasScanned = false));
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+              builder: (_) => _TransferAmountScreen(recipientId: recipientId)),
+        )
+        .then((_) => setState(() => _hasScanned = false));
   }
 
   @override
@@ -70,13 +73,15 @@ class _TransferAmountScreenState extends State<_TransferAmountScreen> {
     });
 
     try {
-      final result = await _repository.transferCoin(recipientId: widget.recipientId, amount: amount);
+      final result = await _repository.transferCoin(
+          recipientId: widget.recipientId, amount: amount);
 
       if (!mounted) return;
 
       if (result['status'] == 'insufficient_funds') {
         setState(() {
-          _errorMessage = 'Solde insuffisant (${result['balance']} Qota Coin disponibles).';
+          _errorMessage =
+              'Solde insuffisant (${result['balance']} Qota Coin disponibles).';
           _isSubmitting = false;
         });
         return;
@@ -85,7 +90,9 @@ class _TransferAmountScreenState extends State<_TransferAmountScreen> {
       Navigator.of(context).pop();
       Navigator.of(context).pop(); // ferme aussi l'écran scanner
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${amount.toStringAsFixed(0)} Qota Coin envoyés avec succès.')),
+        SnackBar(
+            content: Text(
+                '${amount.toStringAsFixed(0)} Qota Coin envoyés avec succès.')),
       );
     } catch (e) {
       setState(() {
@@ -107,7 +114,8 @@ class _TransferAmountScreenState extends State<_TransferAmountScreen> {
             children: [
               TextField(
                 controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   labelText: 'Montant (Qota Coin)',
                   border: OutlineInputBorder(),
@@ -125,7 +133,11 @@ class _TransferAmountScreenState extends State<_TransferAmountScreen> {
                 ),
                 onPressed: _isSubmitting ? null : _confirmTransfer,
                 child: _isSubmitting
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
                     : const Text('Confirmer le transfert'),
               ),
             ],

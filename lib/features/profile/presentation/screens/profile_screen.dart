@@ -58,17 +58,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Text(
                   'Vous avez déjà utilisé votre changement de nom gratuit. '
                   'Ce changement sera débité de votre solde Qota Coin.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  style:
+                      TextStyle(color: AppColors.textSecondary, fontSize: 13),
                 ),
               ),
-            TextField(controller: lastNameController, decoration: const InputDecoration(labelText: 'Nom')),
+            TextField(
+                controller: lastNameController,
+                decoration: const InputDecoration(labelText: 'Nom')),
             const SizedBox(height: 8),
-            TextField(controller: firstNameController, decoration: const InputDecoration(labelText: 'Prénom')),
+            TextField(
+                controller: firstNameController,
+                decoration: const InputDecoration(labelText: 'Prénom')),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Confirmer')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Confirmer')),
         ],
       ),
     );
@@ -84,7 +93,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (result['status'] == 'insufficient_funds') {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(
+        SnackBar(
+            content: Text(
           'Solde Qota Coin insuffisant (${result['price']} requis). Rechargez votre wallet.',
         )),
       );
@@ -92,8 +102,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(
-        result['charged'] == true ? 'Nom modifié — débité de votre wallet.' : 'Nom modifié avec succès.',
+      SnackBar(
+          content: Text(
+        result['charged'] == true
+            ? 'Nom modifié — débité de votre wallet.'
+            : 'Nom modifié avec succès.',
       )),
     );
     _reload();
@@ -133,7 +146,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ? CachedNetworkImageProvider(profile.avatarUrl!)
                               : null,
                           child: profile.avatarUrl == null
-                              ? const Icon(Icons.person, size: 44, color: AppColors.iconInactive)
+                              ? const Icon(Icons.person,
+                                  size: 44, color: AppColors.iconInactive)
                               : null,
                         ),
                         const SizedBox(height: 12),
@@ -141,7 +155,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(profile.fullName,
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w800)),
                             IconButton(
                               icon: const Icon(Icons.edit_outlined, size: 18),
                               onPressed: () => _openEditNameDialog(profile),
@@ -151,17 +166,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 4),
                         InkWell(
                           onTap: () => Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (_) => const WalletScreen()))
+                              .push(MaterialPageRoute(
+                                  builder: (_) => const WalletScreen()))
                               .then((_) => _reload()),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.monetization_on_outlined, size: 18, color: AppColors.primaryOrange),
+                              const Icon(Icons.monetization_on_outlined,
+                                  size: 18, color: AppColors.primaryOrange),
                               const SizedBox(width: 4),
-                              Text('${data.walletBalance.toStringAsFixed(0)} Qota Coin',
-                                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                              Text(
+                                  '${data.walletBalance.toStringAsFixed(0)} Qota Coin',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600)),
                               const SizedBox(width: 2),
-                              const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.iconInactive),
+                              const Icon(Icons.chevron_right_rounded,
+                                  size: 16, color: AppColors.iconInactive),
                             ],
                           ),
                         ),
@@ -170,14 +190,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: double.infinity,
                           child: OutlinedButton.icon(
                             onPressed: _openAddUserItem,
-                            icon: const Icon(Icons.add_photo_alternate_outlined),
+                            icon:
+                                const Icon(Icons.add_photo_alternate_outlined),
                             label: const Text('Publier un User Item'),
                           ),
                         ),
                         const SizedBox(height: 12),
                         const Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('Mes User Items', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                          child: Text('Mes User Items',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 16)),
                         ),
                       ],
                     ),
@@ -200,19 +223,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         final item = data.items[index];
                         return UserItemCard(
                           item: item,
-                          onOpenRatingSheet: () =>
-                              RatingSheet.show(context, entityId: item.id, onSubmitted: _reload),
+                          onOpenRatingSheet: () => RatingSheet.show(context,
+                              entityId: item.id, onSubmitted: _reload),
                           onOpenComments: () => Navigator.of(context)
                               .push(MaterialPageRoute(
                                 builder: (_) => CommentsScreen(
                                   entityId: item.id,
                                   entityKind: 'user_item',
-                                  entityOwnerId: profile.id, // §34 : droit de suppression étendu
+                                  entityOwnerId: profile
+                                      .id, // §34 : droit de suppression étendu
                                 ),
                               ))
                               .then((_) => _reload()),
-                          onOpenImageFullscreen: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => FullscreenImageViewer(imageUrl: item.imageUrl)),
+                          onOpenImageFullscreen: () =>
+                              Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => FullscreenImageViewer(
+                                    imageUrl: item.imageUrl)),
                           ),
                         );
                       },
@@ -234,5 +261,8 @@ class _ProfileData {
   final List<QotaUserItem> items;
   final double walletBalance;
 
-  _ProfileData({required this.profile, required this.items, required this.walletBalance});
+  _ProfileData(
+      {required this.profile,
+      required this.items,
+      required this.walletBalance});
 }

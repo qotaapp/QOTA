@@ -111,7 +111,8 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                       onOpenDetails: () {
                         Navigator.of(context)
                             .push(MaterialPageRoute(
-                              builder: (_) => ServiceDetailsScreen(entityId: entity.id),
+                              builder: (_) =>
+                                  ServiceDetailsScreen(entityId: entity.id),
                             ))
                             .then((_) => _reloadServices());
                       },
@@ -127,19 +128,22 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                       onOpenComments: () {
                         // §31 : commentaires — kind='service', donc le propriétaire
                         // n'a PAS le droit de suppression arbitraire (§34).
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => CommentsScreen(
-                              entityId: entity.id,
-                              entityKind: 'service',
-                            ),
-                          ),
-                        ).then((_) => _reloadServices());
+                        Navigator.of(context)
+                            .push(
+                              MaterialPageRoute(
+                                builder: (_) => CommentsScreen(
+                                  entityId: entity.id,
+                                  entityKind: 'service',
+                                ),
+                              ),
+                            )
+                            .then((_) => _reloadServices());
                       },
                       onOpenImageFullscreen: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => FullscreenImageViewer(imageUrl: entity.imageUrl),
+                            builder: (_) => FullscreenImageViewer(
+                                imageUrl: entity.imageUrl),
                           ),
                         );
                       },

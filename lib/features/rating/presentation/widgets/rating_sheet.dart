@@ -17,7 +17,8 @@ class RatingSheet extends StatefulWidget {
 
   const RatingSheet({super.key, required this.entityId, this.onSubmitted});
 
-  static Future<void> show(BuildContext context, {required String entityId, VoidCallback? onSubmitted}) {
+  static Future<void> show(BuildContext context,
+      {required String entityId, VoidCallback? onSubmitted}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -65,7 +66,8 @@ class _RatingSheetState extends State<RatingSheet> {
   }
 
   Future<void> _pickImage() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final image =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (image != null) setState(() => _pickedImage = image);
   }
 
@@ -78,13 +80,16 @@ class _RatingSheetState extends State<RatingSheet> {
       if (_pickedImage != null) {
         final Uint8List bytes = await _pickedImage!.readAsBytes();
         final extension = _pickedImage!.name.split('.').last;
-        imageUrl = await _repository.uploadRatingImage(bytes: bytes, fileExtension: extension);
+        imageUrl = await _repository.uploadRatingImage(
+            bytes: bytes, fileExtension: extension);
       }
 
       await _repository.submitRating(
         entityId: widget.entityId,
         score: _selectedScore,
-        commentText: _commentController.text.trim().isEmpty ? null : _commentController.text.trim(),
+        commentText: _commentController.text.trim().isEmpty
+            ? null
+            : _commentController.text.trim(),
         imageUrl: imageUrl,
       );
 
@@ -99,23 +104,31 @@ class _RatingSheetState extends State<RatingSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 20, right: 20, top: 16,
+        left: 20,
+        right: 20,
+        top: 16,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       child: _isLoading
-          ? const SizedBox(height: 160, child: Center(child: CircularProgressIndicator()))
+          ? const SizedBox(
+              height: 160, child: Center(child: CircularProgressIndicator()))
           : Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(
                   child: Container(
-                    width: 40, height: 4,
-                    decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: AppColors.divider,
+                        borderRadius: BorderRadius.circular(2)),
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text('Évaluer', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                const Text('Évaluer',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 14),
 
                 // §29 : ☆ ☆ ☆ ☆ ☆
@@ -125,7 +138,8 @@ class _RatingSheetState extends State<RatingSheet> {
                     final starValue = index + 1;
                     final filled = starValue <= _selectedScore;
                     return IconButton(
-                      onPressed: () => setState(() => _selectedScore = starValue),
+                      onPressed: () =>
+                          setState(() => _selectedScore = starValue),
                       icon: Icon(
                         filled ? Icons.star_rounded : Icons.star_border_rounded,
                         color: AppColors.starFilled,
@@ -151,12 +165,15 @@ class _RatingSheetState extends State<RatingSheet> {
                     TextButton.icon(
                       onPressed: _pickImage,
                       icon: const Icon(Icons.camera_alt_outlined),
-                      label: Text(_pickedImage == null ? 'Ajouter une photo' : 'Photo sélectionnée'),
+                      label: Text(_pickedImage == null
+                          ? 'Ajouter une photo'
+                          : 'Photo sélectionnée'),
                     ),
                     if (_pickedImage != null)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.file(File(_pickedImage!.path), width: 40, height: 40, fit: BoxFit.cover),
+                        child: Image.file(File(_pickedImage!.path),
+                            width: 40, height: 40, fit: BoxFit.cover),
                       ),
                   ],
                 ),
@@ -168,11 +185,15 @@ class _RatingSheetState extends State<RatingSheet> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   // §29 : Publier disponible uniquement après le choix d'une note.
-                  onPressed: (_selectedScore == 0 || _isSubmitting) ? null : _handlePublish,
+                  onPressed: (_selectedScore == 0 || _isSubmitting)
+                      ? null
+                      : _handlePublish,
                   child: _isSubmitting
                       ? const SizedBox(
-                          height: 18, width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
                         )
                       : const Text('Publier'),
                 ),

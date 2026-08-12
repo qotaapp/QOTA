@@ -28,7 +28,8 @@ class _EvaluerScreenState extends State<EvaluerScreen> {
   Future<void> _load() async {
     final states = await _repository.getStates();
     setState(() {
-      _items = states.map((s) => SelectionItem(id: s.id, label: s.nameFr)).toList();
+      _items =
+          states.map((s) => SelectionItem(id: s.id, label: s.nameFr)).toList();
       _isLoading = false;
     });
   }
@@ -42,7 +43,8 @@ class _EvaluerScreenState extends State<EvaluerScreen> {
       onSelect: (item) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => CityListScreen(stateId: item.id, stateLabel: item.label),
+            builder: (_) =>
+                CityListScreen(stateId: item.id, stateLabel: item.label),
           ),
         );
       },

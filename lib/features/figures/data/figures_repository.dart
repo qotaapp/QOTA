@@ -34,9 +34,11 @@ class FiguresRepository {
     return (rows as List).map((r) => QotaEntity.fromMap(r)).toList();
   }
 
-  Future<String> uploadImage({required Uint8List bytes, required String fileExtension}) async {
+  Future<String> uploadImage(
+      {required Uint8List bytes, required String fileExtension}) async {
     final userId = _client.auth.currentUser!.id;
-    final path = '$userId/figures/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    final path =
+        '$userId/figures/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
     await _client.storage.from('user-content').uploadBinary(path, bytes);
     return _client.storage.from('user-content').getPublicUrl(path);
   }
@@ -57,7 +59,8 @@ class FiguresRepository {
       'image_url': imageUrl,
       'figure_type_id': figureTypeId,
       'created_by': userId,
-      'owner_id': null, // une figure publique n'a pas de "propriétaire" utilisateur
+      'owner_id':
+          null, // une figure publique n'a pas de "propriétaire" utilisateur
       'status': 'active',
     });
   }

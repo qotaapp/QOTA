@@ -26,7 +26,8 @@ class _FigureTypeListScreenState extends State<FigureTypeListScreen> {
   Future<void> _load() async {
     final types = await _repository.getFigureTypes();
     setState(() {
-      _items = types.map((t) => SelectionItem(id: t.id, label: t.nameFr)).toList();
+      _items =
+          types.map((t) => SelectionItem(id: t.id, label: t.nameFr)).toList();
       _isLoading = false;
     });
   }
@@ -40,7 +41,8 @@ class _FigureTypeListScreenState extends State<FigureTypeListScreen> {
       onSelect: (item) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => FigureListScreen(figureTypeId: item.id, figureTypeLabel: item.label),
+            builder: (_) => FigureListScreen(
+                figureTypeId: item.id, figureTypeLabel: item.label),
           ),
         );
       },

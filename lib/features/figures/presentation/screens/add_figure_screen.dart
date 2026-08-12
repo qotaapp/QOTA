@@ -10,7 +10,8 @@ class AddFigureScreen extends StatefulWidget {
   final String figureTypeId;
   final String figureTypeLabel;
 
-  const AddFigureScreen({super.key, required this.figureTypeId, required this.figureTypeLabel});
+  const AddFigureScreen(
+      {super.key, required this.figureTypeId, required this.figureTypeLabel});
 
   @override
   State<AddFigureScreen> createState() => _AddFigureScreenState();
@@ -35,7 +36,8 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
   }
 
   Future<void> _pickImage() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final image =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (image != null) setState(() => _pickedImage = image);
   }
 
@@ -65,8 +67,12 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
             title: const Text('Vérification'),
             content: const Text('Cette service semble déjà exister.'),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
-              FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Continuer quand même')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Annuler')),
+              FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Continuer quand même')),
             ],
           ),
         );
@@ -88,13 +94,16 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
     try {
       final bytes = await _pickedImage!.readAsBytes();
       final extension = _pickedImage!.name.split('.').last;
-      final imageUrl = await _repository.uploadImage(bytes: bytes, fileExtension: extension);
+      final imageUrl =
+          await _repository.uploadImage(bytes: bytes, fileExtension: extension);
 
       await _repository.createFigure(
         name: name,
         imageUrl: imageUrl,
         figureTypeId: widget.figureTypeId,
-        description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+        description: _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim(),
       );
 
       if (mounted) Navigator.of(context).pop(true);
@@ -118,7 +127,8 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(widget.figureTypeLabel, style: const TextStyle(color: AppColors.textSecondary)),
+                Text(widget.figureTypeLabel,
+                    style: const TextStyle(color: AppColors.textSecondary)),
                 const SizedBox(height: 20),
                 GestureDetector(
                   onTap: _pickImage,
@@ -135,30 +145,39 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.add_a_photo_outlined, size: 32, color: AppColors.iconInactive),
+                                Icon(Icons.add_a_photo_outlined,
+                                    size: 32, color: AppColors.iconInactive),
                                 SizedBox(height: 8),
-                                Text('Ajouter une image (obligatoire)', style: TextStyle(color: AppColors.textSecondary)),
+                                Text('Ajouter une image (obligatoire)',
+                                    style: TextStyle(
+                                        color: AppColors.textSecondary)),
                               ],
                             ),
                           )
-                        : Image.file(File(_pickedImage!.path), fit: BoxFit.cover, width: double.infinity),
+                        : Image.file(File(_pickedImage!.path),
+                            fit: BoxFit.cover, width: double.infinity),
                   ),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Nom', border: OutlineInputBorder()),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
+                  decoration: const InputDecoration(
+                      labelText: 'Nom', border: OutlineInputBorder()),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _descriptionController,
                   maxLines: 3,
-                  decoration: const InputDecoration(labelText: 'Description (optionnel)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                      labelText: 'Description (optionnel)',
+                      border: OutlineInputBorder()),
                 ),
                 if (_errorMessage != null) ...[
                   const SizedBox(height: 12),
-                  Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                  Text(_errorMessage!,
+                      style: const TextStyle(color: Colors.red)),
                 ],
                 const SizedBox(height: 28),
                 FilledButton(
@@ -168,7 +187,11 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
                   ),
                   onPressed: _isSubmitting ? null : _handleSubmit,
                   child: _isSubmitting
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white))
                       : const Text('Publier'),
                 ),
               ],

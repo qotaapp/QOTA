@@ -12,7 +12,8 @@ class AuthRepository {
   /// §4 : champ "E-mail ou Adresse" — Supabase Auth attend un e-mail.
   /// Si un identifiant non-e-mail est saisi, résoudre côté backend
   /// (ex: table de correspondance username -> email) avant appel.
-  Future<void> signIn({required String emailOrAddress, required String password}) async {
+  Future<void> signIn(
+      {required String emailOrAddress, required String password}) async {
     await _client.auth.signInWithPassword(
       email: emailOrAddress,
       password: password,

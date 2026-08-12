@@ -17,7 +17,8 @@ class AdminOwnershipRequest {
     this.message,
   });
 
-  factory AdminOwnershipRequest.fromMap(Map<String, dynamic> map) => AdminOwnershipRequest(
+  factory AdminOwnershipRequest.fromMap(Map<String, dynamic> map) =>
+      AdminOwnershipRequest(
         id: map['id'] as String,
         entityId: map['entity_id'] as String,
         entityName: map['entity_name'] as String? ?? '',
@@ -40,7 +41,8 @@ class AdminCoinPurchaseRequest {
     required this.createdAt,
   });
 
-  factory AdminCoinPurchaseRequest.fromMap(Map<String, dynamic> map) => AdminCoinPurchaseRequest(
+  factory AdminCoinPurchaseRequest.fromMap(Map<String, dynamic> map) =>
+      AdminCoinPurchaseRequest(
         id: map['id'] as String,
         userName: map['user_name'] as String? ?? '',
         amount: (map['amount'] as num).toDouble(),
@@ -69,12 +71,16 @@ class AdminRepository {
     return List<Map<String, dynamic>>.from(rows);
   }
 
-  Future<void> createState({required String nameFr, required String nameAr}) async {
+  Future<void> createState(
+      {required String nameFr, required String nameAr}) async {
     await _client.from('states').insert({'name_fr': nameFr, 'name_ar': nameAr});
   }
 
-  Future<void> updateState(String id, {required String nameFr, required String nameAr}) async {
-    await _client.from('states').update({'name_fr': nameFr, 'name_ar': nameAr}).eq('id', id);
+  Future<void> updateState(String id,
+      {required String nameFr, required String nameAr}) async {
+    await _client
+        .from('states')
+        .update({'name_fr': nameFr, 'name_ar': nameAr}).eq('id', id);
   }
 
   Future<void> toggleStateActive(String id, bool active) async {
@@ -88,12 +94,18 @@ class AdminRepository {
     return List<Map<String, dynamic>>.from(rows);
   }
 
-  Future<void> createCategory({required String nameFr, required String nameAr, String? icon}) async {
-    await _client.from('categories').insert({'name_fr': nameFr, 'name_ar': nameAr, 'icon': icon});
+  Future<void> createCategory(
+      {required String nameFr, required String nameAr, String? icon}) async {
+    await _client
+        .from('categories')
+        .insert({'name_fr': nameFr, 'name_ar': nameAr, 'icon': icon});
   }
 
-  Future<void> updateCategory(String id, {required String nameFr, required String nameAr}) async {
-    await _client.from('categories').update({'name_fr': nameFr, 'name_ar': nameAr}).eq('id', id);
+  Future<void> updateCategory(String id,
+      {required String nameFr, required String nameAr}) async {
+    await _client
+        .from('categories')
+        .update({'name_fr': nameFr, 'name_ar': nameAr}).eq('id', id);
   }
 
   Future<void> toggleCategoryActive(String id, bool active) async {
@@ -105,7 +117,8 @@ class AdminRepository {
   Future<List<AdminOwnershipRequest>> getPendingOwnershipRequests() async {
     final rows = await _client
         .from('ownership_requests')
-        .select('id, entity_id, message, created_at, entities(name), profiles(first_name, last_name)')
+        .select(
+            'id, entity_id, message, created_at, entities(name), profiles(first_name, last_name)')
         .eq('status', 'pending')
         .order('created_at');
 
@@ -115,7 +128,9 @@ class AdminRepository {
       return AdminOwnershipRequest.fromMap({
         ...r,
         'entity_name': entity?['name'],
-        'requester_name': profile != null ? '${profile['first_name']} ${profile['last_name']}' : null,
+        'requester_name': profile != null
+            ? '${profile['first_name']} ${profile['last_name']}'
+            : null,
       });
     }).toList();
   }
@@ -129,7 +144,8 @@ class AdminRepository {
 
   // ---------------- Coin Purchase Requests (§3) ----------------
 
-  Future<List<AdminCoinPurchaseRequest>> getPendingCoinPurchaseRequests() async {
+  Future<List<AdminCoinPurchaseRequest>>
+      getPendingCoinPurchaseRequests() async {
     final rows = await _client
         .from('coin_purchase_requests')
         .select('id, amount, created_at, profiles(first_name, last_name)')
@@ -140,12 +156,15 @@ class AdminRepository {
       final profile = r['profiles'] as Map<String, dynamic>?;
       return AdminCoinPurchaseRequest.fromMap({
         ...r,
-        'user_name': profile != null ? '${profile['first_name']} ${profile['last_name']}' : null,
+        'user_name': profile != null
+            ? '${profile['first_name']} ${profile['last_name']}'
+            : null,
       });
     }).toList();
   }
 
   Future<void> approveCoinPurchase(String requestId) async {
-    await _client.rpc('approve_coin_purchase', params: {'p_request_id': requestId});
+    await _client
+        .rpc('approve_coin_purchase', params: {'p_request_id': requestId});
   }
 }

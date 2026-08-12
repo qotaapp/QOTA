@@ -74,11 +74,15 @@ class _WalletScreenState extends State<WalletScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Solde', style: TextStyle(color: Colors.white70)),
+                        const Text('Solde',
+                            style: TextStyle(color: Colors.white70)),
                         const SizedBox(height: 6),
                         Text(
                           '${data.balance.toStringAsFixed(0)} Qota Coin',
-                          style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800),
                         ),
                       ],
                     ),
@@ -92,7 +96,8 @@ class _WalletScreenState extends State<WalletScreen> {
                             icon: Icons.add_circle_outline_rounded,
                             label: 'Acheter',
                             onTap: () => Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (_) => const PurchaseCoinScreen()))
+                                .push(MaterialPageRoute(
+                                    builder: (_) => const PurchaseCoinScreen()))
                                 .then((_) => _reload()),
                           ),
                         ),
@@ -101,8 +106,9 @@ class _WalletScreenState extends State<WalletScreen> {
                           child: _ActionButton(
                             icon: Icons.qr_code_rounded,
                             label: 'Mon QR',
-                            onTap: () => Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (_) => const MyQrCodeScreen())),
+                            onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const MyQrCodeScreen())),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -111,7 +117,8 @@ class _WalletScreenState extends State<WalletScreen> {
                             icon: Icons.qr_code_scanner_rounded,
                             label: 'Envoyer',
                             onTap: () => Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (_) => const ScanTransferScreen()))
+                                .push(MaterialPageRoute(
+                                    builder: (_) => const ScanTransferScreen()))
                                 .then((_) => _reload()),
                           ),
                         ),
@@ -123,7 +130,9 @@ class _WalletScreenState extends State<WalletScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('Historique', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                      child: Text('Historique',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 16)),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -131,7 +140,8 @@ class _WalletScreenState extends State<WalletScreen> {
                     const Padding(
                       padding: EdgeInsets.all(24),
                       child: Center(
-                        child: Text('Aucune transaction pour le moment', style: TextStyle(color: AppColors.textSecondary)),
+                        child: Text('Aucune transaction pour le moment',
+                            style: TextStyle(color: AppColors.textSecondary)),
                       ),
                     )
                   else
@@ -139,16 +149,21 @@ class _WalletScreenState extends State<WalletScreen> {
                       final positive = tx.amount >= 0;
                       return ListTile(
                         leading: Icon(
-                          positive ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-                          color: positive ? Colors.green : AppColors.textSecondary,
+                          positive
+                              ? Icons.arrow_downward_rounded
+                              : Icons.arrow_upward_rounded,
+                          color:
+                              positive ? Colors.green : AppColors.textSecondary,
                         ),
                         title: Text(_label(tx)),
-                        subtitle: Text('${tx.createdAt.day}/${tx.createdAt.month}/${tx.createdAt.year}'),
+                        subtitle: Text(
+                            '${tx.createdAt.day}/${tx.createdAt.month}/${tx.createdAt.year}'),
                         trailing: Text(
                           '${positive ? '+' : ''}${tx.amount.toStringAsFixed(0)} QC',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
-                            color: positive ? Colors.green : AppColors.textPrimary,
+                            color:
+                                positive ? Colors.green : AppColors.textPrimary,
                           ),
                         ),
                       );
@@ -169,7 +184,8 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _ActionButton({required this.icon, required this.label, required this.onTap});
+  const _ActionButton(
+      {required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

@@ -25,7 +25,8 @@ class SearchResultEntity {
     this.zoneNameFr,
   });
 
-  factory SearchResultEntity.fromMap(Map<String, dynamic> map) => SearchResultEntity(
+  factory SearchResultEntity.fromMap(Map<String, dynamic> map) =>
+      SearchResultEntity(
         id: map['id'] as String,
         kind: map['kind'] as String,
         name: map['name'] as String,
@@ -38,8 +39,9 @@ class SearchResultEntity {
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,
       );
 
-  String get locationLabel =>
-      [zoneNameFr, cityNameFr].where((e) => e != null && e.isNotEmpty).join(', ');
+  String get locationLabel => [zoneNameFr, cityNameFr]
+      .where((e) => e != null && e.isNotEmpty)
+      .join(', ');
 }
 
 class SearchResultCategory {
@@ -48,7 +50,8 @@ class SearchResultCategory {
   SearchResultCategory({required this.id, required this.nameFr});
 
   factory SearchResultCategory.fromMap(Map<String, dynamic> map) =>
-      SearchResultCategory(id: map['id'] as String, nameFr: map['name_fr'] as String);
+      SearchResultCategory(
+          id: map['id'] as String, nameFr: map['name_fr'] as String);
 }
 
 class SearchRepository {
@@ -60,9 +63,11 @@ class SearchRepository {
     double? userLat,
     double? userLng,
   }) async {
-    if (query.trim().length < 2) return (<SearchResultCategory>[], <SearchResultEntity>[]);
+    if (query.trim().length < 2)
+      return (<SearchResultCategory>[], <SearchResultEntity>[]);
 
-    final categoriesRows = await _client.rpc('search_categories', params: {'p_query': query, 'p_limit': 6});
+    final categoriesRows = await _client
+        .rpc('search_categories', params: {'p_query': query, 'p_limit': 6});
     final entitiesRows = await _client.rpc('search_entities', params: {
       'p_query': query,
       'p_user_lat': userLat,
@@ -70,8 +75,12 @@ class SearchRepository {
       'p_limit': 30,
     });
 
-    final categories = (categoriesRows as List).map((r) => SearchResultCategory.fromMap(r)).toList();
-    final entities = (entitiesRows as List).map((r) => SearchResultEntity.fromMap(r)).toList();
+    final categories = (categoriesRows as List)
+        .map((r) => SearchResultCategory.fromMap(r))
+        .toList();
+    final entities = (entitiesRows as List)
+        .map((r) => SearchResultEntity.fromMap(r))
+        .toList();
 
     return (categories, entities);
   }

@@ -8,18 +8,27 @@ class ProfileRepository {
   String get currentUserId => _client.auth.currentUser!.id;
 
   Future<QotaProfile> getMyProfile() async {
-    final row = await _client.from('profiles').select().eq('id', currentUserId).single();
+    final row = await _client
+        .from('profiles')
+        .select()
+        .eq('id', currentUserId)
+        .single();
     return QotaProfile.fromMap(row);
   }
 
   Future<double> getMyWalletBalance() async {
-    final row = await _client.from('wallets').select('balance').eq('user_id', currentUserId).single();
+    final row = await _client
+        .from('wallets')
+        .select('balance')
+        .eq('user_id', currentUserId)
+        .single();
     return (row['balance'] as num).toDouble();
   }
 
   /// §7 : User Items publiés par l'utilisateur, affichés sur son profil.
   Future<List<QotaUserItem>> getUserItems(String ownerId) async {
-    final rows = await _client.from('user_items_view').select().eq('owner_id', ownerId);
+    final rows =
+        await _client.from('user_items_view').select().eq('owner_id', ownerId);
     return (rows as List).map((r) => QotaUserItem.fromMap(r)).toList();
   }
 
@@ -40,7 +49,8 @@ class ProfileRepository {
     required Uint8List bytes,
     required String fileExtension,
   }) async {
-    final path = '$currentUserId/user_items/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    final path =
+        '$currentUserId/user_items/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
     await _client.storage.from('user-content').uploadBinary(path, bytes);
     return _client.storage.from('user-content').getPublicUrl(path);
   }

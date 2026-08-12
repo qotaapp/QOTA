@@ -50,7 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleForgotPassword() async {
     final email = _identifierController.text.trim();
     if (email.isEmpty) {
-      setState(() => _errorMessage = 'Saisissez votre e-mail pour réinitialiser le mot de passe.');
+      setState(() => _errorMessage =
+          'Saisissez votre e-mail pour réinitialiser le mot de passe.');
       return;
     }
     await _authRepository.sendPasswordResetEmail(email);
@@ -113,7 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 if (_errorMessage != null) ...[
                   const SizedBox(height: 12),
-                  Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                  Text(_errorMessage!,
+                      style: const TextStyle(color: Colors.red)),
                 ],
 
                 const SizedBox(height: 24),
@@ -127,8 +129,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _isLoading ? null : _handleLogin,
                   child: _isLoading
                       ? const SizedBox(
-                          height: 20, width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
                         )
                       : const Text('Connexion'),
                 ),

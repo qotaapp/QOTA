@@ -6,14 +6,18 @@ class AppColors {
   AppColors._();
 
   static const Color primaryOrange = Color(0xFFF15A24); // orange du logo "Qota"
-  static const Color background = Color(0xFFFAFAF8); // fond quasi blanc, légèrement chaud
-  static const Color iconDefault = Color(0xFF141414); // icônes noires, style trait épais
+  static const Color background =
+      Color(0xFFFAFAF8); // fond quasi blanc, légèrement chaud
+  static const Color iconDefault =
+      Color(0xFF141414); // icônes noires, style trait épais
   static const Color iconInactive = Color(0xFF9A9A95);
-  static const Color surfaceChip = Color(0xFFF0EFEC); // fond des bulles (ex: loupe de recherche)
+  static const Color surfaceChip =
+      Color(0xFFF0EFEC); // fond des bulles (ex: loupe de recherche)
   static const Color textPrimary = Color(0xFF1A1A18);
   static const Color textSecondary = Color(0xFF6F6E69);
   static const Color divider = Color(0xFFE7E5E1);
-  static const Color starFilled = Color(0xFFF15A24); // l'étoile "Évaluer" reprend l'orange de marque
+  static const Color starFilled =
+      Color(0xFFF15A24); // l'étoile "Évaluer" reprend l'orange de marque
 }
 
 class AppTheme {
@@ -28,7 +32,8 @@ class AppTheme {
         primary: AppColors.primaryOrange,
         surface: AppColors.background,
       ),
-      fontFamily: 'Inter', // typo neutre, lisible en FR et compatible diacritiques AR de secours
+      fontFamily:
+          'Inter', // typo neutre, lisible en FR et compatible diacritiques AR de secours
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.background,
         elevation: 0,

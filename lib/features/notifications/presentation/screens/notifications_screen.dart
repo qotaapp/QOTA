@@ -39,7 +39,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         if (notification.entityId != null && mounted) {
           await Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => ServiceDetailsScreen(entityId: notification.entityId!),
+              builder: (_) =>
+                  ServiceDetailsScreen(entityId: notification.entityId!),
             ),
           );
         }
@@ -49,7 +50,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         if (notification.entityId != null && mounted) {
           await Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => CommentsScreen(entityId: notification.entityId!, entityKind: 'service'),
+              builder: (_) => CommentsScreen(
+                  entityId: notification.entityId!, entityKind: 'service'),
             ),
           );
         }
@@ -58,7 +60,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         if (notification.entityId != null && mounted) {
           await Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => ServiceDetailsScreen(entityId: notification.entityId!),
+              builder: (_) =>
+                  ServiceDetailsScreen(entityId: notification.entityId!),
             ),
           );
         }
@@ -112,12 +115,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 return ListTile(
                   leading: Icon(
                     notification.icon,
-                    color: notification.isRead ? AppColors.iconInactive : AppColors.primaryOrange,
+                    color: notification.isRead
+                        ? AppColors.iconInactive
+                        : AppColors.primaryOrange,
                   ),
                   title: Text(
                     notification.message,
                     style: TextStyle(
-                      fontWeight: notification.isRead ? FontWeight.normal : FontWeight.w600,
+                      fontWeight: notification.isRead
+                          ? FontWeight.normal
+                          : FontWeight.w600,
                     ),
                   ),
                   subtitle: Text(_formatRelativeTime(notification.createdAt)),

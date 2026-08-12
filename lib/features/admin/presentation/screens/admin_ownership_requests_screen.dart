@@ -6,10 +6,12 @@ class AdminOwnershipRequestsScreen extends StatefulWidget {
   const AdminOwnershipRequestsScreen({super.key});
 
   @override
-  State<AdminOwnershipRequestsScreen> createState() => _AdminOwnershipRequestsScreenState();
+  State<AdminOwnershipRequestsScreen> createState() =>
+      _AdminOwnershipRequestsScreenState();
 }
 
-class _AdminOwnershipRequestsScreenState extends State<AdminOwnershipRequestsScreen> {
+class _AdminOwnershipRequestsScreenState
+    extends State<AdminOwnershipRequestsScreen> {
   final _repository = AdminRepository();
   late Future<List<AdminOwnershipRequest>> _future;
 
@@ -19,13 +21,16 @@ class _AdminOwnershipRequestsScreenState extends State<AdminOwnershipRequestsScr
     _future = _repository.getPendingOwnershipRequests();
   }
 
-  void _reload() => setState(() => _future = _repository.getPendingOwnershipRequests());
+  void _reload() =>
+      setState(() => _future = _repository.getPendingOwnershipRequests());
 
   Future<void> _decide(AdminOwnershipRequest request, bool approve) async {
     await _repository.decideOwnershipRequest(request.id, approve);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(approve ? 'Propriété transférée.' : 'Demande refusée.')),
+        SnackBar(
+            content:
+                Text(approve ? 'Propriété transférée.' : 'Demande refusée.')),
       );
     }
     _reload();
@@ -43,7 +48,9 @@ class _AdminOwnershipRequestsScreenState extends State<AdminOwnershipRequestsScr
           }
           final requests = snapshot.data ?? [];
           if (requests.isEmpty) {
-            return const Center(child: Text('Aucune demande en attente', style: TextStyle(color: AppColors.textSecondary)));
+            return const Center(
+                child: Text('Aucune demande en attente',
+                    style: TextStyle(color: AppColors.textSecondary)));
           }
           return ListView.separated(
             itemCount: requests.length,
@@ -55,10 +62,13 @@ class _AdminOwnershipRequestsScreenState extends State<AdminOwnershipRequestsScr
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(request.entityName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(request.entityName,
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 4),
-                    Text('Demandeur : ${request.requesterName}', style: const TextStyle(color: AppColors.textSecondary)),
-                    if (request.message != null && request.message!.isNotEmpty) ...[
+                    Text('Demandeur : ${request.requesterName}',
+                        style: const TextStyle(color: AppColors.textSecondary)),
+                    if (request.message != null &&
+                        request.message!.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(request.message!),
                     ],
@@ -74,7 +84,8 @@ class _AdminOwnershipRequestsScreenState extends State<AdminOwnershipRequestsScr
                         const SizedBox(width: 10),
                         Expanded(
                           child: FilledButton(
-                            style: FilledButton.styleFrom(backgroundColor: AppColors.primaryOrange),
+                            style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.primaryOrange),
                             onPressed: () => _decide(request, true),
                             child: const Text('Approuver'),
                           ),

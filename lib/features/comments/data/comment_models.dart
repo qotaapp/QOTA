@@ -56,7 +56,8 @@ class QotaCommentReply {
     required this.createdAt,
   });
 
-  factory QotaCommentReply.fromMap(Map<String, dynamic> map) => QotaCommentReply(
+  factory QotaCommentReply.fromMap(Map<String, dynamic> map) =>
+      QotaCommentReply(
         id: map['id'] as String,
         commentId: map['comment_id'] as String,
         userId: map['user_id'] as String,

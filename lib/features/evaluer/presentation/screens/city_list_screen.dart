@@ -7,7 +7,8 @@ class CityListScreen extends StatefulWidget {
   final String stateId;
   final String stateLabel;
 
-  const CityListScreen({super.key, required this.stateId, required this.stateLabel});
+  const CityListScreen(
+      {super.key, required this.stateId, required this.stateLabel});
 
   @override
   State<CityListScreen> createState() => _CityListScreenState();
@@ -27,7 +28,8 @@ class _CityListScreenState extends State<CityListScreen> {
   Future<void> _load() async {
     final cities = await _repository.getCities(widget.stateId);
     setState(() {
-      _items = cities.map((c) => SelectionItem(id: c.id, label: c.nameFr)).toList();
+      _items =
+          cities.map((c) => SelectionItem(id: c.id, label: c.nameFr)).toList();
       _isLoading = false;
     });
   }

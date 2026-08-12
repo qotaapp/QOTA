@@ -41,7 +41,8 @@ class _SearchScreenState extends State<SearchScreen> {
       });
       return;
     }
-    _debounce = Timer(const Duration(milliseconds: 400), () => _runSearch(value.trim()));
+    _debounce = Timer(
+        const Duration(milliseconds: 400), () => _runSearch(value.trim()));
   }
 
   Future<void> _runSearch(String query) async {
@@ -80,7 +81,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   )
                 : (_categories.isEmpty && _entities.isEmpty)
                     ? const Center(
-                        child: Text('Aucun résultat', style: TextStyle(color: AppColors.textSecondary)),
+                        child: Text('Aucun résultat',
+                            style: TextStyle(color: AppColors.textSecondary)),
                       )
                     : ListView(
                         padding: const EdgeInsets.only(bottom: 24),
@@ -88,17 +90,21 @@ class _SearchScreenState extends State<SearchScreen> {
                           if (_categories.isNotEmpty) ...[
                             const Padding(
                               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                              child: Text('Catégories', style: TextStyle(fontWeight: FontWeight.w700)),
+                              child: Text('Catégories',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.w700)),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: Wrap(
                                 spacing: 8,
                                 runSpacing: 8,
                                 children: _categories
                                     .map((c) => Chip(
                                           label: Text(c.nameFr),
-                                          backgroundColor: AppColors.surfaceChip,
+                                          backgroundColor:
+                                              AppColors.surfaceChip,
                                         ))
                                     .toList(),
                               ),
@@ -107,30 +113,41 @@ class _SearchScreenState extends State<SearchScreen> {
                           if (_entities.isNotEmpty) ...[
                             const Padding(
                               padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
-                              child: Text('Résultats', style: TextStyle(fontWeight: FontWeight.w700)),
+                              child: Text('Résultats',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.w700)),
                             ),
                             ..._entities.map((entity) => ListTile(
                                   leading: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: CachedNetworkImage(
                                       imageUrl: entity.imageUrl,
-                                      width: 52, height: 52, fit: BoxFit.cover,
+                                      width: 52,
+                                      height: 52,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                   title: Text(entity.name),
                                   subtitle: Text(
-                                    entity.locationLabel.isNotEmpty ? entity.locationLabel : _kindLabel(entity.kind),
+                                    entity.locationLabel.isNotEmpty
+                                        ? entity.locationLabel
+                                        : _kindLabel(entity.kind),
                                   ),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.star_rounded, size: 16, color: AppColors.starFilled),
+                                      const Icon(Icons.star_rounded,
+                                          size: 16,
+                                          color: AppColors.starFilled),
                                       const SizedBox(width: 2),
-                                      Text(entity.averageScore.toStringAsFixed(1)),
+                                      Text(entity.averageScore
+                                          .toStringAsFixed(1)),
                                     ],
                                   ),
                                   onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (_) => ServiceDetailsScreen(entityId: entity.id)),
+                                    MaterialPageRoute(
+                                        builder: (_) => ServiceDetailsScreen(
+                                            entityId: entity.id)),
                                   ),
                                 )),
                           ],

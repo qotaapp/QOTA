@@ -44,8 +44,9 @@ class FeedItem {
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,
       );
 
-  String get locationLabel =>
-      [zoneNameFr, cityNameFr].where((e) => e != null && e.isNotEmpty).join(', ');
+  String get locationLabel => [zoneNameFr, cityNameFr]
+      .where((e) => e != null && e.isNotEmpty)
+      .join(', ');
 }
 
 class FeedRepository {

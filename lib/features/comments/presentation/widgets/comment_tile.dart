@@ -72,7 +72,8 @@ class _CommentTileState extends State<CommentTile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(comment.authorName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(comment.authorName,
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 3),
                     Text(comment.text),
                   ],
@@ -80,12 +81,12 @@ class _CommentTileState extends State<CommentTile> {
               ),
               if (widget.onDelete != null)
                 IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.iconInactive),
+                  icon: const Icon(Icons.delete_outline_rounded,
+                      size: 18, color: AppColors.iconInactive),
                   onPressed: widget.onDelete,
                 ),
             ],
           ),
-
           if (comment.imageUrl != null) ...[
             const SizedBox(height: 8),
             ClipRRect(
@@ -102,7 +103,6 @@ class _CommentTileState extends State<CommentTile> {
               ),
             ),
           ],
-
           const SizedBox(height: 6),
           Row(
             children: [
@@ -113,26 +113,31 @@ class _CommentTileState extends State<CommentTile> {
                     Icon(
                       Icons.thumb_up_alt_rounded,
                       size: 16,
-                      color: comment.likedByMe ? AppColors.primaryOrange : AppColors.iconInactive,
+                      color: comment.likedByMe
+                          ? AppColors.primaryOrange
+                          : AppColors.iconInactive,
                     ),
                     const SizedBox(width: 4),
-                    Text('${comment.likesCount}', style: const TextStyle(color: AppColors.textSecondary)),
+                    Text('${comment.likesCount}',
+                        style: const TextStyle(color: AppColors.textSecondary)),
                   ],
                 ),
               ),
               const SizedBox(width: 20),
               InkWell(
                 onTap: () => setState(() => _showReplyField = !_showReplyField),
-                child: const Text('↩ Répondre', style: TextStyle(color: AppColors.textSecondary)),
+                child: const Text('↩ Répondre',
+                    style: TextStyle(color: AppColors.textSecondary)),
               ),
               const Spacer(),
               TextButton(
                 onPressed: _toggleReplies,
-                child: Text(_showReplies ? 'Masquer les réponses' : 'Voir les réponses'),
+                child: Text(_showReplies
+                    ? 'Masquer les réponses'
+                    : 'Voir les réponses'),
               ),
             ],
           ),
-
           if (_showReplyField) ...[
             const SizedBox(height: 6),
             Row(
@@ -148,13 +153,13 @@ class _CommentTileState extends State<CommentTile> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send_rounded, color: AppColors.primaryOrange),
+                  icon: const Icon(Icons.send_rounded,
+                      color: AppColors.primaryOrange),
                   onPressed: _submitReply,
                 ),
               ],
             ),
           ],
-
           if (_showReplies)
             FutureBuilder<List<QotaCommentReply>>(
               future: _repliesFuture,
@@ -162,7 +167,10 @@ class _CommentTileState extends State<CommentTile> {
                 if (snapshot.connectionState != ConnectionState.done) {
                   return const Padding(
                     padding: EdgeInsets.only(left: 40, top: 8),
-                    child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2)),
                   );
                 }
                 final replies = snapshot.data ?? [];
@@ -171,15 +179,16 @@ class _CommentTileState extends State<CommentTile> {
                       .map((r) => ReplyTile(
                             reply: r,
                             onToggleLike: () async {
-                              await _repository.toggleReplyLike(r.id, r.likedByMe);
-                              setState(() => _repliesFuture = _repository.getReplies(widget.comment.id));
+                              await _repository.toggleReplyLike(
+                                  r.id, r.likedByMe);
+                              setState(() => _repliesFuture =
+                                  _repository.getReplies(widget.comment.id));
                             },
                           ))
                       .toList(),
                 );
               },
             ),
-
           const Divider(height: 22),
         ],
       ),

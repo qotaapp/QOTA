@@ -53,7 +53,8 @@ class _ZoneListScreenState extends State<ZoneListScreen> {
     }
 
     setState(() {
-      _items = zones.map((z) => SelectionItem(id: z.id, label: z.nameFr)).toList();
+      _items =
+          zones.map((z) => SelectionItem(id: z.id, label: z.nameFr)).toList();
       _isLoading = false;
     });
   }

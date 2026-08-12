@@ -15,7 +15,8 @@ class WalletTransaction {
     this.reference,
   });
 
-  factory WalletTransaction.fromMap(Map<String, dynamic> map) => WalletTransaction(
+  factory WalletTransaction.fromMap(Map<String, dynamic> map) =>
+      WalletTransaction(
         id: map['id'] as String,
         type: map['type'] as String,
         amount: (map['amount'] as num).toDouble(),
@@ -30,7 +31,11 @@ class WalletRepository {
   String get currentUserId => _client.auth.currentUser!.id;
 
   Future<double> getBalance() async {
-    final row = await _client.from('wallets').select('balance').eq('user_id', currentUserId).single();
+    final row = await _client
+        .from('wallets')
+        .select('balance')
+        .eq('user_id', currentUserId)
+        .single();
     return (row['balance'] as num).toDouble();
   }
 

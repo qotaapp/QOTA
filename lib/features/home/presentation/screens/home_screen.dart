@@ -57,7 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (permission == LocationPermission.denied) {
         granted = await Geolocator.requestPermission();
       }
-      if (granted == LocationPermission.always || granted == LocationPermission.whileInUse) {
+      if (granted == LocationPermission.always ||
+          granted == LocationPermission.whileInUse) {
         final position = await Geolocator.getCurrentPosition();
         _userLat = position.latitude;
         _userLng = position.longitude;
@@ -69,7 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
       _loadPage();
     }
   }
@@ -137,7 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (index >= _items.length) {
                               return const Padding(
                                 padding: EdgeInsets.all(20),
-                                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                child: Center(
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2)),
                               );
                             }
                             final item = _items[index];
@@ -145,19 +149,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               item: item,
                               onOpenDetails: () => Navigator.of(context)
                                   .push(MaterialPageRoute(
-                                    builder: (_) => ServiceDetailsScreen(entityId: item.id),
+                                    builder: (_) =>
+                                        ServiceDetailsScreen(entityId: item.id),
                                   ))
                                   .then((_) => _refresh()),
-                              onOpenRatingSheet: () =>
-                                  RatingSheet.show(context, entityId: item.id, onSubmitted: _refresh),
+                              onOpenRatingSheet: () => RatingSheet.show(context,
+                                  entityId: item.id, onSubmitted: _refresh),
                               onOpenComments: () => Navigator.of(context)
                                   .push(MaterialPageRoute(
-                                    builder: (_) => CommentsScreen(entityId: item.id, entityKind: item.kind),
+                                    builder: (_) => CommentsScreen(
+                                        entityId: item.id,
+                                        entityKind: item.kind),
                                   ))
                                   .then((_) => _refresh()),
-                              onOpenImageFullscreen: () => Navigator.of(context).push(
+                              onOpenImageFullscreen: () =>
+                                  Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => FullscreenImageViewer(imageUrl: item.imageUrl),
+                                  builder: (_) => FullscreenImageViewer(
+                                      imageUrl: item.imageUrl),
                                 ),
                               ),
                             );
@@ -203,7 +212,8 @@ class _SearchButton extends StatelessWidget {
       child: Container(
         width: 44,
         height: 44,
-        decoration: const BoxDecoration(color: AppColors.surfaceChip, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+            color: AppColors.surfaceChip, shape: BoxShape.circle),
         child: const Icon(Icons.search_rounded, color: AppColors.iconDefault),
       ),
     );

@@ -8,7 +8,8 @@ void main() {
     // vérifie seulement que le moteur de test Flutter fonctionne.
     // Des tests plus poussés (par écran, avec mocks Supabase) sont à
     // ajouter au fil du développement, écran par écran.
-    await tester.pumpWidget(const MaterialApp(home: Scaffold(body: SizedBox())));
+    await tester
+        .pumpWidget(const MaterialApp(home: Scaffold(body: SizedBox())));
     expect(find.byType(Scaffold), findsOneWidget);
   });
 }

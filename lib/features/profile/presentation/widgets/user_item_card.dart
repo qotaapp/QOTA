@@ -37,7 +37,8 @@ class UserItemCard extends StatelessWidget {
             onTap: onOpenImageFullscreen,
             child: AspectRatio(
               aspectRatio: 16 / 10,
-              child: CachedNetworkImage(imageUrl: item.imageUrl, fit: BoxFit.cover),
+              child: CachedNetworkImage(
+                  imageUrl: item.imageUrl, fit: BoxFit.cover),
             ),
           ),
           Padding(
@@ -45,10 +46,14 @@ class UserItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                Text(item.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 16)),
                 const SizedBox(height: 2),
                 // §23 : propriétaire affiché publiquement.
-                Text('Par ${item.ownerName}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                Text('Par ${item.ownerName}',
+                    style: const TextStyle(
+                        color: AppColors.textSecondary, fontSize: 13)),
                 const SizedBox(height: 10),
                 Row(
                   children: [
@@ -56,11 +61,16 @@ class UserItemCard extends StatelessWidget {
                       onTap: onOpenRatingSheet,
                       child: Row(
                         children: [
-                          const Icon(Icons.star_rounded, size: 18, color: AppColors.starFilled),
+                          const Icon(Icons.star_rounded,
+                              size: 18, color: AppColors.starFilled),
                           const SizedBox(width: 4),
-                          Text(item.averageScore.toStringAsFixed(1), style: const TextStyle(fontWeight: FontWeight.w600)),
+                          Text(item.averageScore.toStringAsFixed(1),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w600)),
                           const SizedBox(width: 6),
-                          Text('${item.ratingsCount}', style: const TextStyle(color: AppColors.textSecondary)),
+                          Text('${item.ratingsCount}',
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary)),
                         ],
                       ),
                     ),
@@ -69,9 +79,12 @@ class UserItemCard extends StatelessWidget {
                       onTap: onOpenComments,
                       child: Row(
                         children: [
-                          const Icon(Icons.chat_bubble_outline_rounded, size: 16),
+                          const Icon(Icons.chat_bubble_outline_rounded,
+                              size: 16),
                           const SizedBox(width: 4),
-                          Text('${item.commentsCount}', style: const TextStyle(color: AppColors.textSecondary)),
+                          Text('${item.commentsCount}',
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary)),
                         ],
                       ),
                     ),

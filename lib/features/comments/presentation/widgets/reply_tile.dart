@@ -15,7 +15,9 @@ class ReplyTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(reply.authorName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          Text(reply.authorName,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
           const SizedBox(height: 2),
           Text(reply.text, style: const TextStyle(fontSize: 13.5)),
           const SizedBox(height: 4),
@@ -26,11 +28,14 @@ class ReplyTile extends StatelessWidget {
                 Icon(
                   Icons.thumb_up_alt_rounded,
                   size: 14,
-                  color: reply.likedByMe ? AppColors.primaryOrange : AppColors.iconInactive,
+                  color: reply.likedByMe
+                      ? AppColors.primaryOrange
+                      : AppColors.iconInactive,
                 ),
                 const SizedBox(width: 4),
                 Text('${reply.likesCount}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ),

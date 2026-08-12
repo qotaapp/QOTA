@@ -37,39 +37,51 @@ class _MenuScreenState extends State<MenuScreen> {
         children: [
           const Padding(
             padding: EdgeInsets.fromLTRB(20, 20, 20, 8),
-            child: Text('Menu', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+            child: Text('Menu',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
           ),
           ListTile(
-            leading: const Icon(Icons.account_balance_wallet_outlined, color: AppColors.iconDefault),
+            leading: const Icon(Icons.account_balance_wallet_outlined,
+                color: AppColors.iconDefault),
             title: const Text('Mon Wallet — Qota Coin'),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.iconInactive),
+            trailing: const Icon(Icons.chevron_right_rounded,
+                color: AppColors.iconInactive),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WalletScreen()));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const WalletScreen()));
             },
           ),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.groups_outlined, color: AppColors.iconDefault),
+            leading:
+                const Icon(Icons.groups_outlined, color: AppColors.iconDefault),
             title: const Text('Figures publiques'),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.iconInactive),
+            trailing: const Icon(Icons.chevron_right_rounded,
+                color: AppColors.iconInactive),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FigureTypeListScreen()));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const FigureTypeListScreen()));
             },
           ),
           if (_isSuperAdmin) ...[
             const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.admin_panel_settings_outlined, color: AppColors.primaryOrange),
-              title: const Text('Dashboard Super Admin', style: TextStyle(fontWeight: FontWeight.w700)),
-              trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.iconInactive),
+              leading: const Icon(Icons.admin_panel_settings_outlined,
+                  color: AppColors.primaryOrange),
+              title: const Text('Dashboard Super Admin',
+                  style: TextStyle(fontWeight: FontWeight.w700)),
+              trailing: const Icon(Icons.chevron_right_rounded,
+                  color: AppColors.iconInactive),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminHomeScreen()));
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const AdminHomeScreen()));
               },
             ),
           ],
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.logout_rounded, color: AppColors.iconDefault),
+            leading:
+                const Icon(Icons.logout_rounded, color: AppColors.iconDefault),
             title: const Text('Déconnexion'),
             onTap: () async {
               await AuthRepository().signOut();

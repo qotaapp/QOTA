@@ -11,7 +11,8 @@ import '../widgets/comment_tile.dart';
 class CommentsScreen extends StatefulWidget {
   final String entityId;
   final String entityKind; // 'service' | 'user_item' | 'public_figure'
-  final String? entityOwnerId; // pour appliquer §34 côté UI (le serveur re-vérifie de toute façon)
+  final String?
+      entityOwnerId; // pour appliquer §34 côté UI (le serveur re-vérifie de toute façon)
 
   const CommentsScreen({
     super.key,
@@ -46,7 +47,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   Future<void> _pickImage() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final image =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (image != null) setState(() => _pickedImage = image);
   }
 
@@ -60,9 +62,11 @@ class _CommentsScreenState extends State<CommentsScreen> {
       if (_pickedImage != null) {
         final Uint8List bytes = await _pickedImage!.readAsBytes();
         final extension = _pickedImage!.name.split('.').last;
-        imageUrl = await _repository.uploadCommentImage(bytes: bytes, fileExtension: extension);
+        imageUrl = await _repository.uploadCommentImage(
+            bytes: bytes, fileExtension: extension);
       }
-      await _repository.addComment(entityId: widget.entityId, text: text, imageUrl: imageUrl);
+      await _repository.addComment(
+          entityId: widget.entityId, text: text, imageUrl: imageUrl);
       _textController.clear();
       setState(() => _pickedImage = null);
       _reload();
@@ -78,7 +82,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
     final me = _currentUserId;
     if (me == null) return false;
     if (comment.userId == me) return true;
-    if (widget.entityKind == 'user_item' && widget.entityOwnerId == me) return true;
+    if (widget.entityKind == 'user_item' && widget.entityOwnerId == me)
+      return true;
     return false;
   }
 
@@ -109,11 +114,13 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     return CommentTile(
                       comment: comment,
                       onToggleLike: () async {
-                        await _repository.toggleCommentLike(comment.id, comment.likedByMe);
+                        await _repository.toggleCommentLike(
+                            comment.id, comment.likedByMe);
                         _reload();
                       },
                       onReply: (text) async {
-                        await _repository.addReply(commentId: comment.id, text: text);
+                        await _repository.addReply(
+                            commentId: comment.id, text: text);
                       },
                       onDelete: _canDelete(comment)
                           ? () async {
@@ -144,13 +151,16 @@ class _CommentsScreenState extends State<CommentsScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.file(File(_pickedImage!.path), width: 56, height: 56, fit: BoxFit.cover),
+                            child: Image.file(File(_pickedImage!.path),
+                                width: 56, height: 56, fit: BoxFit.cover),
                           ),
                           Positioned(
-                            right: -4, top: -4,
+                            right: -4,
+                            top: -4,
                             child: IconButton(
                               icon: const Icon(Icons.cancel, size: 18),
-                              onPressed: () => setState(() => _pickedImage = null),
+                              onPressed: () =>
+                                  setState(() => _pickedImage = null),
                             ),
                           ),
                         ],
@@ -159,7 +169,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.image_outlined, color: AppColors.iconInactive),
+                        icon: const Icon(Icons.image_outlined,
+                            color: AppColors.iconInactive),
                         onPressed: _pickImage,
                       ),
                       Expanded(
@@ -174,9 +185,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       IconButton(
                         icon: _isPosting
                             ? const SizedBox(
-                                height: 18, width: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2))
-                            : const Icon(Icons.send_rounded, color: AppColors.primaryOrange),
+                                height: 18,
+                                width: 18,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2))
+                            : const Icon(Icons.send_rounded,
+                                color: AppColors.primaryOrange),
                         onPressed: _isPosting ? null : _postComment,
                       ),
                     ],

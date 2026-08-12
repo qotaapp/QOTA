@@ -56,10 +56,12 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                   background: GestureDetector(
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => FullscreenImageViewer(imageUrl: entity.imageUrl),
+                        builder: (_) =>
+                            FullscreenImageViewer(imageUrl: entity.imageUrl),
                       ),
                     ),
-                    child: CachedNetworkImage(imageUrl: entity.imageUrl, fit: BoxFit.cover),
+                    child: CachedNetworkImage(
+                        imageUrl: entity.imageUrl, fit: BoxFit.cover),
                   ),
                 ),
               ),
@@ -70,11 +72,13 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(entity.name,
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w800)),
                       if (entity.locationLabel.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(entity.locationLabel,
-                            style: const TextStyle(color: AppColors.textSecondary)),
+                            style: const TextStyle(
+                                color: AppColors.textSecondary)),
                       ],
                       const SizedBox(height: 14),
 
@@ -82,16 +86,21 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                       Row(
                         children: [
                           InkWell(
-                            onTap: () => RatingSheet.show(context, entityId: entity.id, onSubmitted: _reload),
+                            onTap: () => RatingSheet.show(context,
+                                entityId: entity.id, onSubmitted: _reload),
                             child: Row(
                               children: [
-                                const Icon(Icons.star_rounded, color: AppColors.starFilled, size: 22),
+                                const Icon(Icons.star_rounded,
+                                    color: AppColors.starFilled, size: 22),
                                 const SizedBox(width: 4),
                                 Text(entity.averageScore.toStringAsFixed(1),
-                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16)),
                                 const SizedBox(width: 6),
                                 Text('(${entity.ratingsCount})',
-                                    style: const TextStyle(color: AppColors.textSecondary)),
+                                    style: const TextStyle(
+                                        color: AppColors.textSecondary)),
                               ],
                             ),
                           ),
@@ -99,12 +108,15 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                           InkWell(
                             onTap: () => Navigator.of(context)
                                 .push(MaterialPageRoute(
-                                  builder: (_) => CommentsScreen(entityId: entity.id, entityKind: 'service'),
+                                  builder: (_) => CommentsScreen(
+                                      entityId: entity.id,
+                                      entityKind: 'service'),
                                 ))
                                 .then((_) => _reload()),
                             child: Row(
                               children: [
-                                const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                                const Icon(Icons.chat_bubble_outline_rounded,
+                                    size: 18),
                                 const SizedBox(width: 4),
                                 Text('${entity.commentsCount} commentaires'),
                               ],
@@ -113,9 +125,11 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                         ],
                       ),
 
-                      if (entity.description != null && entity.description!.isNotEmpty) ...[
+                      if (entity.description != null &&
+                          entity.description!.isNotEmpty) ...[
                         const SizedBox(height: 20),
-                        const Text('Description', style: TextStyle(fontWeight: FontWeight.w700)),
+                        const Text('Description',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 6),
                         Text(entity.description!),
                       ],
@@ -125,8 +139,10 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                         children: [
                           Expanded(
                             child: FilledButton.icon(
-                              style: FilledButton.styleFrom(backgroundColor: AppColors.primaryOrange),
-                              onPressed: () => RatingSheet.show(context, entityId: entity.id, onSubmitted: _reload),
+                              style: FilledButton.styleFrom(
+                                  backgroundColor: AppColors.primaryOrange),
+                              onPressed: () => RatingSheet.show(context,
+                                  entityId: entity.id, onSubmitted: _reload),
                               icon: const Icon(Icons.star_rounded),
                               label: const Text('Évaluer'),
                             ),
@@ -136,10 +152,13 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                             child: OutlinedButton.icon(
                               onPressed: () => Navigator.of(context)
                                   .push(MaterialPageRoute(
-                                    builder: (_) => CommentsScreen(entityId: entity.id, entityKind: 'service'),
+                                    builder: (_) => CommentsScreen(
+                                        entityId: entity.id,
+                                        entityKind: 'service'),
                                   ))
                                   .then((_) => _reload()),
-                              icon: const Icon(Icons.chat_bubble_outline_rounded),
+                              icon:
+                                  const Icon(Icons.chat_bubble_outline_rounded),
                               label: const Text('Commenter'),
                             ),
                           ),

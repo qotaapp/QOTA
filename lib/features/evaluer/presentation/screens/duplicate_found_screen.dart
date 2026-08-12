@@ -47,17 +47,22 @@ class DuplicateFoundScreen extends StatelessWidget {
                     ServiceCard(
                       entity: entity,
                       onOpenDetails: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => ServiceDetailsScreen(entityId: entity.id)),
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                ServiceDetailsScreen(entityId: entity.id)),
                       ),
-                      onOpenRatingSheet: () => RatingSheet.show(context, entityId: entity.id),
+                      onOpenRatingSheet: () =>
+                          RatingSheet.show(context, entityId: entity.id),
                       onOpenComments: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => CommentsScreen(entityId: entity.id, entityKind: 'service'),
+                          builder: (_) => CommentsScreen(
+                              entityId: entity.id, entityKind: 'service'),
                         ),
                       ),
                       onOpenImageFullscreen: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => FullscreenImageViewer(imageUrl: entity.imageUrl),
+                          builder: (_) =>
+                              FullscreenImageViewer(imageUrl: entity.imageUrl),
                         ),
                       ),
                     ),
@@ -69,7 +74,9 @@ class DuplicateFoundScreen extends StatelessWidget {
                             child: OutlinedButton(
                               onPressed: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => ServiceDetailsScreen(entityId: entity.id)),
+                                  MaterialPageRoute(
+                                      builder: (_) => ServiceDetailsScreen(
+                                          entityId: entity.id)),
                                 );
                               },
                               child: const Text('Voir la service'),
@@ -78,12 +85,16 @@ class DuplicateFoundScreen extends StatelessWidget {
                           const SizedBox(width: 12),
                           Expanded(
                             child: FilledButton(
-                              style: FilledButton.styleFrom(backgroundColor: AppColors.primaryOrange),
+                              style: FilledButton.styleFrom(
+                                  backgroundColor: AppColors.primaryOrange),
                               onPressed: () async {
-                                await repository.requestOwnership(entityId: entity.id);
+                                await repository.requestOwnership(
+                                    entityId: entity.id);
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Demande de propriété envoyée.')),
+                                    const SnackBar(
+                                        content: Text(
+                                            'Demande de propriété envoyée.')),
                                   );
                                   Navigator.of(context).pop();
                                 }
@@ -104,7 +115,8 @@ class DuplicateFoundScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: TextButton(
               onPressed: onCreateAnyway,
-              child: const Text('Aucune de ces services ne correspond — continuer la création'),
+              child: const Text(
+                  'Aucune de ces services ne correspond — continuer la création'),
             ),
           ),
         ],

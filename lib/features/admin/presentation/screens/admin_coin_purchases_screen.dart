@@ -6,7 +6,8 @@ class AdminCoinPurchasesScreen extends StatefulWidget {
   const AdminCoinPurchasesScreen({super.key});
 
   @override
-  State<AdminCoinPurchasesScreen> createState() => _AdminCoinPurchasesScreenState();
+  State<AdminCoinPurchasesScreen> createState() =>
+      _AdminCoinPurchasesScreenState();
 }
 
 class _AdminCoinPurchasesScreenState extends State<AdminCoinPurchasesScreen> {
@@ -19,13 +20,16 @@ class _AdminCoinPurchasesScreenState extends State<AdminCoinPurchasesScreen> {
     _future = _repository.getPendingCoinPurchaseRequests();
   }
 
-  void _reload() => setState(() => _future = _repository.getPendingCoinPurchaseRequests());
+  void _reload() =>
+      setState(() => _future = _repository.getPendingCoinPurchaseRequests());
 
   Future<void> _approve(AdminCoinPurchaseRequest request) async {
     await _repository.approveCoinPurchase(request.id);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${request.amount.toStringAsFixed(0)} Qota Coin crédités à ${request.userName}.')),
+        SnackBar(
+            content: Text(
+                '${request.amount.toStringAsFixed(0)} Qota Coin crédités à ${request.userName}.')),
       );
     }
     _reload();
@@ -43,7 +47,9 @@ class _AdminCoinPurchasesScreenState extends State<AdminCoinPurchasesScreen> {
           }
           final requests = snapshot.data ?? [];
           if (requests.isEmpty) {
-            return const Center(child: Text('Aucune demande en attente', style: TextStyle(color: AppColors.textSecondary)));
+            return const Center(
+                child: Text('Aucune demande en attente',
+                    style: TextStyle(color: AppColors.textSecondary)));
           }
           return ListView.separated(
             itemCount: requests.length,
@@ -52,9 +58,11 @@ class _AdminCoinPurchasesScreenState extends State<AdminCoinPurchasesScreen> {
               final request = requests[index];
               return ListTile(
                 title: Text(request.userName),
-                subtitle: Text('${request.amount.toStringAsFixed(0)} Qota Coin demandés'),
+                subtitle: Text(
+                    '${request.amount.toStringAsFixed(0)} Qota Coin demandés'),
                 trailing: FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.primaryOrange),
+                  style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primaryOrange),
                   onPressed: () => _approve(request),
                   child: const Text('Valider'),
                 ),

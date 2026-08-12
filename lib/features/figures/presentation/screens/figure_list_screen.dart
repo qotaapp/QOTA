@@ -16,7 +16,8 @@ class FigureListScreen extends StatefulWidget {
   final String figureTypeId;
   final String figureTypeLabel;
 
-  const FigureListScreen({super.key, required this.figureTypeId, required this.figureTypeLabel});
+  const FigureListScreen(
+      {super.key, required this.figureTypeId, required this.figureTypeLabel});
 
   @override
   State<FigureListScreen> createState() => _FigureListScreenState();
@@ -33,13 +34,16 @@ class _FigureListScreenState extends State<FigureListScreen> {
   }
 
   void _reload() {
-    setState(() => _futureFigures = _repository.getFigures(widget.figureTypeId));
+    setState(
+        () => _futureFigures = _repository.getFigures(widget.figureTypeId));
   }
 
   Future<void> _openAddFigure() async {
     final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => AddFigureScreen(figureTypeId: widget.figureTypeId, figureTypeLabel: widget.figureTypeLabel),
+        builder: (_) => AddFigureScreen(
+            figureTypeId: widget.figureTypeId,
+            figureTypeLabel: widget.figureTypeLabel),
       ),
     );
     if (created == true) _reload();
@@ -58,7 +62,8 @@ class _FigureListScreenState extends State<FigureListScreen> {
           final figures = snapshot.data ?? [];
           if (figures.isEmpty) {
             return const Center(
-              child: Text('Aucune figure publique pour le moment', style: TextStyle(color: AppColors.textSecondary)),
+              child: Text('Aucune figure publique pour le moment',
+                  style: TextStyle(color: AppColors.textSecondary)),
             );
           }
           return ListView.builder(
@@ -69,16 +74,22 @@ class _FigureListScreenState extends State<FigureListScreen> {
               return ServiceCard(
                 entity: entity,
                 onOpenDetails: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => ServiceDetailsScreen(entityId: entity.id)))
+                    .push(MaterialPageRoute(
+                        builder: (_) =>
+                            ServiceDetailsScreen(entityId: entity.id)))
                     .then((_) => _reload()),
-                onOpenRatingSheet: () => RatingSheet.show(context, entityId: entity.id, onSubmitted: _reload),
+                onOpenRatingSheet: () => RatingSheet.show(context,
+                    entityId: entity.id, onSubmitted: _reload),
                 onOpenComments: () => Navigator.of(context)
                     .push(MaterialPageRoute(
-                      builder: (_) => CommentsScreen(entityId: entity.id, entityKind: 'public_figure'),
+                      builder: (_) => CommentsScreen(
+                          entityId: entity.id, entityKind: 'public_figure'),
                     ))
                     .then((_) => _reload()),
                 onOpenImageFullscreen: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => FullscreenImageViewer(imageUrl: entity.imageUrl)),
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          FullscreenImageViewer(imageUrl: entity.imageUrl)),
                 ),
               );
             },

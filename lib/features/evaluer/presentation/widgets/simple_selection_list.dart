@@ -24,7 +24,9 @@ class SimpleSelectionList extends StatelessWidget {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : items.isEmpty
-              ? const Center(child: Text('Aucun élément disponible', style: TextStyle(color: AppColors.textSecondary)))
+              ? const Center(
+                  child: Text('Aucun élément disponible',
+                      style: TextStyle(color: AppColors.textSecondary)))
               : ListView.separated(
                   itemCount: items.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
@@ -32,7 +34,8 @@ class SimpleSelectionList extends StatelessWidget {
                     final item = items[index];
                     return ListTile(
                       title: Text(item.label),
-                      trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.iconInactive),
+                      trailing: const Icon(Icons.chevron_right_rounded,
+                          color: AppColors.iconInactive),
                       onTap: () => onSelect(item),
                     );
                   },

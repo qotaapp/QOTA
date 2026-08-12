@@ -29,7 +29,8 @@ class CommentsRepository {
     required String fileExtension,
   }) async {
     final userId = currentUserId!;
-    final path = '$userId/comments/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    final path =
+        '$userId/comments/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
     await _client.storage.from('user-content').uploadBinary(path, bytes);
     return _client.storage.from('user-content').getPublicUrl(path);
   }
@@ -63,18 +64,28 @@ class CommentsRepository {
   Future<void> toggleCommentLike(String commentId, bool currentlyLiked) async {
     final userId = currentUserId!;
     if (currentlyLiked) {
-      await _client.from('comment_likes').delete().match({'comment_id': commentId, 'user_id': userId});
+      await _client
+          .from('comment_likes')
+          .delete()
+          .match({'comment_id': commentId, 'user_id': userId});
     } else {
-      await _client.from('comment_likes').insert({'comment_id': commentId, 'user_id': userId});
+      await _client
+          .from('comment_likes')
+          .insert({'comment_id': commentId, 'user_id': userId});
     }
   }
 
   Future<void> toggleReplyLike(String replyId, bool currentlyLiked) async {
     final userId = currentUserId!;
     if (currentlyLiked) {
-      await _client.from('reply_likes').delete().match({'reply_id': replyId, 'user_id': userId});
+      await _client
+          .from('reply_likes')
+          .delete()
+          .match({'reply_id': replyId, 'user_id': userId});
     } else {
-      await _client.from('reply_likes').insert({'reply_id': replyId, 'user_id': userId});
+      await _client
+          .from('reply_likes')
+          .insert({'reply_id': replyId, 'user_id': userId});
     }
   }
 
