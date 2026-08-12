@@ -3,16 +3,25 @@
 # Deux services statiques : un pour `develop` (staging), un pour
 # `main` (production) — cohérent avec l'exigence "CI/CD, tests,
 # staging et production" du cahier des charges.
+#
+# IMPORTANT : l'environnement de build Render (env: static) est un
+# Ubuntu nu SANS Flutter préinstallé. Le buildCommand clone donc le
+# SDK Flutter (branche stable, clone superficiel) avant de builder —
+# c'est la même approche que fait `subosito/flutter-action` en
+# coulisses pour GitHub Actions.
 # ============================================================
 
 services:
   - type: web
     name: qota-web-staging
-    runtime: static
+    env: static
     branch: develop
     buildCommand: |
-      flutter pub get &&
-      flutter gen-l10n &&
+      git clone https://github.com/flutter/flutter.git --depth 1 -b stable _flutter_sdk
+      export PATH="$PATH:$(pwd)/_flutter_sdk/bin"
+      flutter --version
+      flutter pub get
+      flutter gen-l10n
       flutter build web --release \
         --dart-define=SUPABASE_URL=$SUPABASE_URL \
         --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
@@ -36,11 +45,14 @@ services:
 
   - type: web
     name: qota-web-production
-    runtime: static
+    env: static
     branch: main
     buildCommand: |
-      flutter pub get &&
-      flutter gen-l10n &&
+      git clone https://github.com/flutter/flutter.git --depth 1 -b stable _flutter_sdk
+      export PATH="$PATH:$(pwd)/_flutter_sdk/bin"
+      flutter --version
+      flutter pub get
+      flutter gen-l10n
       flutter build web --release \
         --dart-define=SUPABASE_URL=$SUPABASE_URL \
         --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY

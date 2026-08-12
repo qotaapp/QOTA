@@ -54,7 +54,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   Future<void> _postComment() async {
     final text = _textController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty) {
+      return;
+    }
 
     setState(() => _isPosting = true);
     try {
@@ -80,10 +82,15 @@ class _CommentsScreenState extends State<CommentsScreen> {
   /// L'auteur peut toujours supprimer le sien. Le serveur revalide tout.
   bool _canDelete(QotaComment comment) {
     final me = _currentUserId;
-    if (me == null) return false;
-    if (comment.userId == me) return true;
-    if (widget.entityKind == 'user_item' && widget.entityOwnerId == me)
+    if (me == null) {
+      return false;
+    }
+    if (comment.userId == me) {
       return true;
+    }
+    if (widget.entityKind == 'user_item' && widget.entityOwnerId == me) {
+      return true;
+    }
     return false;
   }
 

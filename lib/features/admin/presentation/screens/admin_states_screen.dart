@@ -57,7 +57,9 @@ class _AdminStatesScreenState extends State<AdminStatesScreen> {
       ),
     );
 
-    if (saved != true) return;
+    if (saved != true) {
+      return;
+    }
 
     if (existing == null) {
       await _repository.createState(

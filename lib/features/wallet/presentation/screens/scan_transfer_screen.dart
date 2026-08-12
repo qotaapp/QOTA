@@ -16,9 +16,13 @@ class _ScanTransferScreenState extends State<ScanTransferScreen> {
   bool _hasScanned = false;
 
   void _onDetect(BarcodeCapture capture) {
-    if (_hasScanned) return;
+    if (_hasScanned) {
+      return;
+    }
     final code = capture.barcodes.firstOrNull?.rawValue;
-    if (code == null || !code.startsWith('qota:user:')) return;
+    if (code == null || !code.startsWith('qota:user:')) {
+      return;
+    }
 
     final recipientId = code.replaceFirst('qota:user:', '');
     setState(() => _hasScanned = true);
@@ -76,7 +80,9 @@ class _TransferAmountScreenState extends State<_TransferAmountScreen> {
       final result = await _repository.transferCoin(
           recipientId: widget.recipientId, amount: amount);
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       if (result['status'] == 'insufficient_funds') {
         setState(() {

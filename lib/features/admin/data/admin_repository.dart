@@ -55,7 +55,9 @@ class AdminRepository {
 
   Future<bool> isCurrentUserSuperAdmin() async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) return false;
+    if (userId == null) {
+      return false;
+    }
     final rows = await _client
         .from('user_roles')
         .select('role')

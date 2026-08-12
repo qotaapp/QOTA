@@ -82,14 +82,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
 
-    if (confirmed != true) return;
+    if (confirmed != true) {
+      return;
+    }
 
     final result = await _repository.changeName(
       firstName: firstNameController.text.trim(),
       lastName: lastNameController.text.trim(),
     );
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     if (result['status'] == 'insufficient_funds') {
       ScaffoldMessenger.of(context).showSnackBar(

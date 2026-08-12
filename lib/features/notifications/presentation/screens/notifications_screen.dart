@@ -140,9 +140,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   String _formatRelativeTime(DateTime date) {
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1) return 'À l\'instant';
-    if (diff.inMinutes < 60) return 'Il y a ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'Il y a ${diff.inHours} h';
+    if (diff.inMinutes < 1) {
+      return 'À l\'instant';
+    }
+    if (diff.inMinutes < 60) {
+      return 'Il y a ${diff.inMinutes} min';
+    }
+    if (diff.inHours < 24) {
+      return 'Il y a ${diff.inHours} h';
+    }
     return 'Il y a ${diff.inDays} j';
   }
 }

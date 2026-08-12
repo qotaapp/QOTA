@@ -57,7 +57,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
     // §19 : image obligatoire.
     if (_pickedImage == null) {
@@ -80,7 +82,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         zoneId: widget.zoneId,
       );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       if (duplicates.isNotEmpty) {
         setState(() => _isSubmitting = false);
@@ -109,7 +113,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   }
 
   Future<void> _createService(String name) async {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() => _isSubmitting = true);
 
     try {
@@ -127,7 +133,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         zoneId: widget.zoneId,
       );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       // §21 : immédiatement évaluable et commentable — on revient à la
       // liste des Services, qui se rechargera avec la nouvelle entrée.
       Navigator.of(context).pop(true);

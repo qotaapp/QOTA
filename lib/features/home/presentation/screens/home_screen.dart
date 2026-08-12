@@ -77,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadPage({bool reset = false}) async {
-    if (_isLoadingMore || (!_hasMore && !reset)) return;
+    if (_isLoadingMore || (!_hasMore && !reset)) {
+      return;
+    }
 
     setState(() => reset ? _isLoadingInitial = true : _isLoadingMore = true);
 

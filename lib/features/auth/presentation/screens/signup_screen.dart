@@ -38,7 +38,9 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _handleCreateAccount() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -54,7 +56,9 @@ class _SignupScreenState extends State<SignupScreen> {
         password: _passwordController.text,
       );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       // §6 : "Compte créé avec succès" puis redirection directe vers Home.
       ScaffoldMessenger.of(context).showSnackBar(
@@ -107,8 +111,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       labelText: 'Âge', border: OutlineInputBorder()),
                   validator: (v) {
                     final age = int.tryParse(v ?? '');
-                    if (age == null || age <= 0 || age > 120)
+                    if (age == null || age <= 0 || age > 120) {
                       return 'Âge invalide';
+                    }
                     return null;
                   },
                 ),
@@ -119,7 +124,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   decoration: const InputDecoration(
                       labelText: 'E-mail', border: OutlineInputBorder()),
                   validator: (v) {
-                    if (v == null || !v.contains('@')) return 'E-mail invalide';
+                    if (v == null || !v.contains('@')) {
+                      return 'E-mail invalide';
+                    }
                     return null;
                   },
                 ),
@@ -130,8 +137,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   decoration: const InputDecoration(
                       labelText: 'Mot de passe', border: OutlineInputBorder()),
                   validator: (v) {
-                    if (v == null || v.length < 6)
+                    if (v == null || v.length < 6) {
                       return 'Minimum 6 caractères';
+                    }
                     return null;
                   },
                 ),
@@ -143,8 +151,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       labelText: 'Rétablir mot de passe',
                       border: OutlineInputBorder()),
                   validator: (v) {
-                    if (v != _passwordController.text)
+                    if (v != _passwordController.text) {
                       return 'Les mots de passe ne correspondent pas';
+                    }
                     return null;
                   },
                 ),

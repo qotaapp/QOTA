@@ -47,7 +47,9 @@ class _CommentTileState extends State<CommentTile> {
 
   void _submitReply() {
     final text = _replyController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty) {
+      return;
+    }
     widget.onReply(text);
     _replyController.clear();
     setState(() {

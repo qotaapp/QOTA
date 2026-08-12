@@ -39,7 +39,9 @@ class _AddUserItemScreenState extends State<AddUserItemScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     if (_pickedImage == null) {
       setState(() => _errorMessage = 'Une image est obligatoire.');
       return;

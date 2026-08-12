@@ -63,8 +63,9 @@ class SearchRepository {
     double? userLat,
     double? userLng,
   }) async {
-    if (query.trim().length < 2)
+    if (query.trim().length < 2) {
       return (<SearchResultCategory>[], <SearchResultEntity>[]);
+    }
 
     final categoriesRows = await _client
         .rpc('search_categories', params: {'p_query': query, 'p_limit': 6});

@@ -57,7 +57,9 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
       ),
     );
 
-    if (saved != true) return;
+    if (saved != true) {
+      return;
+    }
 
     if (existing == null) {
       await _repository.createCategory(

@@ -10,7 +10,9 @@ class RatingRepository {
   /// pré-remplir sa note et son commentaire pour modification.
   Future<QotaRating?> getMyRating(String entityId) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) return null;
+    if (userId == null) {
+      return null;
+    }
 
     final rows = await _client
         .from('ratings')
@@ -19,7 +21,9 @@ class RatingRepository {
         .eq('user_id', userId)
         .limit(1);
 
-    if ((rows as List).isEmpty) return null;
+    if ((rows as List).isEmpty) {
+      return null;
+    }
     return QotaRating.fromMap(rows.first);
   }
 

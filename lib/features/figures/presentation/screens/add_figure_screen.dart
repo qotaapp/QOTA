@@ -42,7 +42,9 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     if (_pickedImage == null) {
       setState(() => _errorMessage = 'Une image est obligatoire.');
       return;
@@ -57,7 +59,9 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
       final name = _nameController.text.trim();
       final duplicates = await _repository.findPotentialDuplicates(name);
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       if (duplicates.isNotEmpty) {
         setState(() => _isSubmitting = false);
@@ -76,7 +80,9 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
             ],
           ),
         );
-        if (proceed != true) return;
+        if (proceed != true) {
+          return;
+        }
       }
 
       await _create(name);
@@ -89,7 +95,9 @@ class _AddFigureScreenState extends State<AddFigureScreen> {
   }
 
   Future<void> _create(String name) async {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() => _isSubmitting = true);
     try {
       final bytes = await _pickedImage!.readAsBytes();

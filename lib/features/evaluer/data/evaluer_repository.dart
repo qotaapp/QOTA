@@ -96,7 +96,9 @@ class EvaluerRepository {
         .select()
         .eq('id', entityId)
         .limit(1);
-    if ((rows as List).isEmpty) return null;
+    if ((rows as List).isEmpty) {
+      return null;
+    }
     return QotaEntity.fromMap(rows.first);
   }
 
