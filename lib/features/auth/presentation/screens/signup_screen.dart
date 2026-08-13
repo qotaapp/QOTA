@@ -67,7 +67,7 @@ class _SignupScreenState extends State<SignupScreen> {
       final hasActiveSession = _authRepository.isLoggedIn;
 
       if (hasActiveSession) {
-        // §6 : "Compte créé avec succès" puis redirection directe vers Home.
+        // §6 : "Compte créé avec succès" puis redirection vers Home.
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Compte créé avec succès')),
         );
@@ -109,20 +109,31 @@ class _SignupScreenState extends State<SignupScreen> {
               children: [
                 TextFormField(
                   controller: _lastNameController,
-                  decoration: const InputDecoration(labelText: 'Nom', border: OutlineInputBorder()),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Nom',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: const InputDecoration(labelText: 'Prénom', border: OutlineInputBorder()),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Prénom requis' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Prénom',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Prénom requis' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _ageController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Âge', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Âge',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) {
                     final age = int.tryParse(v ?? '');
                     if (age == null || age <= 0 || age > 120) {
@@ -135,7 +146,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'E-mail', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'E-mail',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) {
                     if (v == null || !v.contains('@')) {
                       return 'E-mail invalide';
@@ -147,7 +161,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Mot de passe', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Mot de passe',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) {
                     if (v == null || v.length < 6) {
                       return 'Minimum 6 caractères';
@@ -159,7 +176,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Rétablir mot de passe', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Rétablir mot de passe',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) {
                     if (v != _passwordController.text) {
                       return 'Les mots de passe ne correspondent pas';
@@ -167,12 +187,13 @@ class _SignupScreenState extends State<SignupScreen> {
                     return null;
                   },
                 ),
-
                 if (_errorMessage != null) ...[
                   const SizedBox(height: 12),
-                  Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ],
-
                 const SizedBox(height: 28),
                 FilledButton(
                   style: FilledButton.styleFrom(
@@ -182,8 +203,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   onPressed: _isLoading ? null : _handleCreateAccount,
                   child: _isLoading
                       ? const SizedBox(
-                          height: 20, width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Text('Créer un compte'),
                 ),

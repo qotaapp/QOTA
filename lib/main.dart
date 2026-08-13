@@ -44,7 +44,11 @@ class _StartupErrorApp extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline_rounded, size: 48, color: Colors.red),
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 48,
+                  color: Colors.red,
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'Connexion à Supabase impossible',
@@ -54,13 +58,17 @@ class _StartupErrorApp extends StatelessWidget {
                 const SizedBox(height: 8),
                 const Text(
                   'Vérifiez SUPABASE_URL et SUPABASE_ANON_KEY passés via '
-                  '--dart-define (ou lib/core/constants/supabase_constants.dart '
-                  'si vous testez sans --dart-define).',
+                  '--dart-define (ou lib/core/constants/'
+                  'supabase_constants.dart si vous testez sans '
+                  '--dart-define).',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.black54),
                 ),
                 const SizedBox(height: 12),
-                Text('$error', style: const TextStyle(fontSize: 12, color: Colors.black38)),
+                Text(
+                  '$error',
+                  style: const TextStyle(fontSize: 12, color: Colors.black38),
+                ),
               ],
             ),
           ),
