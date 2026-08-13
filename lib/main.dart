@@ -44,8 +44,7 @@ class _StartupErrorApp extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline_rounded,
-                    size: 48, color: Colors.red),
+                const Icon(Icons.error_outline_rounded, size: 48, color: Colors.red),
                 const SizedBox(height: 16),
                 const Text(
                   'Connexion à Supabase impossible',
@@ -61,9 +60,7 @@ class _StartupErrorApp extends StatelessWidget {
                   style: TextStyle(color: Colors.black54),
                 ),
                 const SizedBox(height: 12),
-                Text('$error',
-                    style:
-                        const TextStyle(fontSize: 12, color: Colors.black38)),
+                Text('$error', style: const TextStyle(fontSize: 12, color: Colors.black38)),
               ],
             ),
           ),

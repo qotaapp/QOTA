@@ -34,7 +34,12 @@ insert into figure_types (name_fr, name_ar, order_index) values
 on conflict do nothing;
 
 -- entity_cards_view (003) étendue pour inclure le type de figure.
-create or replace view entity_cards_view as
+-- CREATE OR REPLACE VIEW interdit de réordonner/renommer des colonnes
+-- existantes (seul un ajout en fin de liste est autorisé). On supprime
+-- donc la vue avant de la recréer avec la nouvelle structure complète.
+drop view if exists entity_cards_view cascade;
+
+create view entity_cards_view as
 select
     e.id,
     e.kind,
