@@ -21,12 +21,19 @@ class _RootShellState extends State<RootShell> {
   final _notificationsRepository = NotificationsRepository();
   bool _hasUnread = false;
 
-  static const _screens = [
-    HomeScreen(),
-    EvaluerScreen(),
-    NotificationsScreen(),
-    ProfileScreen(),
-    MenuScreen(),
+  // GlobalKey sur MenuScreen : IndexedStack garde chaque écran en
+  // mémoire en permanence (pour ne pas perdre leur état au changement
+  // d'onglet), donc son initState() ne s'exécute qu'une seule fois.
+  // Sans ce mécanisme, un rôle Super Admin ajouté après la connexion
+  // ne serait jamais détecté tant que l'app n'est pas relancée.
+  final _menuKey = GlobalKey<MenuScreenState>();
+
+  late final List<Widget> _screens = [
+    const HomeScreen(),
+    const EvaluerScreen(),
+    const NotificationsScreen(),
+    const ProfileScreen(),
+    MenuScreen(key: _menuKey),
   ];
 
   @override
@@ -46,6 +53,11 @@ class _RootShellState extends State<RootShell> {
       // En quittant l'onglet Notifications, le badge se rafraîchit
       // (les notifications viennent d'être marquées lues dans l'écran).
       Future.delayed(const Duration(milliseconds: 300), _refreshUnreadStatus);
+    }
+    if (index == 4) {
+      // Revérifie le rôle Super Admin à CHAQUE ouverture du Menu, pas
+      // seulement à la connexion (voir commentaire sur _menuKey).
+      _menuKey.currentState?.refreshAdminStatus();
     }
   }
 

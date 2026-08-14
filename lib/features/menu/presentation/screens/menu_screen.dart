@@ -12,20 +12,24 @@ class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
   @override
-  State<MenuScreen> createState() => _MenuScreenState();
+  State<MenuScreen> createState() => MenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen> {
+/// État public (pas de préfixe _) pour permettre à RootShell de
+/// déclencher un rafraîchissement du rôle via GlobalKey — sans ça,
+/// IndexedStack garde cet écran en mémoire et ne revérifie le rôle
+/// qu'une seule fois, à la toute première ouverture de l'app.
+class MenuScreenState extends State<MenuScreen> {
   final _adminRepository = AdminRepository();
   bool _isSuperAdmin = false;
 
   @override
   void initState() {
     super.initState();
-    _checkAdminRole();
+    refreshAdminStatus();
   }
 
-  Future<void> _checkAdminRole() async {
+  Future<void> refreshAdminStatus() async {
     final isAdmin = await _adminRepository.isCurrentUserSuperAdmin();
     if (mounted) setState(() => _isSuperAdmin = isAdmin);
   }
