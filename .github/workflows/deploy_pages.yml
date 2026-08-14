@@ -38,16 +38,6 @@ jobs:
       # https://qotaapp.github.io/QOTA-Flutter-app/ (un sous-dossier,
       # pas la racine du domaine) — sans ça, les assets et le routing
       # cassent silencieusement.
-      - name: DEBUG — Vérifier la longueur des secrets (temporaire)
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
-        run: |
-          echo "Longueur SUPABASE_URL : ${#SUPABASE_URL} caractères"
-          echo "Longueur SUPABASE_PUBLISHABLE_KEY : ${#SUPABASE_PUBLISHABLE_KEY} caractères"
-          echo "SUPABASE_URL commence par : ${SUPABASE_URL:0:20}..."
-          echo "SUPABASE_PUBLISHABLE_KEY commence par : ${SUPABASE_PUBLISHABLE_KEY:0:15}..."
-
       - name: Build Web (release)
         run: |
           flutter build web --release \
