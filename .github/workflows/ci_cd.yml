@@ -1,33 +1,30 @@
 name: Qota CI/CD
 
+# Déclenché sur chaque push/PR — cohérent avec l'exigence du cahier
+# des charges : "permettre CI/CD, tests, staging et production."
 on:
   push:
     branches: [main, develop]
-
   pull_request:
     branches: [main, develop]
 
-permissions:
-  contents: read
-
 jobs:
-
   # ============================================================
-  # 1. ANALYSE STATIQUE + TESTS
+  # 1. ANALYSE STATIQUE + TESTS — bloque la fusion si échec
   # ============================================================
-
   analyze_and_test:
     name: Analyse & Tests
     runs-on: ubuntu-latest
-
     steps:
-      - name: Récupérer le code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Pas de version figée : on suit le canal stable pour éviter
+          # tout écart avec la version installée en local (source du
+          # conflit de résolution sur le package intl).
 
       - name: Installer les dépendances
         run: flutter pub get
@@ -35,7 +32,7 @@ jobs:
       - name: Générer les fichiers l10n
         run: flutter gen-l10n
 
-      - name: Analyse statique
+      - name: Analyse statique (flutter analyze)
         run: flutter analyze --fatal-infos
 
       - name: Vérifier le formatage
@@ -50,22 +47,17 @@ jobs:
           name: coverage-report
           path: coverage/lcov.info
 
-
   # ============================================================
-  # 2. BUILD WEB
+  # 2. BUILD WEB — déployé sur Render (staging sur `develop`,
+  #    production sur `main`)
   # ============================================================
-
   build_web:
     name: Build Web
     needs: analyze_and_test
     runs-on: ubuntu-latest
-
-    # Seulement sur push, pas sur Pull Request
     if: github.event_name == 'push'
-
     steps:
-      - name: Récupérer le code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
@@ -78,65 +70,32 @@ jobs:
       - name: Générer les fichiers l10n
         run: flutter gen-l10n
 
-      - name: Construire Flutter Web
+      - name: Build Web (release)
         run: |
           flutter build web --release \
-            --base-href "/QOTA-Flutter-app/" \
-            --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-            --dart-define=SUPABASE_PUBLISHABLE_KEY="${{ secrets.SUPABASE_PUBLISHABLE_KEY }}"
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
 
-      # Artefact classique de GitHub Actions
       - name: Publier l'artefact Web
         uses: actions/upload-artifact@v4
         with:
           name: qota-web-build
           path: build/web
 
-      # Artefact destiné à GitHub Pages
-      - name: Préparer GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: build/web
-
+      # Render redéploie automatiquement depuis le dépôt GitHub connecté
+      # (voir render.yaml) — ce job garantit que le build passe AVANT
+      # que Render ne tente de le déployer, via un statut de commit.
 
   # ============================================================
-  # 3. DÉPLOIEMENT GITHUB PAGES
+  # 3. BUILD ANDROID (APK de test — signature release séparée du CI)
   # ============================================================
-
-  deploy_pages:
-    name: Deploy GitHub Pages
-    needs: build_web
-    runs-on: ubuntu-latest
-
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Déployer sur GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-
-  # ============================================================
-  # 4. BUILD ANDROID
-  # ============================================================
-
   build_android:
     name: Build Android
     needs: analyze_and_test
     runs-on: ubuntu-latest
-
-    # Android seulement sur main
     if: github.ref == 'refs/heads/main'
-
     steps:
-      - name: Récupérer le code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
@@ -155,11 +114,11 @@ jobs:
       - name: Générer les fichiers l10n
         run: flutter gen-l10n
 
-      - name: Construire APK Release
+      - name: Build APK (release)
         run: |
           flutter build apk --release \
-            --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-            --dart-define=SUPABASE_PUBLISHABLE_KEY="${{ secrets.SUPABASE_PUBLISHABLE_KEY }}"
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Publier l'APK
         uses: actions/upload-artifact@v4

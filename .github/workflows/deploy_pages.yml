@@ -1,0 +1,55 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permet aussi de le relancer manuellement depuis l'onglet Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Générer les fichiers l10n
+        run: flutter gen-l10n
+
+      # --base-href est OBLIGATOIRE ici : le site est servi sous
+      # https://qotaapp.github.io/QOTA-Flutter-app/ (un sous-dossier,
+      # pas la racine du domaine) — sans ça, les assets et le routing
+      # cassent silencieusement.
+      - name: Build Web (release)
+        run: |
+          flutter build web --release \
+            --base-href "/QOTA-Flutter-app/" \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Préparer l'artefact Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+      - name: Déployer sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
