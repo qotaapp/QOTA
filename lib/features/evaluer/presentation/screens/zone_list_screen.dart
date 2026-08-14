@@ -63,6 +63,7 @@ class _ZoneListScreenState extends State<ZoneListScreen> {
   Widget build(BuildContext context) {
     return SimpleSelectionList(
       title: 'Ville / Zone',
+      subtitle: 'Évaluer',
       isLoading: _isLoading,
       items: _items,
       onSelect: (item) {

@@ -50,6 +50,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
   Widget build(BuildContext context) {
     return SimpleSelectionList(
       title: 'Catégorie',
+      subtitle: 'Évaluer',
       isLoading: _isLoading,
       items: _items,
       onSelect: (item) {

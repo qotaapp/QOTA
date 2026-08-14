@@ -38,6 +38,7 @@ class _CityListScreenState extends State<CityListScreen> {
   Widget build(BuildContext context) {
     return SimpleSelectionList(
       title: widget.stateLabel,
+      subtitle: 'Évaluer',
       isLoading: _isLoading,
       items: _items,
       onSelect: (item) {

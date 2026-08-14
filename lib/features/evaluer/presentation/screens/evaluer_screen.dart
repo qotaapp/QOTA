@@ -37,7 +37,8 @@ class _EvaluerScreenState extends State<EvaluerScreen> {
   @override
   Widget build(BuildContext context) {
     return SimpleSelectionList(
-      title: 'État',
+      title: 'Évaluer',
+      subtitle: 'État',
       isLoading: _isLoading,
       items: _items,
       onSelect: (item) {
