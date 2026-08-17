@@ -3,9 +3,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../data/feed_repository.dart';
 
-/// §9/§25 : même structure visuelle que ServiceCard, mais s'adapte au
-/// kind — le propriétaire n'apparaît QUE pour un User Item (§23),
-/// jamais pour une Service (§18). Toujours pas de ❤️ (§25).
+/// §9/§25 : carte pour les Services affichées dans le Feed (jamais de
+/// propriétaire, §18). Les User Items utilisent FeedUserItemCard.
 class FeedItemCard extends StatelessWidget {
   final FeedItem item;
   final VoidCallback onOpenDetails;

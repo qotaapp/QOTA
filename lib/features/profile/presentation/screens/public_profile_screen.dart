@@ -3,16 +3,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/profile_models.dart';
 import '../../data/profile_repository.dart';
-import '../widgets/bordered_info_card.dart';
 import '../widgets/user_item_post_card.dart';
 import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
 import '../../../rating/presentation/widgets/rating_sheet.dart';
 import '../../../comments/presentation/screens/comments_screen.dart';
 
-/// Profil PUBLIC d'un autre utilisateur — accessible en tapant sur son
-/// nom/avatar depuis une publication (Home ou Profil). Lecture seule :
-/// pas de solde, pas d'édition de nom, pas d'upload de photo — juste
-/// son identité publique et ses User Items, comme sur son propre Profil.
+/// §7 : profil PUBLIC d'un autre utilisateur — photo, nom, User Items
+/// publiés. Contrairement à ProfileScreen (soi-même), pas de wallet,
+/// pas d'édition du nom, pas de composer "Qu'allons-nous évaluer ?".
 class PublicProfileScreen extends StatefulWidget {
   final String userId;
 
@@ -33,7 +31,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   }
 
   Future<_PublicProfileData> _load() async {
-    final profile = await _repository.getPublicProfile(widget.userId);
+    final profile = await _repository.getProfileById(widget.userId);
     final items = await _repository.getUserItems(widget.userId);
     return _PublicProfileData(profile: profile, items: items);
   }
@@ -45,63 +43,42 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        foregroundColor: AppColors.textPrimary,
-        title: const Text('Profil'),
-      ),
-      body: FutureBuilder<_PublicProfileData>(
-        future: _futureData,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            if (snapshot.hasError) {
-              return const Center(
-                child: Text('Impossible de charger ce profil.'),
-              );
+      appBar: AppBar(title: const Text('Profil')),
+      body: SafeArea(
+        child: FutureBuilder<_PublicProfileData>(
+          future: _futureData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
             }
-            return const Center(child: CircularProgressIndicator());
-          }
+            final data = snapshot.data!;
+            final profile = data.profile;
 
-          final data = snapshot.data!;
-          final profile = data.profile;
-
-          return RefreshIndicator(
-            onRefresh: () async => _reload(),
-            child: CustomScrollView(
+            return CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                    child: BorderedInfoCard(
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 34,
-                            backgroundColor: AppColors.surfaceChip,
-                            backgroundImage: profile.avatarUrl != null
-                                ? CachedNetworkImageProvider(
-                                    profile.avatarUrl!)
-                                : null,
-                            child: profile.avatarUrl == null
-                                ? const Icon(
-                                    Icons.person,
-                                    size: 34,
-                                    color: AppColors.iconInactive,
-                                  )
-                                : null,
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              profile.fullName,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 18),
-                            ),
-                          ),
-                        ],
-                      ),
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 44,
+                          backgroundColor: AppColors.surfaceChip,
+                          backgroundImage: profile.avatarUrl != null
+                              ? CachedNetworkImageProvider(profile.avatarUrl!)
+                              : null,
+                          child: profile.avatarUrl == null
+                              ? const Icon(Icons.person,
+                                  size: 44, color: AppColors.iconInactive)
+                              : null,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          profile.fullName,
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w800),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -123,18 +100,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                       (context, index) {
                         final item = data.items[index];
                         return UserItemPostCard(
-                          itemId: item.id,
-                          name: item.name,
-                          description: item.description,
-                          imageUrl: item.imageUrl,
-                          ownerId: item.ownerId,
-                          ownerName: item.ownerName,
-                          ownerAvatarUrl: item.ownerAvatarUrl,
-                          createdAt: item.createdAt,
-                          averageScore: item.averageScore,
-                          ratingsCount: item.ratingsCount,
-                          commentsCount: item.commentsCount,
-                          viewsCount: item.viewsCount,
+                          item: item,
                           onOpenRatingSheet: () => RatingSheet.show(
                             context,
                             entityId: item.id,
@@ -145,7 +111,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                                 builder: (_) => CommentsScreen(
                                   entityId: item.id,
                                   entityKind: 'user_item',
-                                  entityOwnerId: profile.id, // §34
+                                  entityOwnerId: profile.id,
                                 ),
                               ))
                               .then((_) => _reload()),
@@ -163,16 +129,16 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                   ),
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 }
 
 class _PublicProfileData {
-  final PublicProfile profile;
+  final QotaProfile profile;
   final List<QotaUserItem> items;
 
   _PublicProfileData({required this.profile, required this.items});

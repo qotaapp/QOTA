@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../figures/presentation/screens/figure_type_list_screen.dart';
 import '../../../wallet/presentation/screens/wallet_screen.dart';
 import '../../../admin/data/admin_repository.dart';
 import '../../../admin/presentation/screens/admin_home_screen.dart';
 import '../../../auth/data/auth_repository.dart';
 
-/// Menu : accès aux Figures Publiques, Wallet, Dashboard Super Admin
-/// (visible uniquement pour ce rôle), déconnexion.
+/// Menu : accès au Wallet, Dashboard Super Admin (visible uniquement
+/// pour ce rôle), déconnexion. Les Figures Publiques sont accessibles
+/// depuis l'onglet ⭐ Évaluer (bouton "Personnages publique").
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
@@ -56,17 +56,6 @@ class MenuScreenState extends State<MenuScreen> {
             },
           ),
           const Divider(height: 1),
-          ListTile(
-            leading:
-                const Icon(Icons.groups_outlined, color: AppColors.iconDefault),
-            title: const Text('Figures publiques'),
-            trailing: const Icon(Icons.chevron_right_rounded,
-                color: AppColors.iconInactive),
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const FigureTypeListScreen()));
-            },
-          ),
           if (_isSuperAdmin) ...[
             const Divider(height: 1),
             ListTile(

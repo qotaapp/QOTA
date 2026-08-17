@@ -23,18 +23,17 @@ class ProfileRepository {
     return QotaProfile.fromMap(row);
   }
 
-  /// Profil PUBLIC de n'importe quel utilisateur (nom + avatar
-  /// uniquement) — via `public_profiles_view`, pas la table
-  /// `profiles` dont la RLS interdit la lecture croisée entre
-  /// utilisateurs. Utilisé quand on tape sur le nom/avatar d'un
-  /// auteur de publication (Home, User Items) pour voir sa page.
-  Future<PublicProfile> getPublicProfile(String userId) async {
+  /// §7 : profil PUBLIC — nom, photo, User Items publiés — consultable
+  /// pour n'importe quel utilisateur, pas seulement soi-même. Passe
+  /// par public_profile_view (jamais la table brute, protégée par RLS
+  /// et contenant des champs privés comme l'âge).
+  Future<QotaProfile> getProfileById(String userId) async {
     final row = await _client
-        .from('public_profiles_view')
+        .from('public_profile_view')
         .select()
         .eq('id', userId)
         .single();
-    return PublicProfile.fromMap(row);
+    return QotaProfile.fromMap(row);
   }
 
   Future<double> getMyWalletBalance() async {
@@ -74,30 +73,6 @@ class ProfileRepository {
         '$currentUserId/user_items/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
     await _client.storage.from('user-content').uploadBinary(path, bytes);
     return _client.storage.from('user-content').getPublicUrl(path);
-  }
-
-  /// Photo de profil. Le redimensionnement (côté `image_picker`, voir
-  /// l'écran) garantit une image déjà "carrée-friendly" et légère —
-  /// affichée ensuite via `BoxFit.cover` dans les CircleAvatar, donc
-  /// nette et bien cadrée même en très petite taille (barre de statut).
-  Future<String> uploadAvatarImage({
-    required Uint8List bytes,
-    required String fileExtension,
-  }) async {
-    final path =
-        '$currentUserId/avatar/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
-    await _client.storage.from('user-content').uploadBinary(
-          path,
-          bytes,
-          fileOptions: const FileOptions(upsert: true),
-        );
-    return _client.storage.from('user-content').getPublicUrl(path);
-  }
-
-  Future<void> updateAvatarUrl(String avatarUrl) async {
-    await _client
-        .from('profiles')
-        .update({'avatar_url': avatarUrl}).eq('id', currentUserId);
   }
 
   /// §23-24 : image obligatoire, propriétaire = créateur, PAS de
