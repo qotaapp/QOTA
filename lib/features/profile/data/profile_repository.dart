@@ -62,6 +62,30 @@ class ProfileRepository {
     return _client.storage.from('user-content').getPublicUrl(path);
   }
 
+  /// Photo de profil. Le redimensionnement (côté `image_picker`, voir
+  /// l'écran) garantit une image déjà "carrée-friendly" et légère —
+  /// affichée ensuite via `BoxFit.cover` dans les CircleAvatar, donc
+  /// nette et bien cadrée même en très petite taille (barre de statut).
+  Future<String> uploadAvatarImage({
+    required Uint8List bytes,
+    required String fileExtension,
+  }) async {
+    final path =
+        '$currentUserId/avatar/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    await _client.storage.from('user-content').uploadBinary(
+          path,
+          bytes,
+          fileOptions: const FileOptions(upsert: true),
+        );
+    return _client.storage.from('user-content').getPublicUrl(path);
+  }
+
+  Future<void> updateAvatarUrl(String avatarUrl) async {
+    await _client
+        .from('profiles')
+        .update({'avatar_url': avatarUrl}).eq('id', currentUserId);
+  }
+
   /// §23-24 : image obligatoire, propriétaire = créateur, PAS de
   /// détection stricte de doublon (contrairement aux Services §19-20) —
   /// un même utilisateur peut publier plusieurs fois un item similaire.

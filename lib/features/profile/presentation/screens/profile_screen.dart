@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/create_status_bar.dart';
 import '../../data/profile_models.dart';
 import '../../data/profile_repository.dart';
 import '../widgets/bordered_info_card.dart';
@@ -21,8 +23,10 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _repository = ProfileRepository();
+  final _picker = ImagePicker();
   late Future<_ProfileData> _futureData;
   bool _hideBalance = false;
+  bool _isUploadingAvatar = false;
 
   @override
   void initState() {
@@ -134,6 +138,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Photo de profil : redimensionnée dès la sélection (max 640x640,
+  /// qualité 85) pour rester légère et nette une fois recadrée en
+  /// cercle — y compris dans les petits avatars (barre de statut, etc.).
+  Future<void> _changeAvatar() async {
+    final image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 640,
+      maxHeight: 640,
+      imageQuality: 85,
+    );
+    if (image == null) {
+      return;
+    }
+
+    setState(() => _isUploadingAvatar = true);
+    try {
+      final bytes = await image.readAsBytes();
+      final extension = image.name.split('.').last;
+      final avatarUrl = await _repository.uploadAvatarImage(
+          bytes: bytes, fileExtension: extension);
+      await _repository.updateAvatarUrl(avatarUrl);
+      _reload();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Impossible de mettre à jour la photo. Réessayez.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingAvatar = false);
+    }
+  }
+
   /// "mon Qota" : moyenne des évaluations reçues sur l'ensemble des
   /// User Items du profil (calculée côté client à partir des moyennes
   /// déjà agrégées par item — pas de nouvelle requête serveur requise).
@@ -172,20 +210,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         BorderedInfoCard(
                           child: Row(
                             children: [
-                              CircleAvatar(
-                                radius: 34,
-                                backgroundColor: AppColors.surfaceChip,
-                                backgroundImage: profile.avatarUrl != null
-                                    ? CachedNetworkImageProvider(
-                                        profile.avatarUrl!)
-                                    : null,
-                                child: profile.avatarUrl == null
-                                    ? const Icon(
-                                        Icons.person,
-                                        size: 34,
-                                        color: AppColors.iconInactive,
+                              GestureDetector(
+                                onTap:
+                                    _isUploadingAvatar ? null : _changeAvatar,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 34,
+                                      backgroundColor: AppColors.surfaceChip,
+                                      backgroundImage:
+                                          profile.avatarUrl != null
+                                              ? CachedNetworkImageProvider(
+                                                  profile.avatarUrl!)
+                                              : null,
+                                      child: profile.avatarUrl == null
+                                          ? const Icon(
+                                              Icons.person,
+                                              size: 34,
+                                              color: AppColors.iconInactive,
+                                            )
+                                          : null,
+                                    ),
+                                    if (_isUploadingAvatar)
+                                      const Positioned.fill(
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.black38,
+                                          child: SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
                                       )
-                                    : null,
+                                    else
+                                      Positioned(
+                                        right: -2,
+                                        bottom: -2,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryOrange,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color: Colors.white,
+                                                width: 2),
+                                          ),
+                                          child: const Icon(
+                                            Icons.camera_alt,
+                                            size: 12,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(width: 14),
                               Expanded(
@@ -297,49 +379,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 16),
 
                         // ---- Barre "Qu'allons-nous évaluer ?" ----
-                        InkWell(
+                        CreateStatusBar(
+                          avatarUrl: profile.avatarUrl,
                           onTap: _openAddUserItem,
-                          borderRadius: BorderRadius.circular(30),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceChip,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Colors.white,
-                                  backgroundImage: profile.avatarUrl != null
-                                      ? CachedNetworkImageProvider(
-                                          profile.avatarUrl!)
-                                      : null,
-                                  child: profile.avatarUrl == null
-                                      ? const Icon(
-                                          Icons.person,
-                                          size: 18,
-                                          color: AppColors.iconInactive,
-                                        )
-                                      : null,
-                                ),
-                                const SizedBox(width: 10),
-                                const Expanded(
-                                  child: Text(
-                                    'Qu\'allons-nous évaluer ?',
-                                    style: TextStyle(
-                                        color: AppColors.textSecondary),
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.add_photo_alternate_outlined,
-                                  color: AppColors.iconInactive,
-                                ),
-                                const SizedBox(width: 4),
-                              ],
-                            ),
-                          ),
                         ),
                         const SizedBox(height: 8),
                       ],

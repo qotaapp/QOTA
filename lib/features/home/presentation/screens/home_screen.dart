@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/create_status_bar.dart';
 import '../../data/feed_repository.dart';
 import '../widgets/feed_item_card.dart';
 import '../../../evaluer/presentation/screens/service_details_screen.dart';
@@ -8,6 +9,8 @@ import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
 import '../../../rating/presentation/widgets/rating_sheet.dart';
 import '../../../comments/presentation/screens/comments_screen.dart';
 import '../../../search/presentation/screens/search_screen.dart';
+import '../../../profile/data/profile_repository.dart';
+import '../../../profile/presentation/screens/add_user_item_screen.dart';
 
 /// §9-12 : Home = logo Qota + loupe de recherche, puis le Feed
 /// algorithmique (§10), paginé, mêlant Services et User Items.
@@ -20,9 +23,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _repository = FeedRepository();
+  final _profileRepository = ProfileRepository();
   final _scrollController = ScrollController();
   final List<FeedItem> _items = [];
 
+  String? _avatarUrl;
   double? _userLat;
   double? _userLng;
   bool _isLoadingInitial = true;
@@ -46,6 +51,25 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _init() async {
     await _tryGetLocation();
     await _loadPage(reset: true);
+    _loadAvatar();
+  }
+
+  /// Avatar utilisé uniquement pour l'affichage de la barre de statut —
+  /// une erreur ici ne doit jamais bloquer le Feed.
+  Future<void> _loadAvatar() async {
+    try {
+      final profile = await _profileRepository.getMyProfile();
+      if (mounted) setState(() => _avatarUrl = profile.avatarUrl);
+    } catch (_) {}
+  }
+
+  Future<void> _openAddUserItem() async {
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const AddUserItemScreen()),
+    );
+    if (created == true) {
+      _refresh();
+    }
   }
 
   /// La localisation est optionnelle pour l'algorithme (§10) — si
@@ -121,6 +145,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: CreateStatusBar(
+              avatarUrl: _avatarUrl,
+              onTap: _openAddUserItem,
             ),
           ),
           Expanded(
