@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/create_status_bar.dart';
 import '../../data/feed_repository.dart';
@@ -11,6 +12,9 @@ import '../../../comments/presentation/screens/comments_screen.dart';
 import '../../../search/presentation/screens/search_screen.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../../profile/presentation/screens/add_user_item_screen.dart';
+import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../profile/presentation/screens/public_profile_screen.dart';
+import '../../../profile/presentation/widgets/user_item_post_card.dart';
 
 /// §9-12 : Home = logo Qota + loupe de recherche, puis le Feed
 /// algorithmique (§10), paginé, mêlant Services et User Items.
@@ -69,6 +73,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     if (created == true) {
       _refresh();
+    }
+  }
+
+  /// Nom/avatar d'une publication -> profil de son auteur. Si c'est
+  /// l'utilisateur courant, on ouvre directement son Profil (éditable) ;
+  /// sinon, la version publique en lecture seule.
+  void _openOwnerProfile(String ownerId) {
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    if (ownerId == currentUserId) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const ProfileScreen()),
+      );
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (_) => PublicProfileScreen(userId: ownerId)),
+      );
     }
   }
 
@@ -178,6 +199,49 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             }
                             final item = _items[index];
+
+                            // User Item (§23) : même carte "publication"
+                            // qu'au Profil (avatar/nom cliquables -> profil
+                            // de l'auteur). Service (§18) : carte
+                            // inchangée, jamais de propriétaire affiché.
+                            if (item.kind == 'user_item') {
+                              return UserItemPostCard(
+                                itemId: item.id,
+                                name: item.name,
+                                description: item.description,
+                                imageUrl: item.imageUrl,
+                                ownerId: item.ownerId,
+                                ownerName: item.ownerName ?? '',
+                                ownerAvatarUrl: item.ownerAvatarUrl,
+                                createdAt: item.createdAt,
+                                averageScore: item.averageScore,
+                                ratingsCount: item.ratingsCount,
+                                commentsCount: item.commentsCount,
+                                onOpenProfile: item.ownerId != null
+                                    ? () => _openOwnerProfile(item.ownerId!)
+                                    : null,
+                                onOpenRatingSheet: () => RatingSheet.show(
+                                    context,
+                                    entityId: item.id,
+                                    onSubmitted: _refresh),
+                                onOpenComments: () => Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                      builder: (_) => CommentsScreen(
+                                          entityId: item.id,
+                                          entityKind: item.kind,
+                                          entityOwnerId: item.ownerId),
+                                    ))
+                                    .then((_) => _refresh()),
+                                onOpenImageFullscreen: () =>
+                                    Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => FullscreenImageViewer(
+                                        imageUrl: item.imageUrl),
+                                  ),
+                                ),
+                              );
+                            }
+
                             return FeedItemCard(
                               item: item,
                               onOpenDetails: () => Navigator.of(context)

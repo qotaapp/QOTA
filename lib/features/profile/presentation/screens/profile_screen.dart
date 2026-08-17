@@ -406,7 +406,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       (context, index) {
                         final item = data.items[index];
                         return UserItemPostCard(
-                          item: item,
+                          itemId: item.id,
+                          name: item.name,
+                          description: item.description,
+                          imageUrl: item.imageUrl,
+                          ownerId: item.ownerId,
+                          ownerName: item.ownerName,
+                          ownerAvatarUrl: item.ownerAvatarUrl,
+                          createdAt: item.createdAt,
+                          averageScore: item.averageScore,
+                          ratingsCount: item.ratingsCount,
+                          commentsCount: item.commentsCount,
+                          viewsCount: item.viewsCount,
                           onOpenRatingSheet: () => RatingSheet.show(
                             context,
                             entityId: item.id,

@@ -11,7 +11,10 @@ class FeedItem {
   final String imageUrl;
   final String? cityNameFr;
   final String? zoneNameFr;
+  final String? ownerId;
   final String? ownerName;
+  final String? ownerAvatarUrl;
+  final DateTime createdAt;
   final double averageScore;
   final int ratingsCount;
   final int commentsCount;
@@ -21,13 +24,16 @@ class FeedItem {
     required this.kind,
     required this.name,
     required this.imageUrl,
+    required this.createdAt,
     required this.averageScore,
     required this.ratingsCount,
     required this.commentsCount,
     this.description,
     this.cityNameFr,
     this.zoneNameFr,
+    this.ownerId,
     this.ownerName,
+    this.ownerAvatarUrl,
   });
 
   factory FeedItem.fromMap(Map<String, dynamic> map) => FeedItem(
@@ -38,7 +44,10 @@ class FeedItem {
         imageUrl: map['image_url'] as String,
         cityNameFr: map['city_name_fr'] as String?,
         zoneNameFr: map['zone_name_fr'] as String?,
+        ownerId: map['owner_id'] as String?,
         ownerName: map['owner_name'] as String?,
+        ownerAvatarUrl: map['owner_avatar_url'] as String?,
+        createdAt: DateTime.parse(map['created_at'] as String),
         averageScore: (map['average_score'] as num?)?.toDouble() ?? 0,
         ratingsCount: (map['ratings_count'] as num?)?.toInt() ?? 0,
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,

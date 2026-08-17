@@ -23,6 +23,20 @@ class ProfileRepository {
     return QotaProfile.fromMap(row);
   }
 
+  /// Profil PUBLIC de n'importe quel utilisateur (nom + avatar
+  /// uniquement) — via `public_profiles_view`, pas la table
+  /// `profiles` dont la RLS interdit la lecture croisée entre
+  /// utilisateurs. Utilisé quand on tape sur le nom/avatar d'un
+  /// auteur de publication (Home, User Items) pour voir sa page.
+  Future<PublicProfile> getPublicProfile(String userId) async {
+    final row = await _client
+        .from('public_profiles_view')
+        .select()
+        .eq('id', userId)
+        .single();
+    return PublicProfile.fromMap(row);
+  }
+
   Future<double> getMyWalletBalance() async {
     final row = await _client
         .from('wallets')
