@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../data/profile_models.dart';
 import '../../data/profile_repository.dart';
 
@@ -116,11 +116,7 @@ class UserItemPostCard extends StatelessWidget {
               ProfileRepository().incrementViews(item.id);
               onOpenImageFullscreen();
             },
-            child: AspectRatio(
-              aspectRatio: 16 / 10,
-              child: CachedNetworkImage(
-                  imageUrl: item.imageUrl, fit: BoxFit.cover),
-            ),
+            child: AdaptiveNetworkImage(imageUrl: item.imageUrl),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),

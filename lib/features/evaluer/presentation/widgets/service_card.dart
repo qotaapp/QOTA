@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../data/evaluer_models.dart';
 
 /// §25 : [Image] / Nom / Localisation / ⭐ moyenne  nb_évaluations  💬 nb_commentaires
@@ -42,19 +42,7 @@ class ServiceCard extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: onOpenImageFullscreen,
-              child: AspectRatio(
-                aspectRatio: 16 / 10,
-                child: CachedNetworkImage(
-                  imageUrl: entity.imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (_, __) =>
-                      Container(color: AppColors.surfaceChip),
-                  errorWidget: (_, __, ___) => Container(
-                    color: AppColors.surfaceChip,
-                    child: const Icon(Icons.image_not_supported_outlined),
-                  ),
-                ),
-              ),
+              child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
