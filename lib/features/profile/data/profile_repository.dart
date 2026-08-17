@@ -93,4 +93,26 @@ class ProfileRepository {
       'status': 'active',
     });
   }
+
+  /// Upload de la photo de profil vers le bucket `user-content`.
+  /// Ne met PAS à jour `profiles.avatar_url` — voir updateAvatarUrl.
+  Future<String> uploadAvatarImage({
+    required Uint8List bytes,
+    required String fileExtension,
+  }) async {
+    final path =
+        '$currentUserId/avatar/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    await _client.storage.from('user-content').uploadBinary(
+          path,
+          bytes,
+          fileOptions: const FileOptions(upsert: true),
+        );
+    return _client.storage.from('user-content').getPublicUrl(path);
+  }
+
+  Future<void> updateAvatarUrl(String avatarUrl) async {
+    await _client
+        .from('profiles')
+        .update({'avatar_url': avatarUrl}).eq('id', currentUserId);
+  }
 }
