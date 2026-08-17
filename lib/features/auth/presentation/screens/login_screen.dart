@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/qota_brand_mark.dart';
 import '../../data/auth_repository.dart';
 import 'signup_screen.dart';
 
@@ -80,15 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 40),
-                const Text(
-                  'Qota',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.primaryOrange,
-                  ),
-                ),
+                const Center(child: QotaBrandMark(size: 88)),
                 const SizedBox(height: 48),
 
                 // §4 : "E-mail ou Adresse"

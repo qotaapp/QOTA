@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 
 /// Palette Qota — dérivée du logo fourni (orange chaud sur fond clair,
 /// icônes de navigation noires et minimalistes, sans texte sous les icônes).
+/// Palette Qota — dérivée du logo officiel (icône fournie par le
+/// propriétaire du projet) : dégradé orange sur fond noir profond,
+/// avec la bulle de dialogue caractéristique du "Q". Le reste de
+/// l'interface (fond clair, icônes noires) suit la direction
+/// graphique validée précédemment (§12) et n'est PAS repassé en
+/// mode sombre — seules les nouvelles teintes ci-dessous s'ajoutent,
+/// utilisées pour l'écran de démarrage et les éléments de marque.
 class AppColors {
   AppColors._();
 
@@ -18,6 +25,21 @@ class AppColors {
   static const Color divider = Color(0xFFE7E5E1);
   static const Color starFilled =
       Color(0xFFF15A24); // l'étoile "Évaluer" reprend l'orange de marque
+
+  // ---- Palette de marque (logo officiel) ----
+  static const Color brandBlack =
+      Color(0xFF141414); // fond noir du logo / icône app
+  static const Color brandOrangeLight =
+      Color(0xFFFFB25C); // haut du dégradé du "Q"
+  static const Color brandOrangeDark =
+      Color(0xFFE8590C); // bas du dégradé / ombre portée
+
+  static const LinearGradient brandOrangeGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [brandOrangeLight, primaryOrange, brandOrangeDark],
+    stops: [0.0, 0.55, 1.0],
+  );
 }
 
 class AppTheme {

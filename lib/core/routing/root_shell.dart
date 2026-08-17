@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../features/navigation/presentation/widgets/main_bottom_nav.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
-import '../../features/evaluer/presentation/screens/evaluer_screen.dart';
+import '../../features/evaluer/presentation/screens/evaluer_home_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/notifications/data/notifications_repository.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
@@ -30,7 +30,7 @@ class _RootShellState extends State<RootShell> {
 
   late final List<Widget> _screens = [
     const HomeScreen(),
-    const EvaluerScreen(),
+    const EvaluerHomeScreen(),
     const NotificationsScreen(),
     const ProfileScreen(),
     MenuScreen(key: _menuKey),

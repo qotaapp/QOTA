@@ -7,6 +7,13 @@ class ProfileRepository {
 
   String get currentUserId => _client.auth.currentUser!.id;
 
+  /// Compteur de vues — incrémenté côté serveur uniquement (RPC),
+  /// jamais en écrivant directement sur la colonne depuis le client.
+  Future<void> incrementViews(String entityId) async {
+    await _client
+        .rpc('increment_entity_views', params: {'p_entity_id': entityId});
+  }
+
   Future<QotaProfile> getMyProfile() async {
     final row = await _client
         .from('profiles')

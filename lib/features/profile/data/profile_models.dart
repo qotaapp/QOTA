@@ -36,6 +36,7 @@ class QotaUserItem {
   final double averageScore;
   final int ratingsCount;
   final int commentsCount;
+  final int viewsCount;
   final DateTime createdAt;
 
   QotaUserItem({
@@ -47,6 +48,7 @@ class QotaUserItem {
     required this.ratingsCount,
     required this.commentsCount,
     required this.createdAt,
+    this.viewsCount = 0,
     this.description,
   });
 
@@ -59,6 +61,7 @@ class QotaUserItem {
         averageScore: (map['average_score'] as num?)?.toDouble() ?? 0,
         ratingsCount: (map['ratings_count'] as num?)?.toInt() ?? 0,
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,
+        viewsCount: (map['views_count'] as num?)?.toInt() ?? 0,
         createdAt: DateTime.parse(map['created_at'] as String),
       );
 }
