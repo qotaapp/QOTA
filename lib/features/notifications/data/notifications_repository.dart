@@ -45,6 +45,10 @@ class QotaNotification {
             : 'Votre demande de propriété sur "${payload['entity_name']}" a été refusée';
       case 'coin_received':
         return 'Vous avez reçu ${payload['amount']} Qota Coin de ${payload['sender_name']}';
+      case 'entity_approved':
+        return 'Votre publication ${payload['entity_name']} est approuvée avec succès';
+      case 'entity_rejected':
+        return 'Votre publication ${payload['entity_name']} est refusée';
       default:
         return 'Nouvelle notification';
     }
@@ -64,6 +68,10 @@ class QotaNotification {
         return Icons.verified_outlined;
       case 'coin_received':
         return Icons.monetization_on_outlined;
+      case 'entity_approved':
+        return Icons.check_circle_outline_rounded;
+      case 'entity_rejected':
+        return Icons.cancel_outlined;
       default:
         return Icons.notifications_outlined;
     }
