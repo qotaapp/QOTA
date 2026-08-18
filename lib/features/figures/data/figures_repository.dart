@@ -61,7 +61,10 @@ class FiguresRepository {
       'created_by': userId,
       'owner_id':
           null, // une figure publique n'a pas de "propriétaire" utilisateur
-      'status': 'active',
+      // Modération obligatoire (comme les Services) : invisible
+      // partout (Home, listes, recherche) tant que non approuvée par
+      // le Super Admin depuis le Dashboard.
+      'status': 'pending_review',
     });
   }
 }
