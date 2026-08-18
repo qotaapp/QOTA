@@ -50,6 +50,103 @@ class AdminCoinPurchaseRequest {
       );
 }
 
+/// Publication (Service ou Figure publique) en file de modération —
+/// JAMAIS un User Item, exclu par construction de toutes les requêtes
+/// ci-dessous (§ "sauf ce qu'ils ajoutent dans leurs profils personnels").
+class AdminModeratableEntity {
+  final String id;
+  final String kind; // 'service' | 'public_figure'
+  final String name;
+  final String? description;
+  final String imageUrl;
+  final String status; // 'pending_review' | 'active' | 'rejected'
+  final String creatorName;
+  final DateTime createdAt;
+
+  AdminModeratableEntity({
+    required this.id,
+    required this.kind,
+    required this.name,
+    required this.imageUrl,
+    required this.status,
+    required this.creatorName,
+    required this.createdAt,
+    this.description,
+  });
+
+  factory AdminModeratableEntity.fromMap(Map<String, dynamic> map) {
+    final creator = map['profiles'] as Map<String, dynamic>?;
+    return AdminModeratableEntity(
+      id: map['id'] as String,
+      kind: map['kind'] as String,
+      name: map['name'] as String,
+      description: map['description'] as String?,
+      imageUrl: map['image_url'] as String,
+      status: map['status'] as String,
+      creatorName: creator != null
+          ? '${creator['first_name']} ${creator['last_name']}'
+          : '',
+      createdAt: DateTime.parse(map['created_at'] as String),
+    );
+  }
+}
+
+/// Un modérateur avec son (ou ses) rôle(s) bien déterminé(s) — jamais
+/// un accès total par défaut, uniquement les permissions accordées.
+class AdminModerator {
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String? avatarUrl;
+  final List<String> permissions;
+
+  AdminModerator({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.permissions,
+    this.avatarUrl,
+  });
+
+  String get fullName => '$firstName $lastName';
+
+  factory AdminModerator.fromMap(Map<String, dynamic> map) => AdminModerator(
+        id: map['id'] as String,
+        firstName: map['first_name'] as String,
+        lastName: map['last_name'] as String,
+        avatarUrl: map['avatar_url'] as String?,
+        permissions:
+            (map['permissions'] as List?)?.whereType<String>().toList() ??
+                const [],
+      );
+}
+
+/// Résultat de recherche d'un utilisateur par e-mail (pour le désigner
+/// modérateur) — jamais d'accès direct à auth.users côté client.
+class AdminUserSearchResult {
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String? avatarUrl;
+
+  AdminUserSearchResult({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    this.avatarUrl,
+  });
+
+  String get fullName => '$firstName $lastName';
+
+  factory AdminUserSearchResult.fromMap(Map<String, dynamic> map) =>
+      AdminUserSearchResult(
+        id: map['id'] as String,
+        firstName: map['first_name'] as String,
+        lastName: map['last_name'] as String,
+        avatarUrl: map['avatar_url'] as String?,
+      );
+}
+
 class AdminRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
@@ -64,6 +161,22 @@ class AdminRepository {
         .eq('user_id', userId)
         .eq('role', 'super_admin');
     return (rows as List).isNotEmpty;
+  }
+
+  /// Permissions du modérateur actuellement connecté (vide si aucune,
+  /// vide aussi pour un simple utilisateur). Un Super Admin n'a pas
+  /// besoin d'y figurer : il a toujours accès à tout (voir
+  /// `has_permission` côté SQL).
+  Future<Set<String>> getMyModeratorPermissions() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) {
+      return {};
+    }
+    final rows = await _client
+        .from('moderator_permissions')
+        .select('permission')
+        .eq('user_id', userId);
+    return (rows as List).map((r) => r['permission'] as String).toSet();
   }
 
   // ---------------- États (§14) ----------------
@@ -168,5 +281,174 @@ class AdminRepository {
   Future<void> approveCoinPurchase(String requestId) async {
     await _client
         .rpc('approve_coin_purchase', params: {'p_request_id': requestId});
+  }
+
+  // ---------------- Villes ----------------
+
+  Future<List<Map<String, dynamic>>> getCitiesForState(String stateId) async {
+    final rows = await _client
+        .from('cities')
+        .select()
+        .eq('state_id', stateId)
+        .order('order_index');
+    return List<Map<String, dynamic>>.from(rows);
+  }
+
+  Future<void> createCity(
+      {required String stateId,
+      required String nameFr,
+      required String nameAr}) async {
+    await _client
+        .from('cities')
+        .insert({'state_id': stateId, 'name_fr': nameFr, 'name_ar': nameAr});
+  }
+
+  Future<void> updateCity(String id,
+      {required String nameFr, required String nameAr}) async {
+    await _client
+        .from('cities')
+        .update({'name_fr': nameFr, 'name_ar': nameAr}).eq('id', id);
+  }
+
+  Future<void> toggleCityActive(String id, bool active) async {
+    await _client.from('cities').update({'active': active}).eq('id', id);
+  }
+
+  Future<void> deleteCity(String id) async {
+    await _client.from('cities').delete().eq('id', id);
+  }
+
+  // ---------------- Zones ----------------
+
+  Future<List<Map<String, dynamic>>> getZonesForCity(String cityId) async {
+    final rows = await _client
+        .from('zones')
+        .select()
+        .eq('city_id', cityId)
+        .order('order_index');
+    return List<Map<String, dynamic>>.from(rows);
+  }
+
+  Future<void> createZone(
+      {required String cityId,
+      required String nameFr,
+      required String nameAr}) async {
+    await _client
+        .from('zones')
+        .insert({'city_id': cityId, 'name_fr': nameFr, 'name_ar': nameAr});
+  }
+
+  Future<void> updateZone(String id,
+      {required String nameFr, required String nameAr}) async {
+    await _client
+        .from('zones')
+        .update({'name_fr': nameFr, 'name_ar': nameAr}).eq('id', id);
+  }
+
+  Future<void> toggleZoneActive(String id, bool active) async {
+    await _client.from('zones').update({'active': active}).eq('id', id);
+  }
+
+  Future<void> deleteZone(String id) async {
+    await _client.from('zones').delete().eq('id', id);
+  }
+
+  // ---------------- Modération des publications ----------------
+  // Toujours limitée à kind in ('service', 'public_figure') — un
+  // User Item (contenu du profil personnel) n'apparaît JAMAIS ici,
+  // ni dans la file d'attente ni dans la liste "publiées".
+
+  Future<List<AdminModeratableEntity>> getPendingEntities() async {
+    final rows = await _client
+        .from('entities')
+        .select(
+            'id, kind, name, description, image_url, status, created_at, profiles!entities_created_by_fkey(first_name, last_name)')
+        .inFilter('kind', ['service', 'public_figure'])
+        .eq('status', 'pending_review')
+        .order('created_at');
+    return (rows as List)
+        .map((r) => AdminModeratableEntity.fromMap(r))
+        .toList();
+  }
+
+  Future<List<AdminModeratableEntity>> getPublishedEntities() async {
+    final rows = await _client
+        .from('entities')
+        .select(
+            'id, kind, name, description, image_url, status, created_at, profiles!entities_created_by_fkey(first_name, last_name)')
+        .inFilter('kind', ['service', 'public_figure'])
+        .eq('status', 'active')
+        .order('created_at', ascending: false);
+    return (rows as List)
+        .map((r) => AdminModeratableEntity.fromMap(r))
+        .toList();
+  }
+
+  Future<void> approveEntity(String entityId) async {
+    await _client
+        .from('entities')
+        .update({'status': 'active'}).eq('id', entityId);
+  }
+
+  Future<void> rejectEntity(String entityId) async {
+    await _client
+        .from('entities')
+        .update({'status': 'rejected'}).eq('id', entityId);
+  }
+
+  /// Suppression définitive — pour une publication déjà en ligne qui
+  /// enfreint les règles, pas seulement une demande en attente.
+  Future<void> deleteEntity(String entityId) async {
+    await _client.from('entities').delete().eq('id', entityId);
+  }
+
+  // ---------------- Modérateurs (rôles bien déterminés) ----------------
+
+  Future<List<AdminModerator>> getModerators() async {
+    final rows = await _client.from('moderators_view').select();
+    return (rows as List).map((r) => AdminModerator.fromMap(r)).toList();
+  }
+
+  /// Introuvable dans auth.users -> null. Restreint au Super Admin
+  /// côté SQL (voir `admin_find_user_by_email`).
+  Future<AdminUserSearchResult?> findUserByEmail(String email) async {
+    final rows = await _client
+        .rpc('admin_find_user_by_email', params: {'p_email': email});
+    final list = rows as List;
+    if (list.isEmpty) {
+      return null;
+    }
+    return AdminUserSearchResult.fromMap(list.first as Map<String, dynamic>);
+  }
+
+  /// Attribue le rôle 'moderator' (idempotent) puis remplace
+  /// intégralement son jeu de permissions par `permissions` — un
+  /// modérateur n'a JAMAIS plus que ce qui est explicitement coché ici.
+  Future<void> setModerator(
+      {required String userId, required Set<String> permissions}) async {
+    await _client.from('user_roles').upsert(
+      {'user_id': userId, 'role': 'moderator'},
+      onConflict: 'user_id,role',
+    );
+
+    await _client.from('moderator_permissions').delete().eq('user_id', userId);
+
+    if (permissions.isNotEmpty) {
+      await _client.from('moderator_permissions').insert(
+            permissions
+                .map((p) => {'user_id': userId, 'permission': p})
+                .toList(),
+          );
+    }
+  }
+
+  /// Retire entièrement le rôle modérateur (et donc toutes ses
+  /// permissions, supprimées en cascade côté base).
+  Future<void> revokeModerator(String userId) async {
+    await _client
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', 'moderator');
   }
 }

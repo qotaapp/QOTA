@@ -76,8 +76,8 @@ class _SignupScreenState extends State<SignupScreen> {
       // §6 : "Compte créé avec succès" -> retour à la page de connexion.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-              'Compte créé avec succès. Connectez-vous pour continuer.'),
+          content:
+              Text('Compte créé avec succès. Connectez-vous pour continuer.'),
         ),
       );
       // AuthGate (main.dart) affiche LoginScreen dès lors qu'il n'y a

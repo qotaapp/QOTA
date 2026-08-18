@@ -87,8 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       Navigator.of(context).push(
-        MaterialPageRoute(
-            builder: (_) => PublicProfileScreen(userId: ownerId)),
+        MaterialPageRoute(builder: (_) => PublicProfileScreen(userId: ownerId)),
       );
     }
   }
