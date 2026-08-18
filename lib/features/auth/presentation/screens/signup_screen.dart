@@ -60,31 +60,29 @@ class _SignupScreenState extends State<SignupScreen> {
         return;
       }
 
-      // On vérifie la session RÉELLEMENT, plutôt que de supposer que
-      // signUp() a connecté l'utilisateur : si la confirmation par
-      // e-mail est activée côté Supabase, aucune session n'existe
-      // encore à ce stade, et rediriger vers Home serait trompeur.
-      final hasActiveSession = _authRepository.isLoggedIn;
-
-      if (hasActiveSession) {
-        // §6 : "Compte créé avec succès" puis redirection vers Home.
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Compte créé avec succès')),
-        );
-        // AuthGate (main.dart) détecte automatiquement la session active
-        // via authStateChanges et affiche RootShell (Home).
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      } else {
-        // Compte créé côté Supabase, mais pas encore de session active
-        // -> très probablement la confirmation par e-mail est activée
-        // dans Authentication > Providers > Email (Supabase Dashboard).
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Compte créé, mais aucune session active. '
-              'Si la confirmation par e-mail est activée dans Supabase, '
-              'vérifiez votre boîte mail avant de vous connecter.';
-        });
+      // Selon la config Supabase (confirmation e-mail activée ou non),
+      // signUp() peut créer une session active automatiquement. On la
+      // ferme systématiquement : l'utilisateur doit ENTRER lui-même
+      // son e-mail et son mot de passe sur la page de connexion,
+      // jamais être connecté automatiquement après inscription.
+      if (_authRepository.isLoggedIn) {
+        await _authRepository.signOut();
       }
+
+      if (!mounted) {
+        return;
+      }
+
+      // §6 : "Compte créé avec succès" -> retour à la page de connexion.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Compte créé avec succès. Connectez-vous pour continuer.'),
+        ),
+      );
+      // AuthGate (main.dart) affiche LoginScreen dès lors qu'il n'y a
+      // plus de session active — on revient donc à la racine.
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       // On affiche le message réel de Supabase (ex: "User already
       // registered", "Password should be at least 6 characters"...)

@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/create_status_bar.dart';
 import '../../data/feed_repository.dart';
 import '../widgets/feed_item_card.dart';
-import '../widgets/feed_user_item_card.dart';
 import '../../../evaluer/presentation/screens/service_details_screen.dart';
 import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
 import '../../../rating/presentation/widgets/rating_sheet.dart';
 import '../../../comments/presentation/screens/comments_screen.dart';
 import '../../../search/presentation/screens/search_screen.dart';
+import '../../../profile/data/profile_repository.dart';
+import '../../../profile/presentation/screens/add_user_item_screen.dart';
+import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../profile/presentation/screens/public_profile_screen.dart';
+import '../../../profile/presentation/widgets/user_item_post_card.dart';
 
 /// §9-12 : Home = logo Qota + loupe de recherche, puis le Feed
 /// algorithmique (§10), paginé, mêlant Services et User Items.
@@ -21,9 +27,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _repository = FeedRepository();
+  final _profileRepository = ProfileRepository();
   final _scrollController = ScrollController();
   final List<FeedItem> _items = [];
 
+  String? _avatarUrl;
   double? _userLat;
   double? _userLng;
   bool _isLoadingInitial = true;
@@ -47,6 +55,42 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _init() async {
     await _tryGetLocation();
     await _loadPage(reset: true);
+    _loadAvatar();
+  }
+
+  /// Avatar utilisé uniquement pour l'affichage de la barre de statut —
+  /// une erreur ici ne doit jamais bloquer le Feed.
+  Future<void> _loadAvatar() async {
+    try {
+      final profile = await _profileRepository.getMyProfile();
+      if (mounted) setState(() => _avatarUrl = profile.avatarUrl);
+    } catch (_) {}
+  }
+
+  Future<void> _openAddUserItem() async {
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const AddUserItemScreen()),
+    );
+    if (created == true) {
+      _refresh();
+    }
+  }
+
+  /// Nom/avatar d'une publication -> profil de son auteur. Si c'est
+  /// l'utilisateur courant, on ouvre directement son Profil (éditable) ;
+  /// sinon, la version publique en lecture seule.
+  void _openOwnerProfile(String ownerId) {
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    if (ownerId == currentUserId) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const ProfileScreen()),
+      );
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (_) => PublicProfileScreen(userId: ownerId)),
+      );
+    }
   }
 
   /// La localisation est optionnelle pour l'algorithme (§10) — si
@@ -124,6 +168,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: CreateStatusBar(
+              avatarUrl: _avatarUrl,
+              onTap: _openAddUserItem,
+            ),
+          ),
           Expanded(
             child: _isLoadingInitial
                 ? const Center(child: CircularProgressIndicator())
@@ -149,24 +200,36 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                             final item = _items[index];
 
-                            // §18 vs §23 : une Service ne montre jamais son
-                            // propriétaire ; un User Item l'affiche toujours,
-                            // avec nom/avatar cliquables vers son profil public.
+                            // User Item (§23) : même carte "publication"
+                            // qu'au Profil (avatar/nom cliquables -> profil
+                            // de l'auteur). Service (§18) : carte
+                            // inchangée, jamais de propriétaire affiché.
                             if (item.kind == 'user_item') {
-                              return FeedUserItemCard(
-                                item: item,
+                              return UserItemPostCard(
+                                itemId: item.id,
+                                name: item.name,
+                                description: item.description,
+                                imageUrl: item.imageUrl,
+                                ownerId: item.ownerId,
+                                ownerName: item.ownerName ?? '',
+                                ownerAvatarUrl: item.ownerAvatarUrl,
+                                createdAt: item.createdAt,
+                                averageScore: item.averageScore,
+                                ratingsCount: item.ratingsCount,
+                                commentsCount: item.commentsCount,
+                                onOpenProfile: item.ownerId != null
+                                    ? () => _openOwnerProfile(item.ownerId!)
+                                    : null,
                                 onOpenRatingSheet: () => RatingSheet.show(
-                                  context,
-                                  entityId: item.id,
-                                  onSubmitted: _refresh,
-                                ),
+                                    context,
+                                    entityId: item.id,
+                                    onSubmitted: _refresh),
                                 onOpenComments: () => Navigator.of(context)
                                     .push(MaterialPageRoute(
                                       builder: (_) => CommentsScreen(
-                                        entityId: item.id,
-                                        entityKind: item.kind,
-                                        entityOwnerId: item.ownerId,
-                                      ),
+                                          entityId: item.id,
+                                          entityKind: item.kind,
+                                          entityOwnerId: item.ownerId),
                                     ))
                                     .then((_) => _refresh()),
                                 onOpenImageFullscreen: () =>

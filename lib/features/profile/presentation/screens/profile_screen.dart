@@ -164,8 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content:
-                  Text('Impossible de mettre à jour la photo. Réessayez.')),
+              content: Text('Impossible de mettre à jour la photo. Réessayez.')),
         );
       }
     } finally {
@@ -220,10 +219,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     CircleAvatar(
                                       radius: 34,
                                       backgroundColor: AppColors.surfaceChip,
-                                      backgroundImage: profile.avatarUrl != null
-                                          ? CachedNetworkImageProvider(
-                                              profile.avatarUrl!)
-                                          : null,
+                                      backgroundImage:
+                                          profile.avatarUrl != null
+                                              ? CachedNetworkImageProvider(
+                                                  profile.avatarUrl!)
+                                              : null,
                                       child: profile.avatarUrl == null
                                           ? const Icon(
                                               Icons.person,
@@ -256,7 +256,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             color: AppColors.primaryOrange,
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                                color: Colors.white, width: 2),
+                                                color: Colors.white,
+                                                width: 2),
                                           ),
                                           child: const Icon(
                                             Icons.camera_alt,
