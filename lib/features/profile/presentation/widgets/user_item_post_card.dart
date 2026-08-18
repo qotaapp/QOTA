@@ -142,11 +142,11 @@ class UserItemPostCard extends StatelessWidget {
                   ),
                 ),
                 if (onDelete != null)
-                  PopupMenuButton<void>(
+                  PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert,
                         color: AppColors.iconInactive),
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      const PopupMenuItem<String>(
                         value: 'delete',
                         child: Row(
                           children: [
