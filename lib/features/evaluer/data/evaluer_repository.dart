@@ -116,8 +116,13 @@ class EvaluerRepository {
     return _client.storage.from('user-content').getPublicUrl(path);
   }
 
-  /// §19-21 : création d'une Service. Publication immédiate, sans
-  /// longue attente de validation administrative.
+  /// §19-21 : création d'une Service. Depuis la modération obligatoire,
+  /// la publication n'est plus immédiate : la Service entre en
+  /// 'pending_review' et n'apparaît nulle part publiquement (Home,
+  /// recherche, listes) tant que le Super Admin (ou un modérateur
+  /// avec la permission 'moderate_content') ne l'a pas approuvée.
+  /// Filet de sécurité redondant côté base (trigger, §019) : même si
+  /// ce champ était altéré côté client, le statut serait re-forcé.
   Future<String> createService({
     required String name,
     required String imageUrl,
@@ -144,7 +149,7 @@ class EvaluerRepository {
           'longitude': longitude,
           'created_by': userId,
           'owner_id': userId,
-          'status': 'active',
+          'status': 'pending_review',
         })
         .select('id')
         .single();

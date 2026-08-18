@@ -10,8 +10,9 @@ import 'duplicate_found_screen.dart';
 /// - Une image est OBLIGATOIRE.
 /// - Détection de doublon avant création définitive (nom, catégorie,
 ///   État, ville/zone, proximité).
-/// - Si la Service est nouvelle : publication IMMÉDIATE, sans longue
-///   attente de validation, évaluable et commentable aussitôt.
+/// - Si la Service est nouvelle : elle est envoyée en modération —
+///   le Super Admin doit l'approuver avant qu'elle soit visible,
+///   évaluable ou commentable publiquement.
 class AddServiceScreen extends StatefulWidget {
   final QotaCategory category;
   final String stateId;
@@ -136,8 +137,16 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       if (!mounted) {
         return;
       }
-      // §21 : immédiatement évaluable et commentable — on revient à la
-      // liste des Services, qui se rechargera avec la nouvelle entrée.
+      // Contrairement à un User Item, une Service ne s'affiche pas
+      // tout de suite : elle attend l'approbation du Super Admin.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Service envoyée pour approbation. Elle sera visible dès '
+                  'validation par un administrateur.'),
+          duration: Duration(seconds: 4),
+        ),
+      );
       Navigator.of(context).pop(true);
     } catch (e) {
       setState(() {
