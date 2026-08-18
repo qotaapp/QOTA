@@ -38,6 +38,12 @@ class UserItemPostCard extends StatelessWidget {
   /// naviguer depuis là.
   final VoidCallback? onOpenProfile;
 
+  /// Optionnel : si fourni, affiche un menu ⋮ dans l'en-tête proposant
+  /// la suppression de la publication. Fourni UNIQUEMENT quand la carte
+  /// affiche une publication de l'utilisateur courant (son propre
+  /// Profil) — jamais sur le profil public d'un tiers.
+  final VoidCallback? onDelete;
+
   const UserItemPostCard({
     super.key,
     required this.itemId,
@@ -56,6 +62,7 @@ class UserItemPostCard extends StatelessWidget {
     this.ownerId,
     this.ownerAvatarUrl,
     this.onOpenProfile,
+    this.onDelete,
   });
 
   String _formatDate(DateTime date) {
@@ -134,6 +141,25 @@ class UserItemPostCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (onDelete != null)
+                  PopupMenuButton<void>(
+                    icon: const Icon(Icons.more_vert,
+                        color: AppColors.iconInactive),
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Supprimer',
+                                style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onSelected: (_) => onDelete!(),
+                  ),
               ],
             ),
           ),

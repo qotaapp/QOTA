@@ -138,6 +138,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// §23-24 : suppression d'une publication (User Item) par son propre
+  /// auteur, depuis son profil — confirmation obligatoire avant l'appel
+  /// destructif, retour visuel (snackbar) une fois fait.
+  Future<void> _confirmDeleteUserItem(String itemId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer la publication'),
+        content: const Text(
+            'Cette publication ainsi que ses évaluations et commentaires '
+            'seront définitivement supprimés. Continuer ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    try {
+      await _repository.deleteUserItem(itemId);
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Publication supprimée.')),
+      );
+      _reload();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impossible de supprimer. Réessayez.')),
+        );
+      }
+    }
+  }
+
   /// Photo de profil : redimensionnée dès la sélection (max 640x640,
   /// qualité 85) pour rester légère et nette une fois recadrée en
   /// cercle — y compris dans les petits avatars (barre de statut, etc.).
@@ -438,6 +485,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   imageUrl: item.imageUrl),
                             ),
                           ),
+                          onDelete: () => _confirmDeleteUserItem(item.id),
                         );
                       },
                       childCount: data.items.length,

@@ -115,4 +115,12 @@ class ProfileRepository {
         .from('profiles')
         .update({'avatar_url': avatarUrl}).eq('id', currentUserId);
   }
+
+  /// §23-24 : suppression d'un User Item par son propre auteur —
+  /// permise à tout utilisateur pour SES publications personnelles
+  /// (voir policy RLS dédiée, 021_user_item_self_delete.sql). Les
+  /// commentaires/évaluations liés sont nettoyés côté base (cascade).
+  Future<void> deleteUserItem(String entityId) async {
+    await _client.from('entities').delete().eq('id', entityId);
+  }
 }
