@@ -2,7 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/constants/supabase_constants.dart';
 
 /// Centralise §4-6 : connexion, création de compte, réinitialisation
-/// de mot de passe, connexion sociale (Facebook/Gmail).
+/// de mot de passe, connexion sociale (Gmail).
 class AuthRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
@@ -53,18 +53,11 @@ class AuthRepository {
   /// Si l'e-mail Google correspond à un compte existant, Supabase lie
   /// automatiquement les deux (à activer dans Authentication >
   /// Settings > "Link accounts by email" si ce n'est pas déjà le cas).
-  /// Premier login Google/Facebook -> compte créé automatiquement
+  /// Premier login Google -> compte créé automatiquement
   /// (§handle_new_auth_user, complété en 020 pour en extraire le nom).
   Future<bool> signInWithGoogle() {
     return _client.auth.signInWithOAuth(
       OAuthProvider.google,
-      redirectTo: SupabaseConstants.oauthRedirectUrl,
-    );
-  }
-
-  Future<bool> signInWithFacebook() {
-    return _client.auth.signInWithOAuth(
-      OAuthProvider.facebook,
       redirectTo: SupabaseConstants.oauthRedirectUrl,
     );
   }

@@ -27,7 +27,7 @@ class SupabaseConstants {
     defaultValue: 'YOUR_SUPABASE_PUBLISHABLE_KEY',
   );
 
-  /// §5 : URL de retour pour Google/Facebook Sign-In (signInWithOAuth).
+  /// §5 : URL de retour pour Google Sign-In (signInWithOAuth).
   /// DOIT être IDENTIQUE dans les 3 endroits suivants, sinon la
   /// connexion sociale échoue silencieusement ou ne revient jamais
   /// dans l'app :

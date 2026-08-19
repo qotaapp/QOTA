@@ -7,7 +7,7 @@ import 'signup_screen.dart';
 /// §4 : page de connexion simple.
 /// Champs : "E-mail ou Adresse" / "Mot de passe".
 /// Bouton "Connexion", puis "Mot de passe oublié ?", "Pas encore de
-/// compte", "Connexion avec Facebook/Gmail", "Créer un compte".
+/// compte", "Continuer avec Gmail", "Créer un compte".
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -142,11 +142,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text('Pas encore de compte', textAlign: TextAlign.center),
                 const SizedBox(height: 16),
 
-                // §4-5 : "Connexion avec Facebook/Gmail"
+                // §4-5 : connexion sociale — Google uniquement.
                 OutlinedButton.icon(
-                  onPressed: _isLoading ? null : _showSocialChoice,
-                  icon: const Icon(Icons.login_rounded),
-                  label: const Text('Connexion avec Facebook/Gmail'),
+                  onPressed: _isLoading ? null : _handleGoogleSignIn,
+                  icon: const Icon(Icons.mail_outline),
+                  label: const Text('Continuer avec Gmail'),
                 ),
                 const SizedBox(height: 12),
 
@@ -164,8 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _handleSocialSignIn(Future<bool> Function() signIn) async {
-    Navigator.pop(context); // ferme le bottom sheet de choix
+  Future<void> _handleGoogleSignIn() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -174,35 +173,11 @@ class _LoginScreenState extends State<LoginScreen> {
       // true = navigateur externe ouvert avec succès. Le retour dans
       // l'app (deep link) puis la bascule vers Home sont gérés par
       // AuthGate via authStateChanges — pas de navigation ici.
-      await signIn();
+      await _authRepository.signInWithGoogle();
     } catch (e) {
       setState(() => _errorMessage = 'Connexion impossible. Réessayez. ($e)');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _showSocialChoice() {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.facebook),
-              title: const Text('Continuer avec Facebook'),
-              onTap: () =>
-                  _handleSocialSignIn(_authRepository.signInWithFacebook),
-            ),
-            ListTile(
-              leading: const Icon(Icons.mail_outline),
-              title: const Text('Continuer avec Gmail'),
-              onTap: () =>
-                  _handleSocialSignIn(_authRepository.signInWithGoogle),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
