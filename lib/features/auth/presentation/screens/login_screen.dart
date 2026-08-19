@@ -144,10 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // §4-5 : "Connexion avec Facebook/Gmail"
                 OutlinedButton.icon(
-                  onPressed: () {
-                    // Ouvre le choix Facebook / Google (à détailler en widget dédié)
-                    _showSocialChoice();
-                  },
+                  onPressed: _isLoading ? null : _showSocialChoice,
                   icon: const Icon(Icons.login_rounded),
                   label: const Text('Connexion avec Facebook/Gmail'),
                 ),
@@ -167,6 +164,24 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Future<void> _handleSocialSignIn(Future<bool> Function() signIn) async {
+    Navigator.pop(context); // ferme le bottom sheet de choix
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      // true = navigateur externe ouvert avec succès. Le retour dans
+      // l'app (deep link) puis la bascule vers Home sont gérés par
+      // AuthGate via authStateChanges — pas de navigation ici.
+      await signIn();
+    } catch (e) {
+      setState(() => _errorMessage = 'Connexion impossible. Réessayez. ($e)');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   void _showSocialChoice() {
     showModalBottomSheet(
       context: context,
@@ -176,18 +191,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ListTile(
               leading: const Icon(Icons.facebook),
               title: const Text('Continuer avec Facebook'),
-              onTap: () async {
-                Navigator.pop(context);
-                await _authRepository.signInWithFacebook();
-              },
+              onTap: () =>
+                  _handleSocialSignIn(_authRepository.signInWithFacebook),
             ),
             ListTile(
               leading: const Icon(Icons.mail_outline),
               title: const Text('Continuer avec Gmail'),
-              onTap: () async {
-                Navigator.pop(context);
-                await _authRepository.signInWithGoogle();
-              },
+              onTap: () =>
+                  _handleSocialSignIn(_authRepository.signInWithGoogle),
             ),
           ],
         ),

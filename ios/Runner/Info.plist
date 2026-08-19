@@ -24,6 +24,22 @@
 		<string>????</string>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<!-- Deep link de retour après Google/Facebook Sign-In via Supabase
+		     (signInWithOAuth) — voir auth_repository.dart. Doit
+		     correspondre EXACTEMENT à l'URL de redirection utilisée côté
+		     Dart et déclarée dans Supabase Dashboard > Authentication >
+		     URL Configuration > Redirect URLs. -->
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleURLName</key>
+				<string>io.supabase.qota</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>io.supabase.qota</string>
+				</array>
+			</dict>
+		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>UIApplicationSceneManifest</key>

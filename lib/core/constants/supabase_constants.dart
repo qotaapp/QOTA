@@ -26,4 +26,17 @@ class SupabaseConstants {
     'SUPABASE_PUBLISHABLE_KEY',
     defaultValue: 'YOUR_SUPABASE_PUBLISHABLE_KEY',
   );
+
+  /// §5 : URL de retour pour Google/Facebook Sign-In (signInWithOAuth).
+  /// DOIT être IDENTIQUE dans les 3 endroits suivants, sinon la
+  /// connexion sociale échoue silencieusement ou ne revient jamais
+  /// dans l'app :
+  ///  1. Ici.
+  ///  2. android/app/src/main/AndroidManifest.xml (intent-filter, data
+  ///     android:scheme).
+  ///  3. ios/Runner/Info.plist (CFBundleURLTypes > CFBundleURLSchemes).
+  ///  4. Supabase Dashboard > Authentication > URL Configuration >
+  ///     Redirect URLs (à ajouter manuellement, Supabase ne le déduit
+  ///     jamais tout seul).
+  static const String oauthRedirectUrl = 'io.supabase.qota://login-callback/';
 }

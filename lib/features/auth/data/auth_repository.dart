@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/constants/supabase_constants.dart';
 
 /// Centralise §4-6 : connexion, création de compte, réinitialisation
 /// de mot de passe, connexion sociale (Facebook/Gmail).
@@ -45,15 +46,27 @@ class AuthRepository {
     await _client.auth.resetPasswordForEmail(email);
   }
 
-  /// §5 : connexion sociale. Supabase gère la liaison de comptes si
-  /// l'e-mail du provider correspond à un compte existant (à activer
-  /// dans Authentication > Settings > "Link accounts by email").
-  Future<void> signInWithGoogle() async {
-    await _client.auth.signInWithOAuth(OAuthProvider.google);
+  /// §5 : connexion sociale. Ouvre le navigateur système (Chrome
+  /// Custom Tab / SFSafariViewController) pour l'écran Google, puis
+  /// revient dans l'app via `oauthRedirectUrl` (deep link) — AuthGate
+  /// détecte alors automatiquement la nouvelle session (§main.dart).
+  /// Si l'e-mail Google correspond à un compte existant, Supabase lie
+  /// automatiquement les deux (à activer dans Authentication >
+  /// Settings > "Link accounts by email" si ce n'est pas déjà le cas).
+  /// Premier login Google/Facebook -> compte créé automatiquement
+  /// (§handle_new_auth_user, complété en 020 pour en extraire le nom).
+  Future<bool> signInWithGoogle() {
+    return _client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: SupabaseConstants.oauthRedirectUrl,
+    );
   }
 
-  Future<void> signInWithFacebook() async {
-    await _client.auth.signInWithOAuth(OAuthProvider.facebook);
+  Future<bool> signInWithFacebook() {
+    return _client.auth.signInWithOAuth(
+      OAuthProvider.facebook,
+      redirectTo: SupabaseConstants.oauthRedirectUrl,
+    );
   }
 
   Future<void> signOut() async {
