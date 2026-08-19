@@ -3,14 +3,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/profile_models.dart';
 import '../../data/profile_repository.dart';
+import '../widgets/bordered_info_card.dart';
 import '../widgets/user_item_post_card.dart';
 import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
 import '../../../rating/presentation/widgets/rating_sheet.dart';
 import '../../../comments/presentation/screens/comments_screen.dart';
 
-/// §7 : profil PUBLIC d'un autre utilisateur — photo, nom, User Items
-/// publiés. Contrairement à ProfileScreen (soi-même), pas de wallet,
-/// pas d'édition du nom, pas de composer "Qu'allons-nous évaluer ?".
+/// Profil PUBLIC d'un autre utilisateur — accessible en tapant sur son
+/// nom/avatar depuis une publication (Home ou Profil). Lecture seule :
+/// pas de solde, pas d'édition de nom, pas d'upload de photo — juste
+/// son identité publique et ses User Items, comme sur son propre Profil.
 class PublicProfileScreen extends StatefulWidget {
   final String userId;
 
@@ -31,7 +33,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   }
 
   Future<_PublicProfileData> _load() async {
-    final profile = await _repository.getProfileById(widget.userId);
+    final profile = await _repository.getPublicProfile(widget.userId);
     final items = await _repository.getUserItems(widget.userId);
     return _PublicProfileData(profile: profile, items: items);
   }
@@ -43,42 +45,62 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
-      body: SafeArea(
-        child: FutureBuilder<_PublicProfileData>(
-          future: _futureData,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        foregroundColor: AppColors.textPrimary,
+        title: const Text('Profil'),
+      ),
+      body: FutureBuilder<_PublicProfileData>(
+        future: _futureData,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            if (snapshot.hasError) {
+              return const Center(
+                child: Text('Impossible de charger ce profil.'),
+              );
             }
-            final data = snapshot.data!;
-            final profile = data.profile;
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            return CustomScrollView(
+          final data = snapshot.data!;
+          final profile = data.profile;
+
+          return RefreshIndicator(
+            onRefresh: () async => _reload(),
+            child: CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 44,
-                          backgroundColor: AppColors.surfaceChip,
-                          backgroundImage: profile.avatarUrl != null
-                              ? CachedNetworkImageProvider(profile.avatarUrl!)
-                              : null,
-                          child: profile.avatarUrl == null
-                              ? const Icon(Icons.person,
-                                  size: 44, color: AppColors.iconInactive)
-                              : null,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          profile.fullName,
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w800),
-                        ),
-                      ],
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    child: BorderedInfoCard(
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 34,
+                            backgroundColor: AppColors.surfaceChip,
+                            backgroundImage: profile.avatarUrl != null
+                                ? CachedNetworkImageProvider(profile.avatarUrl!)
+                                : null,
+                            child: profile.avatarUrl == null
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 34,
+                                    color: AppColors.iconInactive,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              profile.fullName,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 18),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -122,17 +144,18 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                                 builder: (_) => CommentsScreen(
                                   entityId: item.id,
                                   entityKind: 'user_item',
-                                  entityOwnerId: profile.id,
+                                  entityOwnerId: profile.id, // §34
                                 ),
                               ))
                               .then((_) => _reload()),
-                          onOpenImageFullscreen: () =>
-                              Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => FullscreenImageViewer(
-                                  imageUrl: item.imageUrl),
-                            ),
-                          ),
+                          onOpenImageFullscreen: () => Navigator.of(context)
+                              .push(
+                                MaterialPageRoute(
+                                  builder: (_) => FullscreenImageViewer(
+                                      imageUrl: item.imageUrl),
+                                ),
+                              )
+                              .then((_) => _reload()),
                         );
                       },
                       childCount: data.items.length,
@@ -140,16 +163,16 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                   ),
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),
               ],
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 }
 
 class _PublicProfileData {
-  final QotaProfile profile;
+  final PublicProfile profile;
   final List<QotaUserItem> items;
 
   _PublicProfileData({required this.profile, required this.items});

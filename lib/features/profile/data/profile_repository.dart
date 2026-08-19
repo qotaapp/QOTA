@@ -23,17 +23,18 @@ class ProfileRepository {
     return QotaProfile.fromMap(row);
   }
 
-  /// §7 : profil PUBLIC — nom, photo, User Items publiés — consultable
-  /// pour n'importe quel utilisateur, pas seulement soi-même. Passe
-  /// par public_profile_view (jamais la table brute, protégée par RLS
-  /// et contenant des champs privés comme l'âge).
-  Future<QotaProfile> getProfileById(String userId) async {
+  /// Profil PUBLIC de n'importe quel utilisateur (nom + avatar
+  /// uniquement) — via `public_profiles_view`, pas la table
+  /// `profiles` dont la RLS interdit la lecture croisée entre
+  /// utilisateurs. Utilisé quand on tape sur le nom/avatar d'un
+  /// auteur de publication (Home, User Items) pour voir sa page.
+  Future<PublicProfile> getPublicProfile(String userId) async {
     final row = await _client
-        .from('public_profile_view')
+        .from('public_profiles_view')
         .select()
         .eq('id', userId)
         .single();
-    return QotaProfile.fromMap(row);
+    return PublicProfile.fromMap(row);
   }
 
   Future<double> getMyWalletBalance() async {
@@ -75,27 +76,10 @@ class ProfileRepository {
     return _client.storage.from('user-content').getPublicUrl(path);
   }
 
-  /// §23-24 : image obligatoire, propriétaire = créateur, PAS de
-  /// détection stricte de doublon (contrairement aux Services §19-20) —
-  /// un même utilisateur peut publier plusieurs fois un item similaire.
-  Future<void> createUserItem({
-    required String name,
-    required String imageUrl,
-    String? description,
-  }) async {
-    await _client.from('entities').insert({
-      'kind': 'user_item',
-      'name': name,
-      'description': description,
-      'image_url': imageUrl,
-      'created_by': currentUserId,
-      'owner_id': currentUserId,
-      'status': 'active',
-    });
-  }
-
-  /// Upload de la photo de profil vers le bucket `user-content`.
-  /// Ne met PAS à jour `profiles.avatar_url` — voir updateAvatarUrl.
+  /// Photo de profil. Le redimensionnement (côté `image_picker`, voir
+  /// l'écran) garantit une image déjà "carrée-friendly" et légère —
+  /// affichée ensuite via `BoxFit.cover` dans les CircleAvatar, donc
+  /// nette et bien cadrée même en très petite taille (barre de statut).
   Future<String> uploadAvatarImage({
     required Uint8List bytes,
     required String fileExtension,
@@ -116,11 +100,22 @@ class ProfileRepository {
         .update({'avatar_url': avatarUrl}).eq('id', currentUserId);
   }
 
-  /// §23-24 : suppression d'un User Item par son propre auteur —
-  /// permise à tout utilisateur pour SES publications personnelles
-  /// (voir policy RLS dédiée, 021_user_item_self_delete.sql). Les
-  /// commentaires/évaluations liés sont nettoyés côté base (cascade).
-  Future<void> deleteUserItem(String entityId) async {
-    await _client.from('entities').delete().eq('id', entityId);
+  /// §23-24 : image obligatoire, propriétaire = créateur, PAS de
+  /// détection stricte de doublon (contrairement aux Services §19-20) —
+  /// un même utilisateur peut publier plusieurs fois un item similaire.
+  Future<void> createUserItem({
+    required String name,
+    required String imageUrl,
+    String? description,
+  }) async {
+    await _client.from('entities').insert({
+      'kind': 'user_item',
+      'name': name,
+      'description': description,
+      'image_url': imageUrl,
+      'created_by': currentUserId,
+      'owner_id': currentUserId,
+      'status': 'active',
+    });
   }
 }

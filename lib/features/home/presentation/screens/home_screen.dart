@@ -216,6 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 averageScore: item.averageScore,
                                 ratingsCount: item.ratingsCount,
                                 commentsCount: item.commentsCount,
+                                viewsCount: item.viewsCount,
                                 onOpenProfile: item.ownerId != null
                                     ? () => _openOwnerProfile(item.ownerId!)
                                     : null,
@@ -232,12 +233,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ))
                                     .then((_) => _refresh()),
                                 onOpenImageFullscreen: () =>
-                                    Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => FullscreenImageViewer(
-                                        imageUrl: item.imageUrl),
-                                  ),
-                                ),
+                                    Navigator.of(context)
+                                        .push(
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                FullscreenImageViewer(
+                                                    imageUrl: item.imageUrl),
+                                          ),
+                                        )
+                                        // Recharge pour refléter le nombre
+                                        // de vues mis à jour côté base
+                                        // (RPC increment_entity_views,
+                                        // §023) — sinon le chiffre affiché
+                                        // reste figé.
+                                        .then((_) => _refresh()),
                               );
                             }
 

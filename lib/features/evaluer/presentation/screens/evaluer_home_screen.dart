@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/evaluer_category_button.dart';
 import 'evaluer_screen.dart';
-import 'coming_soon_screen.dart';
+import 'admin_listing_list_screen.dart';
 import '../../../figures/presentation/screens/figure_type_list_screen.dart';
 
 /// Nouveau point d'entrée de l'onglet ⭐ Évaluer — menu de catégories,
@@ -34,14 +34,19 @@ class EvaluerHomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const FigureTypeListScreen()),
               ),
             ),
-            // À développer ultérieurement.
+            // Alimentées exclusivement par le Super Admin (ou un
+            // modérateur avec la permission 'moderate_content') — voir
+            // AdminListingListScreen. Le slug identifie la section de
+            // façon stable (admin_listing_types, §022).
             EvaluerCategoryButton(
               icon: Icons.live_tv_outlined,
               label: 'Chaînes et programmes',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) =>
-                      const ComingSoonScreen(title: 'Chaînes et programmes'),
+                  builder: (_) => const AdminListingListScreen(
+                    typeSlug: 'channels_programs',
+                    fallbackLabel: 'Chaînes et programmes',
+                  ),
                 ),
               ),
             ),
@@ -50,8 +55,10 @@ class EvaluerHomeScreen extends StatelessWidget {
               label: 'Vente en ligne',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) =>
-                      const ComingSoonScreen(title: 'Vente en ligne'),
+                  builder: (_) => const AdminListingListScreen(
+                    typeSlug: 'online_sales',
+                    fallbackLabel: 'Vente en ligne',
+                  ),
                 ),
               ),
             ),
@@ -60,7 +67,10 @@ class EvaluerHomeScreen extends StatelessWidget {
               label: 'Autres',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const ComingSoonScreen(title: 'Autres'),
+                  builder: (_) => const AdminListingListScreen(
+                    typeSlug: 'other',
+                    fallbackLabel: 'Autres',
+                  ),
                 ),
               ),
             ),

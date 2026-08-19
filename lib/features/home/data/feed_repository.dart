@@ -14,21 +14,21 @@ class FeedItem {
   final String? ownerId;
   final String? ownerName;
   final String? ownerAvatarUrl;
+  final DateTime createdAt;
   final double averageScore;
   final int ratingsCount;
   final int commentsCount;
   final int viewsCount;
-  final DateTime createdAt;
 
   FeedItem({
     required this.id,
     required this.kind,
     required this.name,
     required this.imageUrl,
+    required this.createdAt,
     required this.averageScore,
     required this.ratingsCount,
     required this.commentsCount,
-    required this.createdAt,
     this.viewsCount = 0,
     this.description,
     this.cityNameFr,
@@ -49,11 +49,11 @@ class FeedItem {
         ownerId: map['owner_id'] as String?,
         ownerName: map['owner_name'] as String?,
         ownerAvatarUrl: map['owner_avatar_url'] as String?,
+        createdAt: DateTime.parse(map['created_at'] as String),
         averageScore: (map['average_score'] as num?)?.toDouble() ?? 0,
         ratingsCount: (map['ratings_count'] as num?)?.toInt() ?? 0,
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,
         viewsCount: (map['views_count'] as num?)?.toInt() ?? 0,
-        createdAt: DateTime.parse(map['created_at'] as String),
       );
 
   String get locationLabel => [zoneNameFr, cityNameFr]

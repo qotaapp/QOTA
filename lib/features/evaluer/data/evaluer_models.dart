@@ -76,7 +76,7 @@ class QotaCategory {
       );
 }
 
-/// Représente une "Service" (§18) prête à être affichée en carte (§25).
+/// §35 : types de Figures Publiques, gérés par le Super Admin.
 class FigureType {
   final String id;
   final String nameFr;
@@ -86,6 +86,32 @@ class FigureType {
 
   factory FigureType.fromMap(Map<String, dynamic> map) => FigureType(
         id: map['id'] as String,
+        nameFr: map['name_fr'] as String,
+        nameAr: map['name_ar'] as String,
+      );
+}
+
+/// Section du menu Évaluer alimentée exclusivement par le Super Admin
+/// (ou un modérateur avec la permission 'moderate_content') : "Chaînes
+/// et programmes", "Vente en ligne", "Autres" — identifiées par un
+/// `slug` stable (jamais l'UUID, qui varie d'un environnement à l'autre).
+class AdminListingType {
+  final String id;
+  final String slug;
+  final String nameFr;
+  final String nameAr;
+
+  AdminListingType({
+    required this.id,
+    required this.slug,
+    required this.nameFr,
+    required this.nameAr,
+  });
+
+  factory AdminListingType.fromMap(Map<String, dynamic> map) =>
+      AdminListingType(
+        id: map['id'] as String,
+        slug: map['slug'] as String,
         nameFr: map['name_fr'] as String,
         nameAr: map['name_ar'] as String,
       );
