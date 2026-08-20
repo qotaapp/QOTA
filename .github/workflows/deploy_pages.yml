@@ -35,13 +35,13 @@ jobs:
         run: flutter gen-l10n
 
       # --base-href est OBLIGATOIRE ici : le site est servi sous
-      # https://qotaapp.github.io/QOTA-Flutter-app/ (un sous-dossier,
-      # pas la racine du domaine) — sans ça, les assets et le routing
-      # cassent silencieusement.
+      # https://qotaapp.github.io/QOTA/ (dépôt renommé depuis
+      # QOTA-Flutter-app — sans ça, les assets et le routing cassent
+      # silencieusement).
       - name: Build Web (release)
         run: |
           flutter build web --release \
-            --base-href "/QOTA-Flutter-app/" \
+            --base-href "/QOTA/" \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
 
