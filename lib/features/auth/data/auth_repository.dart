@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/constants/supabase_constants.dart';
 
@@ -46,10 +47,19 @@ class AuthRepository {
     await _client.auth.resetPasswordForEmail(email);
   }
 
-  /// §5 : connexion sociale. Ouvre le navigateur système (Chrome
-  /// Custom Tab / SFSafariViewController) pour l'écran Google, puis
-  /// revient dans l'app via `oauthRedirectUrl` (deep link) — AuthGate
-  /// détecte alors automatiquement la nouvelle session (§main.dart).
+  /// §5 : connexion sociale.
+  /// - Sur mobile (Android/iOS) : ouvre le navigateur système, puis
+  ///   revient dans l'app via `oauthRedirectUrl` (deep link
+  ///   io.supabase.qota://login-callback/) — AuthGate détecte alors
+  ///   automatiquement la nouvelle session (§main.dart).
+  /// - Sur Web : un lien mobile (schéma personnalisé) n'a AUCUN sens
+  ///   pour un navigateur, qui resterait bloqué indéfiniment. On
+  ///   redirige donc vers l'URL web ACTUELLE (Uri.base) — celle-ci
+  ///   s'adapte automatiquement, que l'app soit servie sur GitHub
+  ///   Pages, Render, ou en local pendant le développement. Chaque
+  ///   URL empruntée doit être ajoutée dans Supabase Dashboard >
+  ///   Authentication > URL Configuration > Redirect URLs (un
+  ///   caractère générique est accepté, ex: https://qotaapp.github.io/**).
   /// Si l'e-mail Google correspond à un compte existant, Supabase lie
   /// automatiquement les deux (à activer dans Authentication >
   /// Settings > "Link accounts by email" si ce n'est pas déjà le cas).
@@ -58,7 +68,8 @@ class AuthRepository {
   Future<bool> signInWithGoogle() {
     return _client.auth.signInWithOAuth(
       OAuthProvider.google,
-      redirectTo: SupabaseConstants.oauthRedirectUrl,
+      redirectTo:
+          kIsWeb ? Uri.base.toString() : SupabaseConstants.oauthRedirectUrl,
     );
   }
 
