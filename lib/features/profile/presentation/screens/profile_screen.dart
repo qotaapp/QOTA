@@ -173,6 +173,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Suppression d'une de SES PROPRES publications — le profil
+  /// personnel n'affiche jamais que les User Items de l'utilisateur
+  /// connecté (getUserItems(profile.id) où profile = getMyProfile()),
+  /// donc onDelete est toujours sûr à proposer ici, pour tous les
+  /// utilisateurs, sans vérification de rôle supplémentaire.
+  Future<void> _deleteItem(QotaUserItem item) async {
+    await _repository.deleteUserItem(item.id);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Publication supprimée.')),
+      );
+      _reload();
+    }
+  }
+
   /// "mon Qota" : moyenne des évaluations reçues sur l'ensemble des
   /// User Items du profil (calculée côté client à partir des moyennes
   /// déjà agrégées par item — pas de nouvelle requête serveur requise).
@@ -417,6 +432,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ratingsCount: item.ratingsCount,
                           commentsCount: item.commentsCount,
                           viewsCount: item.viewsCount,
+                          // MODIF : sur SON PROPRE profil, tout
+                          // utilisateur peut supprimer ses publications
+                          // — affiche le menu ⋮ -> "Supprimer" déjà
+                          // prévu dans UserItemPostCard.
+                          onDelete: () => _deleteItem(item),
                           onOpenRatingSheet: () => RatingSheet.show(
                             context,
                             entityId: item.id,

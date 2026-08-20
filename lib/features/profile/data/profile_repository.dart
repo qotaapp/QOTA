@@ -148,4 +148,14 @@ class ProfileRepository {
       'status': 'active',
     });
   }
+
+  /// Suppression d'un User Item par son PROPRIÉTAIRE — sur son propre
+  /// profil, chaque utilisateur peut supprimer ses propres
+  /// publications. La RLS ("Owners delete own entities" ou
+  /// équivalent) refuse déjà côté serveur toute tentative sur un item
+  /// qui n'appartient pas à l'appelant, donc ce garde-fou existe
+  /// même si ce bouton n'apparaissait un jour ailleurs par erreur.
+  Future<void> deleteUserItem(String entityId) async {
+    await _client.from('entities').delete().eq('id', entityId);
+  }
 }
