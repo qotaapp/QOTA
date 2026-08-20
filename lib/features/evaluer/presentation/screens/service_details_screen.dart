@@ -71,6 +71,42 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Visible UNIQUEMENT par le créateur — une Service
+                      // pending_review d'un autre utilisateur n'est
+                      // jamais renvoyée ici (entity_cards_view). Prévient
+                      // que la publication n'est pas encore visible du
+                      // public, même si lui peut déjà l'évaluer/commenter.
+                      if (entity.isPendingReview) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: Colors.orange.withValues(alpha: 0.4)),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.hourglass_top_rounded,
+                                  size: 16, color: Colors.orange),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'En attente d\'approbation — visible '
+                                  'uniquement par vous pour le moment. '
+                                  'Vous pouvez déjà l\'évaluer et la '
+                                  'commenter.',
+                                  style: TextStyle(
+                                      fontSize: 12.5,
+                                      color: AppColors.textSecondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
                       Text(entity.name,
                           style: const TextStyle(
                               fontSize: 22, fontWeight: FontWeight.w800)),

@@ -8,6 +8,12 @@ import '../../data/evaluer_models.dart';
 ///
 /// §26 : tap ⭐ -> Rating Sheet · tap 💬 -> commentaires ·
 /// tap image -> plein écran · tap carte -> Service Details.
+///
+/// Le badge "En attente d'approbation" ne s'affiche QUE pour le
+/// créateur : entity_cards_view ne renvoie jamais la Service
+/// pending_review d'un autre utilisateur (voir migration SQL dédiée),
+/// donc `entity.isPendingReview == true` signifie forcément "c'est la
+/// mienne" — aucune vérification d'identité supplémentaire requise ici.
 class ServiceCard extends StatelessWidget {
   final QotaEntity entity;
   final VoidCallback onOpenDetails;
@@ -51,9 +57,41 @@ class ServiceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: onOpenImageFullscreen,
-              child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
+            Stack(
+              children: [
+                GestureDetector(
+                  onTap: onOpenImageFullscreen,
+                  child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
+                ),
+                if (entity.isPendingReview)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.hourglass_top_rounded,
+                              size: 14, color: Colors.white),
+                          SizedBox(width: 4),
+                          Text(
+                            'En attente d\'approbation',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
@@ -119,7 +157,7 @@ class ServiceCard extends StatelessWidget {
                       ),
                       // Pas de ❤️ ici — supprimé de la carte principale par règle §25.
                       const Spacer(),
-                      // Compteur de vues — bas droite, icône œil (demande explicite).
+                      // Compteur de vues — bas droite, icône œil.
                       Row(
                         children: [
                           const Icon(
@@ -130,8 +168,8 @@ class ServiceCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             _formatViews(entity.viewsCount),
-                            style:
-                                const TextStyle(color: AppColors.textSecondary),
+                            style: const TextStyle(
+                                color: AppColors.textSecondary),
                           ),
                         ],
                       ),
