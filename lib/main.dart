@@ -5,6 +5,8 @@ import 'core/theme/app_theme.dart';
 import 'core/routing/root_shell.dart';
 import 'core/constants/supabase_constants.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
+import 'features/auth/presentation/screens/complete_profile_screen.dart';
+import 'features/profile/data/profile_repository.dart';
 import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
@@ -119,10 +121,52 @@ class AuthGate extends StatelessWidget {
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
         final session = Supabase.instance.client.auth.currentSession;
-        if (session != null) {
+        if (session == null) {
+          return const LoginScreen();
+        }
+        return const _ProfileGate();
+      },
+    );
+  }
+}
+
+/// Une fois une session active détectée, vérifie que le profil est
+/// complet (nom, prénom, âge) avant de laisser entrer sur Home.
+/// Nécessaire notamment après une première connexion Google, qui ne
+/// fournit jamais l'âge — voir CompleteProfileScreen.
+/// Un compte créé via e-mail/mot de passe (§6, âge déjà obligatoire à
+/// l'inscription) passe systématiquement ce contrôle sans y voir
+/// d'écran supplémentaire.
+class _ProfileGate extends StatefulWidget {
+  const _ProfileGate();
+
+  @override
+  State<_ProfileGate> createState() => _ProfileGateState();
+}
+
+class _ProfileGateState extends State<_ProfileGate> {
+  late final Future<bool> _isCompleteFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _isCompleteFuture = ProfileRepository().isProfileComplete();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _isCompleteFuture,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.data == true) {
           return const RootShell();
         }
-        return const LoginScreen();
+        return const CompleteProfileScreen();
       },
     );
   }

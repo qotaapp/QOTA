@@ -23,6 +23,36 @@ class ProfileRepository {
     return QotaProfile.fromMap(row);
   }
 
+  /// Un profil créé via Google Sign-In n'a jamais d'âge (Google ne le
+  /// fournit pas) et peut avoir un nom vide dans de rares cas. Utilisé
+  /// par AuthGate (main.dart) pour forcer le passage par
+  /// CompleteProfileScreen avant Home tant que ce n'est pas complété.
+  Future<bool> isProfileComplete() async {
+    final row = await _client
+        .from('profiles')
+        .select('first_name, last_name, age')
+        .eq('id', currentUserId)
+        .single();
+    final firstName = (row['first_name'] as String?)?.trim() ?? '';
+    final lastName = (row['last_name'] as String?)?.trim() ?? '';
+    return firstName.isNotEmpty && lastName.isNotEmpty && row['age'] != null;
+  }
+
+  /// Complète nom/prénom/âge — utilisé par CompleteProfileScreen après
+  /// une première connexion Google (§handle_new_auth_user les avait
+  /// laissés vides/nuls faute d'information fournie par Google).
+  Future<void> updateBasicInfo({
+    required String firstName,
+    required String lastName,
+    required int age,
+  }) async {
+    await _client.from('profiles').update({
+      'first_name': firstName,
+      'last_name': lastName,
+      'age': age,
+    }).eq('id', currentUserId);
+  }
+
   /// Profil PUBLIC de n'importe quel utilisateur (nom + avatar
   /// uniquement) — via `public_profiles_view`, pas la table
   /// `profiles` dont la RLS interdit la lecture croisée entre

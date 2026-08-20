@@ -47,6 +47,14 @@ class AuthRepository {
     await _client.auth.resetPasswordForEmail(email);
   }
 
+  /// Définit (ou remplace) le mot de passe du compte actuellement
+  /// connecté — utilisé par CompleteProfileScreen pour qu'un compte
+  /// créé via Google puisse AUSSI se connecter plus tard par e-mail +
+  /// mot de passe, sans créer de second compte.
+  Future<void> setPassword(String password) async {
+    await _client.auth.updateUser(UserAttributes(password: password));
+  }
+
   /// §5 : connexion sociale.
   /// - Sur mobile (Android/iOS) : ouvre le navigateur système, puis
   ///   revient dans l'app via `oauthRedirectUrl` (deep link
