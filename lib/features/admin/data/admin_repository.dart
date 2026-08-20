@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdminOwnershipRequest {
@@ -400,6 +401,41 @@ class AdminRepository {
   /// enfreint les règles, pas seulement une demande en attente.
   Future<void> deleteEntity(String entityId) async {
     await _client.from('entities').delete().eq('id', entityId);
+  }
+
+  /// Modification par le Super Admin AVANT approbation (nom,
+  /// description, photo) — permet de corriger une publication plutôt
+  /// que de devoir la rejeter pour une simple faute de frappe ou une
+  /// photo de mauvaise qualité. `imageUrl` reste inchangée si non
+  /// fournie (on ne force pas un ré-upload à chaque modification).
+  Future<void> updateEntityDetails({
+    required String entityId,
+    required String name,
+    String? description,
+    String? imageUrl,
+  }) async {
+    final updates = <String, dynamic>{
+      'name': name,
+      'description': description,
+    };
+    if (imageUrl != null) {
+      updates['image_url'] = imageUrl;
+    }
+    await _client.from('entities').update(updates).eq('id', entityId);
+  }
+
+  /// Upload d'une nouvelle photo lors de la modification d'une
+  /// publication en modération — même bucket/pattern que les autres
+  /// uploads de l'app (`user-content`, dossier de l'utilisateur courant).
+  Future<String> uploadEntityImage({
+    required Uint8List bytes,
+    required String fileExtension,
+  }) async {
+    final userId = _client.auth.currentUser!.id;
+    final path =
+        '$userId/moderation/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    await _client.storage.from('user-content').uploadBinary(path, bytes);
+    return _client.storage.from('user-content').getPublicUrl(path);
   }
 
   // ---------------- Modérateurs (rôles bien déterminés) ----------------
