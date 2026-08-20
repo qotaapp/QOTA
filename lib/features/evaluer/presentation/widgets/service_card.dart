@@ -3,7 +3,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../data/evaluer_models.dart';
 
-/// §25 : [Image] / Nom / Localisation / ⭐ moyenne  nb_évaluations  💬 nb_commentaires
+/// §25 : [Image] / Nom / Localisation / ⭐ moyenne  nb_évaluations  💬 nb_commentaires  👁 nb_vues
 /// IMPORTANT : jamais de ❤️ sur cette carte (§25).
 ///
 /// §26 : tap ⭐ -> Rating Sheet · tap 💬 -> commentaires ·
@@ -23,6 +23,17 @@ class ServiceCard extends StatelessWidget {
     required this.onOpenComments,
     required this.onOpenImageFullscreen,
   });
+
+  /// Format compact façon réseaux sociaux : 1200 -> "1.2K", 2500000 -> "2.5M".
+  String _formatViews(int count) {
+    if (count >= 1000000) {
+      return '${(count / 1000000).toStringAsFixed(1)}M';
+    }
+    if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}K';
+    }
+    return '$count';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +118,23 @@ class ServiceCard extends StatelessWidget {
                         ),
                       ),
                       // Pas de ❤️ ici — supprimé de la carte principale par règle §25.
+                      const Spacer(),
+                      // Compteur de vues — bas droite, icône œil (demande explicite).
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.visibility_outlined,
+                            size: 16,
+                            color: AppColors.iconInactive,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatViews(entity.viewsCount),
+                            style:
+                                const TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],

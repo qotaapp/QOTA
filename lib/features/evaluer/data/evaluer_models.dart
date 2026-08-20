@@ -128,6 +128,7 @@ class QotaEntity {
   final double averageScore;
   final int ratingsCount;
   final int commentsCount;
+  final int viewsCount;
 
   QotaEntity({
     required this.id,
@@ -136,6 +137,7 @@ class QotaEntity {
     required this.averageScore,
     required this.ratingsCount,
     required this.commentsCount,
+    this.viewsCount = 0,
     this.description,
     this.cityNameFr,
     this.zoneNameFr,
@@ -153,6 +155,7 @@ class QotaEntity {
         averageScore: (map['average_score'] as num?)?.toDouble() ?? 0,
         ratingsCount: (map['ratings_count'] as num?)?.toInt() ?? 0,
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,
+        viewsCount: (map['views_count'] as num?)?.toInt() ?? 0,
       );
 
   String get locationLabel => [zoneNameFr, cityNameFr]
