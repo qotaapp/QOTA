@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
+import '../../../profile/data/profile_repository.dart';
 import '../../data/feed_repository.dart';
 
 /// §9/§25 : carte pour les Services affichées dans le Feed (jamais de
-/// propriétaire, §18). Les User Items utilisent FeedUserItemCard.
+/// propriétaire, §18). Les User Items utilisent UserItemPostCard.
 class FeedItemCard extends StatelessWidget {
   final FeedItem item;
   final VoidCallback onOpenDetails;
@@ -20,6 +21,17 @@ class FeedItemCard extends StatelessWidget {
     required this.onOpenComments,
     required this.onOpenImageFullscreen,
   });
+
+  /// Format compact façon réseaux sociaux : 1200 -> "1.2K", 2500000 -> "2.5M".
+  String _formatViews(int count) {
+    if (count >= 1000000) {
+      return '${(count / 1000000).toStringAsFixed(1)}M';
+    }
+    if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}K';
+    }
+    return '$count';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +50,10 @@ class FeedItemCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
-              onTap: onOpenImageFullscreen,
+              onTap: () {
+                ProfileRepository().incrementViews(item.id);
+                onOpenImageFullscreen();
+              },
               child: AdaptiveNetworkImage(imageUrl: item.imageUrl),
             ),
             Padding(
@@ -91,6 +106,22 @@ class FeedItemCard extends StatelessWidget {
                                     color: AppColors.textSecondary)),
                           ],
                         ),
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.visibility_outlined,
+                            size: 16,
+                            color: AppColors.iconInactive,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatViews(item.viewsCount),
+                            style:
+                                const TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ],
                       ),
                     ],
                   ),

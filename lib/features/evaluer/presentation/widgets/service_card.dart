@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
+import '../../../profile/data/profile_repository.dart';
 import '../../data/evaluer_models.dart';
 
 /// §25 : [Image] / Nom / Localisation / ⭐ moyenne  nb_évaluations  💬 nb_commentaires  👁 nb_vues
@@ -60,7 +61,13 @@ class ServiceCard extends StatelessWidget {
             Stack(
               children: [
                 GestureDetector(
-                  onTap: onOpenImageFullscreen,
+                  onTap: () {
+                    // Même logique que UserItemPostCard : une vue =
+                    // ouverture délibérée de l'image, pas juste un
+                    // défilement dans la liste.
+                    ProfileRepository().incrementViews(entity.id);
+                    onOpenImageFullscreen();
+                  },
                   child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
                 ),
                 if (entity.isPendingReview)
@@ -168,8 +175,8 @@ class ServiceCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             _formatViews(entity.viewsCount),
-                            style: const TextStyle(
-                                color: AppColors.textSecondary),
+                            style:
+                                const TextStyle(color: AppColors.textSecondary),
                           ),
                         ],
                       ),

@@ -267,13 +267,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                         entityKind: item.kind),
                                   ))
                                   .then((_) => _refresh()),
-                              onOpenImageFullscreen: () =>
-                                  Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => FullscreenImageViewer(
-                                      imageUrl: item.imageUrl),
-                                ),
-                              ),
+                              onOpenImageFullscreen: () => Navigator.of(context)
+                                  .push(
+                                    MaterialPageRoute(
+                                      builder: (_) => FullscreenImageViewer(
+                                          imageUrl: item.imageUrl),
+                                    ),
+                                  )
+                                  // Même logique que pour les User Items :
+                                  // recharge pour refléter le nombre de
+                                  // vues mis à jour côté base.
+                                  .then((_) => _refresh()),
                             );
                           },
                         ),
