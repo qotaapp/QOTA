@@ -78,23 +78,37 @@ class SearchResultCategory {
           id: map['id'] as String, nameFr: map['name_fr'] as String);
 }
 
+/// Regroupe les 3 volets d'une recherche (§12), pour éviter un type
+/// record trop long à faire tenir sur une seule signature de méthode.
+class SearchResults {
+  final List<SearchResultCategory> categories;
+  final List<SearchResultEntity> entities;
+  final List<SearchResultUser> users;
+
+  const SearchResults({
+    required this.categories,
+    required this.entities,
+    required this.users,
+  });
+
+  const SearchResults.empty()
+      : categories = const [],
+        entities = const [],
+        users = const [];
+}
+
 class SearchRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
   /// §12 : recherche unifiée services/lieux/contenus + catégories +
   /// utilisateurs (par prénom/nom).
-  Future<(List<SearchResultCategory>, List<SearchResultEntity>,
-      List<SearchResultUser>)> search(
+  Future<SearchResults> search(
     String query, {
     double? userLat,
     double? userLng,
   }) async {
     if (query.trim().length < 2) {
-      return (
-        <SearchResultCategory>[],
-        <SearchResultEntity>[],
-        <SearchResultUser>[]
-      );
+      return const SearchResults.empty();
     }
 
     final categoriesRows = await _client
@@ -117,6 +131,10 @@ class SearchRepository {
     final users =
         (usersRows as List).map((r) => SearchResultUser.fromMap(r)).toList();
 
-    return (categories, entities, users);
+    return SearchResults(
+      categories: categories,
+      entities: entities,
+      users: users,
+    );
   }
 }

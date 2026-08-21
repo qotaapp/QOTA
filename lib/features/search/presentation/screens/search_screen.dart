@@ -50,14 +50,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _runSearch(String query) async {
     setState(() => _isLoading = true);
-    final (categories, entities, users) = await _repository.search(query);
+    final results = await _repository.search(query);
     if (!mounted) {
       return;
     }
     setState(() {
-      _categories = categories;
-      _entities = entities;
-      _users = users;
+      _categories = results.categories;
+      _entities = results.entities;
+      _users = results.users;
       _isLoading = false;
       _hasSearched = true;
     });

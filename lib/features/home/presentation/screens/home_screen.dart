@@ -279,8 +279,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ServiceDetailsScreen(entityId: item.id),
                                   ))
                                   .then((_) => _silentRefresh()),
-                              onOpenRatingSheet: () => RatingSheet.show(context,
-                                  entityId: item.id, onSubmitted: _silentRefresh),
+                              onOpenRatingSheet: () => RatingSheet.show(
+                                context,
+                                entityId: item.id,
+                                onSubmitted: _silentRefresh,
+                              ),
                               onOpenComments: () => Navigator.of(context)
                                   .push(MaterialPageRoute(
                                     builder: (_) => CommentsScreen(
