@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/search_repository.dart';
 import '../../../evaluer/presentation/screens/service_details_screen.dart';
+import '../../../profile/presentation/screens/public_profile_screen.dart';
 
 /// §12 : recherche de services, lieux, catégories, contenus pertinents.
 /// Debounce de 400ms pour ne pas spammer le serveur à chaque frappe.
@@ -21,6 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   List<SearchResultCategory> _categories = [];
   List<SearchResultEntity> _entities = [];
+  List<SearchResultUser> _users = [];
   bool _isLoading = false;
   bool _hasSearched = false;
 
@@ -37,6 +39,7 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() {
         _categories = [];
         _entities = [];
+        _users = [];
         _hasSearched = false;
       });
       return;
@@ -47,13 +50,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _runSearch(String query) async {
     setState(() => _isLoading = true);
-    final (categories, entities) = await _repository.search(query);
+    final (categories, entities, users) = await _repository.search(query);
     if (!mounted) {
       return;
     }
     setState(() {
       _categories = categories;
       _entities = entities;
+      _users = users;
       _isLoading = false;
       _hasSearched = true;
     });
@@ -81,7 +85,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Text('Commencez à taper pour rechercher',
                         style: TextStyle(color: AppColors.textSecondary)),
                   )
-                : (_categories.isEmpty && _entities.isEmpty)
+                : (_categories.isEmpty && _entities.isEmpty && _users.isEmpty)
                     ? const Center(
                         child: Text('Aucun résultat',
                             style: TextStyle(color: AppColors.textSecondary)),
@@ -111,6 +115,37 @@ class _SearchScreenState extends State<SearchScreen> {
                                     .toList(),
                               ),
                             ),
+                          ],
+                          if (_users.isNotEmpty) ...[
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
+                              child: Text('Utilisateurs',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.w700)),
+                            ),
+                            ..._users.map((user) => ListTile(
+                                  leading: CircleAvatar(
+                                    radius: 26,
+                                    backgroundColor: AppColors.surfaceChip,
+                                    backgroundImage: user.avatarUrl != null &&
+                                            user.avatarUrl!.isNotEmpty
+                                        ? CachedNetworkImageProvider(
+                                            user.avatarUrl!)
+                                        : null,
+                                    child: (user.avatarUrl == null ||
+                                            user.avatarUrl!.isEmpty)
+                                        ? const Icon(Icons.person_rounded,
+                                            color: AppColors.textSecondary)
+                                        : null,
+                                  ),
+                                  title: Text(user.fullName),
+                                  subtitle: const Text('Utilisateur'),
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (_) => PublicProfileScreen(
+                                            userId: user.id)),
+                                  ),
+                                )),
                           ],
                           if (_entities.isNotEmpty) ...[
                             const Padding(

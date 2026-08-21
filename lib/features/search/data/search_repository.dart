@@ -44,6 +44,30 @@ class SearchResultEntity {
       .join(', ');
 }
 
+class SearchResultUser {
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String? avatarUrl;
+
+  SearchResultUser({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    this.avatarUrl,
+  });
+
+  factory SearchResultUser.fromMap(Map<String, dynamic> map) =>
+      SearchResultUser(
+        id: map['id'] as String,
+        firstName: map['first_name'] as String,
+        lastName: map['last_name'] as String,
+        avatarUrl: map['avatar_url'] as String?,
+      );
+
+  String get fullName => '$firstName $lastName';
+}
+
 class SearchResultCategory {
   final String id;
   final String nameFr;
@@ -57,14 +81,20 @@ class SearchResultCategory {
 class SearchRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
-  /// §12 : recherche unifiée services/lieux/contenus + catégories.
-  Future<(List<SearchResultCategory>, List<SearchResultEntity>)> search(
+  /// §12 : recherche unifiée services/lieux/contenus + catégories +
+  /// utilisateurs (par prénom/nom).
+  Future<(List<SearchResultCategory>, List<SearchResultEntity>,
+      List<SearchResultUser>)> search(
     String query, {
     double? userLat,
     double? userLng,
   }) async {
     if (query.trim().length < 2) {
-      return (<SearchResultCategory>[], <SearchResultEntity>[]);
+      return (
+        <SearchResultCategory>[],
+        <SearchResultEntity>[],
+        <SearchResultUser>[]
+      );
     }
 
     final categoriesRows = await _client
@@ -75,6 +105,8 @@ class SearchRepository {
       'p_user_lng': userLng,
       'p_limit': 30,
     });
+    final usersRows = await _client
+        .rpc('search_users', params: {'p_query': query, 'p_limit': 15});
 
     final categories = (categoriesRows as List)
         .map((r) => SearchResultCategory.fromMap(r))
@@ -82,7 +114,9 @@ class SearchRepository {
     final entities = (entitiesRows as List)
         .map((r) => SearchResultEntity.fromMap(r))
         .toList();
+    final users =
+        (usersRows as List).map((r) => SearchResultUser.fromMap(r)).toList();
 
-    return (categories, entities);
+    return (categories, entities, users);
   }
 }
