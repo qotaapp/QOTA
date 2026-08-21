@@ -129,8 +129,6 @@ class QotaEntity {
   final int ratingsCount;
   final int commentsCount;
   final int viewsCount;
-  final String status;
-  final String? createdBy;
 
   QotaEntity({
     required this.id,
@@ -139,13 +137,11 @@ class QotaEntity {
     required this.averageScore,
     required this.ratingsCount,
     required this.commentsCount,
-    required this.status,
     this.viewsCount = 0,
     this.description,
     this.cityNameFr,
     this.zoneNameFr,
     this.figureTypeNameFr,
-    this.createdBy,
   });
 
   factory QotaEntity.fromMap(Map<String, dynamic> map) => QotaEntity(
@@ -160,17 +156,13 @@ class QotaEntity {
         ratingsCount: (map['ratings_count'] as num?)?.toInt() ?? 0,
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,
         viewsCount: (map['views_count'] as num?)?.toInt() ?? 0,
-        status: map['status'] as String? ?? 'active',
-        createdBy: map['created_by'] as String?,
       );
-
-  /// N'est vrai que pour SON créateur — entity_cards_view ne renvoie
-  /// jamais une Service pending_review d'un autre utilisateur, donc
-  /// ce flag est sûr à utiliser tel quel pour afficher le badge
-  /// "En attente" côté Dart, sans re-vérification d'identité.
-  bool get isPendingReview => status == 'pending_review';
 
   String get locationLabel => [zoneNameFr, cityNameFr]
       .where((e) => e != null && e.isNotEmpty)
       .join(', ');
+
+  // entity_cards_view ne renvoie que des publications déjà actives
+  // (where status = 'active') — jamais 'pending_review' ici.
+  bool get isPendingReview => false;
 }

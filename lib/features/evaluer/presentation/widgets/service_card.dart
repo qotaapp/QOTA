@@ -4,17 +4,11 @@ import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../data/evaluer_models.dart';
 
-/// §25 : [Image] / Nom / Localisation / ⭐ moyenne  nb_évaluations  💬 nb_commentaires  👁 nb_vues
+/// §25 : [Image] / Nom / Localisation / ⭐ moyenne  nb_évaluations  💬 nb_commentaires
 /// IMPORTANT : jamais de ❤️ sur cette carte (§25).
 ///
 /// §26 : tap ⭐ -> Rating Sheet · tap 💬 -> commentaires ·
 /// tap image -> plein écran · tap carte -> Service Details.
-///
-/// Le badge "En attente d'approbation" ne s'affiche QUE pour le
-/// créateur : entity_cards_view ne renvoie jamais la Service
-/// pending_review d'un autre utilisateur (voir migration SQL dédiée),
-/// donc `entity.isPendingReview == true` signifie forcément "c'est la
-/// mienne" — aucune vérification d'identité supplémentaire requise ici.
 class ServiceCard extends StatelessWidget {
   final QotaEntity entity;
   final VoidCallback onOpenDetails;
@@ -30,17 +24,6 @@ class ServiceCard extends StatelessWidget {
     required this.onOpenComments,
     required this.onOpenImageFullscreen,
   });
-
-  /// Format compact façon réseaux sociaux : 1200 -> "1.2K", 2500000 -> "2.5M".
-  String _formatViews(int count) {
-    if (count >= 1000000) {
-      return '${(count / 1000000).toStringAsFixed(1)}M';
-    }
-    if (count >= 1000) {
-      return '${(count / 1000).toStringAsFixed(1)}K';
-    }
-    return '$count';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,47 +41,12 @@ class ServiceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    // Même logique que UserItemPostCard : une vue =
-                    // ouverture délibérée de l'image, pas juste un
-                    // défilement dans la liste.
-                    ProfileRepository().incrementViews(entity.id);
-                    onOpenImageFullscreen();
-                  },
-                  child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
-                ),
-                if (entity.isPendingReview)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.65),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.hourglass_top_rounded,
-                              size: 14, color: Colors.white),
-                          SizedBox(width: 4),
-                          Text(
-                            'En attente d\'approbation',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
+            GestureDetector(
+              onTap: () {
+                ProfileRepository().incrementViews(entity.id);
+                onOpenImageFullscreen();
+              },
+              child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
@@ -164,7 +112,6 @@ class ServiceCard extends StatelessWidget {
                       ),
                       // Pas de ❤️ ici — supprimé de la carte principale par règle §25.
                       const Spacer(),
-                      // Compteur de vues — bas droite, icône œil.
                       Row(
                         children: [
                           const Icon(
@@ -173,11 +120,9 @@ class ServiceCard extends StatelessWidget {
                             color: AppColors.iconInactive,
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            _formatViews(entity.viewsCount),
-                            style:
-                                const TextStyle(color: AppColors.textSecondary),
-                          ),
+                          Text('${entity.viewsCount}',
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary)),
                         ],
                       ),
                     ],
