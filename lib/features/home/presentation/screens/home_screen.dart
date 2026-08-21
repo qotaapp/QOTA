@@ -87,7 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => PublicProfileScreen(userId: ownerId)),
+        MaterialPageRoute(
+            builder: (_) => PublicProfileScreen(userId: ownerId)),
       );
     }
   }
@@ -146,6 +147,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _refresh() async {
     _hasMore = true;
     await _loadPage(reset: true);
+  }
+
+  /// Comme _refresh(), mais SANS passer par _isLoadingInitial (qui
+  /// remplace toute la liste par un plein écran de chargement) — pour
+  /// les retours depuis une publication (image, avis, commentaires),
+  /// où l'utilisateur doit retrouver EXACTEMENT sa position de scroll,
+  /// pas être renvoyé en haut de page.
+  Future<void> _silentRefresh() async {
+    final newItems = await _repository.getFeed(
+      userLat: _userLat,
+      userLng: _userLng,
+      limit: _pageSize,
+      offset: 0,
+    );
+    if (!mounted) return;
+    setState(() {
+      _items
+        ..clear()
+        ..addAll(newItems);
+      _hasMore = newItems.length == _pageSize;
+    });
   }
 
   @override
@@ -223,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onOpenRatingSheet: () => RatingSheet.show(
                                     context,
                                     entityId: item.id,
-                                    onSubmitted: _refresh),
+                                    onSubmitted: _silentRefresh),
                                 onOpenComments: () => Navigator.of(context)
                                     .push(MaterialPageRoute(
                                       builder: (_) => CommentsScreen(
@@ -231,22 +253,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                           entityKind: item.kind,
                                           entityOwnerId: item.ownerId),
                                     ))
-                                    .then((_) => _refresh()),
+                                    .then((_) => _silentRefresh()),
                                 onOpenImageFullscreen: () =>
                                     Navigator.of(context)
                                         .push(
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                FullscreenImageViewer(
-                                                    imageUrl: item.imageUrl),
-                                          ),
-                                        )
+                                  MaterialPageRoute(
+                                    builder: (_) => FullscreenImageViewer(
+                                        imageUrl: item.imageUrl),
+                                  ),
+                                )
                                         // Recharge pour refléter le nombre
                                         // de vues mis à jour côté base
                                         // (RPC increment_entity_views,
                                         // §023) — sinon le chiffre affiché
                                         // reste figé.
-                                        .then((_) => _refresh()),
+                                        .then((_) => _silentRefresh()),
                               );
                             }
 
@@ -257,27 +278,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                     builder: (_) =>
                                         ServiceDetailsScreen(entityId: item.id),
                                   ))
-                                  .then((_) => _refresh()),
+                                  .then((_) => _silentRefresh()),
                               onOpenRatingSheet: () => RatingSheet.show(context,
-                                  entityId: item.id, onSubmitted: _refresh),
+                                  entityId: item.id, onSubmitted: _silentRefresh),
                               onOpenComments: () => Navigator.of(context)
                                   .push(MaterialPageRoute(
                                     builder: (_) => CommentsScreen(
                                         entityId: item.id,
                                         entityKind: item.kind),
                                   ))
-                                  .then((_) => _refresh()),
-                              onOpenImageFullscreen: () => Navigator.of(context)
-                                  .push(
-                                    MaterialPageRoute(
-                                      builder: (_) => FullscreenImageViewer(
-                                          imageUrl: item.imageUrl),
-                                    ),
-                                  )
-                                  // Même logique que pour les User Items :
-                                  // recharge pour refléter le nombre de
-                                  // vues mis à jour côté base.
-                                  .then((_) => _refresh()),
+                                  .then((_) => _silentRefresh()),
+                              onOpenImageFullscreen: () =>
+                                  Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => FullscreenImageViewer(
+                                      imageUrl: item.imageUrl),
+                                ),
+                              ),
                             );
                           },
                         ),
