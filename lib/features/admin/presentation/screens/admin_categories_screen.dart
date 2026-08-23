@@ -79,8 +79,7 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Supprimer cette catégorie ?'),
         content: Text(
-            '"${category['name_fr']}" sera supprimée définitivement. Cette '
-            'action est irréversible.'),
+            '"${category['name_fr']}" sera supprimée définitivement. Cette action est irréversible.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -102,11 +101,11 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
       _reload();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-            'Impossible de supprimer : catégorie encore utilisée par des '
-            'publications ou des sous-catégories.'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'Impossible de supprimer : catégorie encore utilisée par des publications ou des sous-catégories.')),
+      );
     }
   }
 

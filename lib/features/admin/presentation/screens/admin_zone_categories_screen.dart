@@ -17,8 +17,7 @@ class AdminZoneCategoriesScreen extends StatefulWidget {
       _AdminZoneCategoriesScreenState();
 }
 
-class _AdminZoneCategoriesScreenState
-    extends State<AdminZoneCategoriesScreen> {
+class _AdminZoneCategoriesScreenState extends State<AdminZoneCategoriesScreen> {
   final _repository = AdminRepository();
   List<Map<String, dynamic>> _categories = [];
   Set<String> _linkedIds = {};
