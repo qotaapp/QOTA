@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_repository.dart';
 import 'admin_zones_screen.dart';
+import 'admin_city_categories_screen.dart';
 
 /// Créer / supprimer les Villes d'un État — accessible au Super Admin
 /// ainsi qu'à tout modérateur détenant la permission 'manage_geography'
@@ -153,6 +154,19 @@ class _AdminCitiesScreenState extends State<AdminCitiesScreen> {
                             city['id'] as String, value);
                         _reload();
                       },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.category_outlined,
+                          color: AppColors.iconDefault),
+                      tooltip: 'Catégories de cette ville',
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => AdminCityCategoriesScreen(
+                            cityId: city['id'] as String,
+                            cityName: city['name_fr'] as String,
+                          ),
+                        ),
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.edit_outlined,

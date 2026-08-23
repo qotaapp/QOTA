@@ -228,6 +228,31 @@ class AdminRepository {
     await _client.from('categories').update({'active': active}).eq('id', id);
   }
 
+  /// Catégories propres à une ville (§029) — les ids déjà associés.
+  Future<Set<String>> getCityCategoryIds(String cityId) async {
+    final rows = await _client
+        .from('category_cities')
+        .select('category_id')
+        .eq('city_id', cityId);
+    return (rows as List).map((r) => r['category_id'] as String).toSet();
+  }
+
+  Future<void> addCategoryToCity(
+      {required String cityId, required String categoryId}) async {
+    await _client
+        .from('category_cities')
+        .insert({'city_id': cityId, 'category_id': categoryId});
+  }
+
+  Future<void> removeCategoryFromCity(
+      {required String cityId, required String categoryId}) async {
+    await _client
+        .from('category_cities')
+        .delete()
+        .eq('city_id', cityId)
+        .eq('category_id', categoryId);
+  }
+
   // ---------------- Ownership Requests (§20, §22) ----------------
 
   Future<List<AdminOwnershipRequest>> getPendingOwnershipRequests() async {
@@ -432,8 +457,8 @@ class AdminRepository {
     required String fileExtension,
   }) async {
     final userId = _client.auth.currentUser!.id;
-    final path =
-        '$userId/moderation/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    final ts = DateTime.now().microsecondsSinceEpoch;
+    final path = '$userId/moderation/$ts.$fileExtension';
     await _client.storage.from('user-content').uploadBinary(path, bytes);
     return _client.storage.from('user-content').getPublicUrl(path);
   }

@@ -35,13 +35,20 @@ class EvaluerRepository {
     return (rows as List).map((r) => QotaZone.fromMap(r)).toList();
   }
 
-  Future<List<QotaCategory>> getCategories() async {
+  /// §16 : catégories propres à CETTE ville (table de liaison
+  /// category_cities, gérée par le Super Admin) — plus une liste
+  /// globale partagée par toutes les villes.
+  Future<List<QotaCategory>> getCategories(String cityId) async {
     final rows = await _client
-        .from('categories')
-        .select()
-        .eq('active', true)
-        .order('order_index');
-    return (rows as List).map((r) => QotaCategory.fromMap(r)).toList();
+        .from('category_cities')
+        .select('categories!inner(*)')
+        .eq('city_id', cityId)
+        .eq('categories.active', true)
+        .order('order_index', referencedTable: 'categories');
+    return (rows as List)
+        .map((r) =>
+            QotaCategory.fromMap(r['categories'] as Map<String, dynamic>))
+        .toList();
   }
 
   /// §18 : liste des Services d'une catégorie, dans une zone (ou ville

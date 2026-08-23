@@ -36,7 +36,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
   }
 
   Future<void> _load() async {
-    final categories = await _repository.getCategories();
+    final categories = await _repository.getCategories(widget.cityId);
     setState(() {
       _categoriesById = {for (final c in categories) c.id: c};
       _items = categories
