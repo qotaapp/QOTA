@@ -42,6 +42,17 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
     setState(() => _futureData = _load());
   }
 
+  /// "mon Qota" : moyenne des évaluations reçues sur l'ensemble des
+  /// User Items du profil — même calcul que sur le Profil personnel.
+  double? _averageAcrossItems(List<QotaUserItem> items) {
+    final rated = items.where((i) => i.ratingsCount > 0).toList();
+    if (rated.isEmpty) {
+      return null;
+    }
+    final sum = rated.fold<double>(0, (acc, i) => acc + i.averageScore);
+    return sum / rated.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,6 +77,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
 
           final data = snapshot.data!;
           final profile = data.profile;
+          final averageScore = _averageAcrossItems(data.items);
 
           return RefreshIndicator(
             onRefresh: () async => _reload(),
@@ -74,33 +86,74 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                    child: BorderedInfoCard(
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 34,
-                            backgroundColor: AppColors.surfaceChip,
-                            backgroundImage: profile.avatarUrl != null
-                                ? CachedNetworkImageProvider(profile.avatarUrl!)
-                                : null,
-                            child: profile.avatarUrl == null
-                                ? const Icon(
-                                    Icons.person,
-                                    size: 34,
-                                    color: AppColors.iconInactive,
-                                  )
-                                : null,
+                    child: Column(
+                      children: [
+                        BorderedInfoCard(
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 34,
+                                backgroundColor: AppColors.surfaceChip,
+                                backgroundImage: profile.avatarUrl != null
+                                    ? CachedNetworkImageProvider(
+                                        profile.avatarUrl!)
+                                    : null,
+                                child: profile.avatarUrl == null
+                                    ? const Icon(
+                                        Icons.person,
+                                        size: 34,
+                                        color: AppColors.iconInactive,
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Text(
+                                  profile.fullName,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              profile.fullName,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 18),
-                            ),
+                        ),
+                        const SizedBox(height: 12),
+                        // ---- Carte "mon Qota" — aussi visible des
+                        // visiteurs, pas seulement du propriétaire.
+                        BorderedInfoCard(
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.star_rounded,
+                                size: 40,
+                                color: AppColors.starFilled,
+                              ),
+                              const SizedBox(width: 14),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    averageScore == null
+                                        ? '—'
+                                        : averageScore.toStringAsFixed(1),
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.starFilled,
+                                    ),
+                                  ),
+                                  const Text(
+                                    'mon Qota',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -148,14 +201,15 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                                 ),
                               ))
                               .then((_) => _reload()),
-                          onOpenImageFullscreen: () => Navigator.of(context)
-                              .push(
-                                MaterialPageRoute(
-                                  builder: (_) => FullscreenImageViewer(
-                                      imageUrl: item.imageUrl),
-                                ),
-                              )
-                              .then((_) => _reload()),
+                          onOpenImageFullscreen: () =>
+                              Navigator.of(context)
+                                  .push(
+                            MaterialPageRoute(
+                              builder: (_) => FullscreenImageViewer(
+                                  imageUrl: item.imageUrl),
+                            ),
+                          )
+                                  .then((_) => _reload()),
                         );
                       },
                       childCount: data.items.length,
