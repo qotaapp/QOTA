@@ -73,6 +73,43 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
     _reload();
   }
 
+  Future<void> _confirmDelete(Map<String, dynamic> category) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer cette catégorie ?'),
+        content: Text(
+            '"${category['name_fr']}" sera supprimée définitivement. Cette '
+            'action est irréversible.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler')),
+          FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Supprimer')),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    try {
+      await _repository.deleteCategory(category['id'] as String);
+      _reload();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+            'Impossible de supprimer : catégorie encore utilisée par des '
+            'publications ou des sous-catégories.'),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,14 +132,23 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                 subtitle: Text(category['name_ar'] as String,
                     textDirection: TextDirection.rtl),
                 onTap: () => _openForm(existing: category),
-                trailing: Switch(
-                  value: active,
-                  activeThumbColor: AppColors.primaryOrange,
-                  onChanged: (value) async {
-                    await _repository.toggleCategoryActive(
-                        category['id'] as String, value);
-                    _reload();
-                  },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Switch(
+                      value: active,
+                      activeThumbColor: AppColors.primaryOrange,
+                      onChanged: (value) async {
+                        await _repository.toggleCategoryActive(
+                            category['id'] as String, value);
+                        _reload();
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () => _confirmDelete(category),
+                    ),
+                  ],
                 ),
               );
             },

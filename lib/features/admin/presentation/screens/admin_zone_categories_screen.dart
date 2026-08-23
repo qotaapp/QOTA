@@ -2,22 +2,23 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_repository.dart';
 
-/// Coche/décoche les catégories actives pour CETTE ville (§029) —
-/// chaque ville a désormais ses propres catégories, plus une liste
-/// globale partagée par toutes les villes.
-class AdminCityCategoriesScreen extends StatefulWidget {
-  final String cityId;
-  final String cityName;
+/// Coche/décoche les catégories actives pour CETTE zone (§029,
+/// migration 032) — chaque zone a désormais ses propres catégories,
+/// plus une liste globale partagée par toutes les zones.
+class AdminZoneCategoriesScreen extends StatefulWidget {
+  final String zoneId;
+  final String zoneName;
 
-  const AdminCityCategoriesScreen(
-      {super.key, required this.cityId, required this.cityName});
+  const AdminZoneCategoriesScreen(
+      {super.key, required this.zoneId, required this.zoneName});
 
   @override
-  State<AdminCityCategoriesScreen> createState() =>
-      _AdminCityCategoriesScreenState();
+  State<AdminZoneCategoriesScreen> createState() =>
+      _AdminZoneCategoriesScreenState();
 }
 
-class _AdminCityCategoriesScreenState extends State<AdminCityCategoriesScreen> {
+class _AdminZoneCategoriesScreenState
+    extends State<AdminZoneCategoriesScreen> {
   final _repository = AdminRepository();
   List<Map<String, dynamic>> _categories = [];
   Set<String> _linkedIds = {};
@@ -31,7 +32,7 @@ class _AdminCityCategoriesScreenState extends State<AdminCityCategoriesScreen> {
 
   Future<void> _load() async {
     final categories = await _repository.getAllCategories();
-    final linkedIds = await _repository.getCityCategoryIds(widget.cityId);
+    final linkedIds = await _repository.getZoneCategoryIds(widget.zoneId);
     setState(() {
       _categories = categories;
       _linkedIds = linkedIds;
@@ -48,18 +49,18 @@ class _AdminCityCategoriesScreenState extends State<AdminCityCategoriesScreen> {
       }
     });
     if (checked) {
-      await _repository.addCategoryToCity(
-          cityId: widget.cityId, categoryId: categoryId);
+      await _repository.addCategoryToZone(
+          zoneId: widget.zoneId, categoryId: categoryId);
     } else {
-      await _repository.removeCategoryFromCity(
-          cityId: widget.cityId, categoryId: categoryId);
+      await _repository.removeCategoryFromZone(
+          zoneId: widget.zoneId, categoryId: categoryId);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Catégories — ${widget.cityName}')),
+      appBar: AppBar(title: Text('Catégories — ${widget.zoneName}')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.separated(

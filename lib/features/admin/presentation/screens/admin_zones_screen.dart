@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_repository.dart';
+import 'admin_zone_categories_screen.dart';
 
 /// Créer / supprimer les Zones d'une Ville — mêmes règles d'accès que
 /// AdminCitiesScreen (Super Admin ou modérateur 'manage_geography').
@@ -143,6 +144,19 @@ class _AdminZonesScreenState extends State<AdminZonesScreen> {
                             zone['id'] as String, value);
                         _reload();
                       },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.category_outlined,
+                          color: AppColors.iconDefault),
+                      tooltip: 'Catégories de cette zone',
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => AdminZoneCategoriesScreen(
+                            zoneId: zone['id'] as String,
+                            zoneName: zone['name_fr'] as String,
+                          ),
+                        ),
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.edit_outlined,

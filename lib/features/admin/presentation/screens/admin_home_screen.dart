@@ -71,7 +71,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               _AdminSection(
                 icon: Icons.category_outlined,
                 title: 'Catégories',
-                subtitle: 'Créer, traduire, réordonner, désactiver',
+                subtitle: 'Créer, traduire, réordonner, supprimer',
                 builder: (_) => const AdminCategoriesScreen(),
               ),
             if (access.isSuperAdmin ||

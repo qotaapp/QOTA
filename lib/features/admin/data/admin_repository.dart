@@ -228,28 +228,37 @@ class AdminRepository {
     await _client.from('categories').update({'active': active}).eq('id', id);
   }
 
-  /// Catégories propres à une ville (§029) — les ids déjà associés.
-  Future<Set<String>> getCityCategoryIds(String cityId) async {
+  /// Suppression définitive. Bloquée côté base (FK sans `on delete
+  /// cascade`) si la catégorie est encore utilisée par des
+  /// publications ou des sous-catégories — l'écran doit alors
+  /// afficher un message clair plutôt que de laisser planter.
+  Future<void> deleteCategory(String id) async {
+    await _client.from('categories').delete().eq('id', id);
+  }
+
+  /// Catégories propres à une zone (§029, migration 032) — les ids
+  /// déjà associés à cette zone.
+  Future<Set<String>> getZoneCategoryIds(String zoneId) async {
     final rows = await _client
-        .from('category_cities')
+        .from('category_zones')
         .select('category_id')
-        .eq('city_id', cityId);
+        .eq('zone_id', zoneId);
     return (rows as List).map((r) => r['category_id'] as String).toSet();
   }
 
-  Future<void> addCategoryToCity(
-      {required String cityId, required String categoryId}) async {
+  Future<void> addCategoryToZone(
+      {required String zoneId, required String categoryId}) async {
     await _client
-        .from('category_cities')
-        .insert({'city_id': cityId, 'category_id': categoryId});
+        .from('category_zones')
+        .insert({'zone_id': zoneId, 'category_id': categoryId});
   }
 
-  Future<void> removeCategoryFromCity(
-      {required String cityId, required String categoryId}) async {
+  Future<void> removeCategoryFromZone(
+      {required String zoneId, required String categoryId}) async {
     await _client
-        .from('category_cities')
+        .from('category_zones')
         .delete()
-        .eq('city_id', cityId)
+        .eq('zone_id', zoneId)
         .eq('category_id', categoryId);
   }
 
