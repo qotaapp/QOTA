@@ -145,8 +145,8 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                                   ),
                                   const Text(
                                     'mon Qota',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                 ],
                               ),
@@ -201,15 +201,14 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                                 ),
                               ))
                               .then((_) => _reload()),
-                          onOpenImageFullscreen: () =>
-                              Navigator.of(context)
-                                  .push(
-                            MaterialPageRoute(
-                              builder: (_) => FullscreenImageViewer(
-                                  imageUrl: item.imageUrl),
-                            ),
-                          )
-                                  .then((_) => _reload()),
+                          onOpenImageFullscreen: () => Navigator.of(context)
+                              .push(
+                                MaterialPageRoute(
+                                  builder: (_) => FullscreenImageViewer(
+                                      imageUrl: item.imageUrl),
+                                ),
+                              )
+                              .then((_) => _reload()),
                         );
                       },
                       childCount: data.items.length,

@@ -87,8 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       Navigator.of(context).push(
-        MaterialPageRoute(
-            builder: (_) => PublicProfileScreen(userId: ownerId)),
+        MaterialPageRoute(builder: (_) => PublicProfileScreen(userId: ownerId)),
       );
     }
   }
@@ -257,11 +256,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onOpenImageFullscreen: () =>
                                     Navigator.of(context)
                                         .push(
-                                  MaterialPageRoute(
-                                    builder: (_) => FullscreenImageViewer(
-                                        imageUrl: item.imageUrl),
-                                  ),
-                                )
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                FullscreenImageViewer(
+                                                    imageUrl: item.imageUrl),
+                                          ),
+                                        )
                                         // Recharge pour refléter le nombre
                                         // de vues mis à jour côté base
                                         // (RPC increment_entity_views,
