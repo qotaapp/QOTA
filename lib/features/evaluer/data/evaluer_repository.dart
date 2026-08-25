@@ -35,20 +35,43 @@ class EvaluerRepository {
     return (rows as List).map((r) => QotaZone.fromMap(r)).toList();
   }
 
-  /// §16 : catégories propres à CETTE ville (table de liaison
-  /// category_cities, gérée par le Super Admin) — plus une liste
-  /// globale partagée par toutes les villes.
-  Future<List<QotaCategory>> getCategories(String cityId) async {
+  /// §16 : catégories propres à CETTE zone (table de liaison
+  /// category_zones, gérée par le Super Admin). Si aucune zone n'a
+  /// été précisée (`zoneId` null), on remonte toutes les catégories
+  /// disponibles dans AU MOINS UNE zone de la ville, dédupliquées —
+  /// plus une liste globale partagée par toutes les zones.
+  Future<List<QotaCategory>> getCategories(String cityId,
+      {String? zoneId}) async {
+    if (zoneId != null) {
+      final rows = await _client
+          .from('category_zones')
+          .select('categories!inner(*)')
+          .eq('zone_id', zoneId)
+          .eq('categories.active', true)
+          .order('order_index', referencedTable: 'categories');
+      return (rows as List)
+          .map((r) =>
+              QotaCategory.fromMap(r['categories'] as Map<String, dynamic>))
+          .toList();
+    }
+
     final rows = await _client
-        .from('category_cities')
-        .select('categories!inner(*)')
-        .eq('city_id', cityId)
+        .from('category_zones')
+        .select('categories!inner(*), zones!inner(city_id)')
+        .eq('zones.city_id', cityId)
         .eq('categories.active', true)
         .order('order_index', referencedTable: 'categories');
-    return (rows as List)
-        .map((r) =>
-            QotaCategory.fromMap(r['categories'] as Map<String, dynamic>))
-        .toList();
+
+    final seenIds = <String>{};
+    final categories = <QotaCategory>[];
+    for (final r in rows as List) {
+      final category =
+          QotaCategory.fromMap(r['categories'] as Map<String, dynamic>);
+      if (seenIds.add(category.id)) {
+        categories.add(category);
+      }
+    }
+    return categories;
   }
 
   /// §18 : liste des Services d'une catégorie, dans une zone (ou ville

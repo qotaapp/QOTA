@@ -36,14 +36,23 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
   }
 
   Future<void> _load() async {
-    final categories = await _repository.getCategories(widget.cityId);
-    setState(() {
-      _categoriesById = {for (final c in categories) c.id: c};
-      _items = categories
-          .map((c) => SelectionItem(id: c.id, label: c.nameFr))
-          .toList();
-      _isLoading = false;
-    });
+    try {
+      final categories =
+          await _repository.getCategories(widget.cityId, zoneId: widget.zoneId);
+      if (!mounted) return;
+      setState(() {
+        _categoriesById = {for (final c in categories) c.id: c};
+        _items = categories
+            .map((c) => SelectionItem(id: c.id, label: c.nameFr))
+            .toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Erreur : $e')));
+    }
   }
 
   @override
