@@ -2,12 +2,13 @@ import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'evaluer_models.dart';
 
-/// Sections du menu Évaluer alimentées EXCLUSIVEMENT par le Super
-/// Admin (ou un modérateur avec la permission 'moderate_content') :
-/// "Chaînes et programmes", "Vente en ligne", "Autres". Contrairement
-/// à EvaluerRepository (Services) et FiguresRepository (Figures),
-/// jamais un utilisateur ordinaire — la RLS (§022) l'interdit aussi
-/// côté base, ceci n'est qu'un confort côté app (masquer le "+").
+/// Sections du menu Évaluer — "Chaînes et programmes", "Vente en
+/// ligne", "Autres". Comme EvaluerRepository (Services) et
+/// FiguresRepository (Figures), n'importe quel utilisateur peut
+/// publier ici : l'entrée entre en 'pending_review' et n'apparaît
+/// nulle part (Home, listes, recherche) tant que le Super Admin (ou
+/// un modérateur avec la permission 'moderate_content') ne l'a pas
+/// approuvée depuis le Dashboard.
 class AdminListingRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
@@ -44,6 +45,10 @@ class AdminListingRepository {
     return _client.storage.from('user-content').getPublicUrl(path);
   }
 
+  /// Le profil de la personne ayant publié n'est pas affiché
+  /// publiquement — mêmes règles que pour une Service (§18) ou une
+  /// Figure (§35). Modération obligatoire : invisible partout tant
+  /// que non approuvée par le Super Admin.
   Future<void> createListing({
     required String name,
     required String imageUrl,
@@ -59,7 +64,7 @@ class AdminListingRepository {
       'admin_listing_type_id': typeId,
       'created_by': userId,
       'owner_id': null,
-      'status': 'active',
+      'status': 'pending_review',
     });
   }
 }

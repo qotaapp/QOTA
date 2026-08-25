@@ -4,11 +4,10 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_listing_repository.dart';
 
-/// Ajout dans une section admin (Chaînes et programmes / Vente en
-/// ligne / Autres) — réservé au Super Admin (ou modérateur
-/// 'moderate_content'), imposé côté base (§022). Cet écran n'est
-/// atteignable que via le bouton "Ajouter" de AdminListingListScreen,
-/// lui-même masqué pour les autres utilisateurs.
+/// Ajout dans une section (Chaînes et programmes / Vente en ligne /
+/// Autres) — accessible à tout utilisateur connecté, comme l'ajout
+/// d'une Figure Publique. La publication entre en modération
+/// (§022/§033) et n'apparaît qu'après approbation du Super Admin.
 class AddAdminListingScreen extends StatefulWidget {
   final String typeId;
   final String typeLabel;
