@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdminOwnershipRequest {
@@ -488,5 +489,78 @@ class AdminRepository {
         .delete()
         .eq('user_id', userId)
         .eq('role', 'moderator');
+  }
+
+  // ---------------- Catégories : suppression (§16) ----------------
+
+  Future<void> deleteCategory(String id) async {
+    await _client.from('categories').delete().eq('id', id);
+  }
+
+  // ---------------- Catégories propres à une Zone (§029) ----------------
+  // Même patron que getCityCategoryIds/addCategoryToCity ci-dessus,
+  // pour la table zone_categories (miroir de category_cities).
+  // ⚠️ Si ta migration a nommé cette table différemment, ajuste
+  // uniquement le nom 'category_zones' dans les 3 méthodes ci-dessous.
+
+  Future<Set<String>> getZoneCategoryIds(String zoneId) async {
+    final rows = await _client
+        .from('category_zones')
+        .select('category_id')
+        .eq('zone_id', zoneId);
+    return (rows as List).map((r) => r['category_id'] as String).toSet();
+  }
+
+  Future<void> addCategoryToZone(
+      {required String zoneId, required String categoryId}) async {
+    await _client
+        .from('category_zones')
+        .insert({'zone_id': zoneId, 'category_id': categoryId});
+  }
+
+  Future<void> removeCategoryFromZone(
+      {required String zoneId, required String categoryId}) async {
+    await _client
+        .from('category_zones')
+        .delete()
+        .eq('zone_id', zoneId)
+        .eq('category_id', categoryId);
+  }
+
+  // ---------------- Modération : édition d'une publication ----------------
+
+  /// Upload l'image de remplacement dans le même bucket que le reste
+  /// de l'app (user-content), sous un dossier dédié à la modération.
+  Future<String> uploadEntityImage({
+    required Uint8List bytes,
+    required String fileExtension,
+  }) async {
+    final userId = _client.auth.currentUser!.id;
+    final path =
+        '$userId/admin_edits/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    await _client.storage.from('user-content').uploadBinary(path, bytes);
+    return _client.storage.from('user-content').getPublicUrl(path);
+  }
+
+  /// Modifie une publication déjà existante (nom/description/image) —
+  /// utilisé par le Super Admin/modérateur depuis l'écran de
+  /// modération, sur une Service ou une Figure Publique. `imageUrl`
+  /// n'est envoyé que si une nouvelle image a été choisie (sinon
+  /// l'image actuelle est conservée).
+  Future<void> updateEntityDetails({
+    required String entityId,
+    required String name,
+    String? description,
+    String? imageUrl,
+  }) async {
+    final payload = <String, dynamic>{
+      'name': name,
+      'description': description,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+    if (imageUrl != null) {
+      payload['image_url'] = imageUrl;
+    }
+    await _client.from('entities').update(payload).eq('id', entityId);
   }
 }
