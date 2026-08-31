@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdminOwnershipRequest {
@@ -116,9 +115,10 @@ class AdminModerator {
         firstName: map['first_name'] as String,
         lastName: map['last_name'] as String,
         avatarUrl: map['avatar_url'] as String?,
-        permissions:
-            (map['permissions'] as List?)?.whereType<String>().toList() ??
-                const [],
+        permissions: (map['permissions'] as List?)
+                ?.whereType<String>()
+                .toList() ??
+            const [],
       );
 }
 
@@ -228,37 +228,28 @@ class AdminRepository {
     await _client.from('categories').update({'active': active}).eq('id', id);
   }
 
-  /// Suppression définitive. Bloquée côté base (FK sans `on delete
-  /// cascade`) si la catégorie est encore utilisée par des
-  /// publications ou des sous-catégories — l'écran doit alors
-  /// afficher un message clair plutôt que de laisser planter.
-  Future<void> deleteCategory(String id) async {
-    await _client.from('categories').delete().eq('id', id);
-  }
-
-  /// Catégories propres à une zone (§029, migration 032) — les ids
-  /// déjà associés à cette zone.
-  Future<Set<String>> getZoneCategoryIds(String zoneId) async {
+  /// Catégories propres à une ville (§029) — les ids déjà associés.
+  Future<Set<String>> getCityCategoryIds(String cityId) async {
     final rows = await _client
-        .from('category_zones')
+        .from('category_cities')
         .select('category_id')
-        .eq('zone_id', zoneId);
+        .eq('city_id', cityId);
     return (rows as List).map((r) => r['category_id'] as String).toSet();
   }
 
-  Future<void> addCategoryToZone(
-      {required String zoneId, required String categoryId}) async {
+  Future<void> addCategoryToCity(
+      {required String cityId, required String categoryId}) async {
     await _client
-        .from('category_zones')
-        .insert({'zone_id': zoneId, 'category_id': categoryId});
+        .from('category_cities')
+        .insert({'city_id': cityId, 'category_id': categoryId});
   }
 
-  Future<void> removeCategoryFromZone(
-      {required String zoneId, required String categoryId}) async {
+  Future<void> removeCategoryFromCity(
+      {required String cityId, required String categoryId}) async {
     await _client
-        .from('category_zones')
+        .from('category_cities')
         .delete()
-        .eq('zone_id', zoneId)
+        .eq('city_id', cityId)
         .eq('category_id', categoryId);
   }
 
@@ -318,6 +309,19 @@ class AdminRepository {
         .rpc('approve_coin_purchase', params: {'p_request_id': requestId});
   }
 
+  Future<void> rejectCoinPurchase(String requestId, {String? note}) async {
+    await _client.rpc('reject_coin_purchase',
+        params: {'p_request_id': requestId, 'p_note': note});
+  }
+
+  /// Communication avec le demandeur (négocier la méthode de
+  /// paiement) — via une notification, sans changer le statut de la
+  /// demande. Peut être appelée plusieurs fois avant la décision finale.
+  Future<void> sendCoinPurchaseMessage(String requestId, String message) async {
+    await _client.rpc('send_coin_purchase_message',
+        params: {'p_request_id': requestId, 'p_message': message});
+  }
+
   // ---------------- Villes ----------------
 
   Future<List<Map<String, dynamic>>> getCitiesForState(String stateId) async {
@@ -333,9 +337,8 @@ class AdminRepository {
       {required String stateId,
       required String nameFr,
       required String nameAr}) async {
-    await _client
-        .from('cities')
-        .insert({'state_id': stateId, 'name_fr': nameFr, 'name_ar': nameAr});
+    await _client.from('cities').insert(
+        {'state_id': stateId, 'name_fr': nameFr, 'name_ar': nameAr});
   }
 
   Future<void> updateCity(String id,
@@ -435,41 +438,6 @@ class AdminRepository {
   /// enfreint les règles, pas seulement une demande en attente.
   Future<void> deleteEntity(String entityId) async {
     await _client.from('entities').delete().eq('id', entityId);
-  }
-
-  /// Modification par le Super Admin AVANT approbation (nom,
-  /// description, photo) — permet de corriger une publication plutôt
-  /// que de devoir la rejeter pour une simple faute de frappe ou une
-  /// photo de mauvaise qualité. `imageUrl` reste inchangée si non
-  /// fournie (on ne force pas un ré-upload à chaque modification).
-  Future<void> updateEntityDetails({
-    required String entityId,
-    required String name,
-    String? description,
-    String? imageUrl,
-  }) async {
-    final updates = <String, dynamic>{
-      'name': name,
-      'description': description,
-    };
-    if (imageUrl != null) {
-      updates['image_url'] = imageUrl;
-    }
-    await _client.from('entities').update(updates).eq('id', entityId);
-  }
-
-  /// Upload d'une nouvelle photo lors de la modification d'une
-  /// publication en modération — même bucket/pattern que les autres
-  /// uploads de l'app (`user-content`, dossier de l'utilisateur courant).
-  Future<String> uploadEntityImage({
-    required Uint8List bytes,
-    required String fileExtension,
-  }) async {
-    final userId = _client.auth.currentUser!.id;
-    final ts = DateTime.now().microsecondsSinceEpoch;
-    final path = '$userId/moderation/$ts.$fileExtension';
-    await _client.storage.from('user-content').uploadBinary(path, bytes);
-    return _client.storage.from('user-content').getPublicUrl(path);
   }
 
   // ---------------- Modérateurs (rôles bien déterminés) ----------------
