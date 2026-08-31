@@ -115,10 +115,9 @@ class AdminModerator {
         firstName: map['first_name'] as String,
         lastName: map['last_name'] as String,
         avatarUrl: map['avatar_url'] as String?,
-        permissions: (map['permissions'] as List?)
-                ?.whereType<String>()
-                .toList() ??
-            const [],
+        permissions:
+            (map['permissions'] as List?)?.whereType<String>().toList() ??
+                const [],
       );
 }
 
@@ -337,8 +336,9 @@ class AdminRepository {
       {required String stateId,
       required String nameFr,
       required String nameAr}) async {
-    await _client.from('cities').insert(
-        {'state_id': stateId, 'name_fr': nameFr, 'name_ar': nameAr});
+    await _client
+        .from('cities')
+        .insert({'state_id': stateId, 'name_fr': nameFr, 'name_ar': nameAr});
   }
 
   Future<void> updateCity(String id,
