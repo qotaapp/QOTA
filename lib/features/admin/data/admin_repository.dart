@@ -294,7 +294,8 @@ class AdminRepository {
     // requête échouait silencieusement (liste vide côté app).
     final rows = await _client
         .from('coin_purchase_requests')
-        .select('id, amount, created_at, profiles!user_id(first_name, last_name)')
+        .select(
+            'id, amount, created_at, profiles!user_id(first_name, last_name)')
         .eq('status', 'pending')
         .order('created_at');
 
