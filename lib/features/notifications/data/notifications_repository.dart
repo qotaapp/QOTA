@@ -49,6 +49,15 @@ class QotaNotification {
         return 'Votre publication ${payload['entity_name']} est approuvée avec succès';
       case 'entity_rejected':
         return 'Votre publication ${payload['entity_name']} est refusée';
+      case 'coin_purchase_approved':
+        return 'Votre demande de ${payload['amount']} Qota Coin a été validée';
+      case 'coin_purchase_rejected':
+        final note = payload['note'] as String?;
+        return note != null && note.isNotEmpty
+            ? 'Votre demande de ${payload['amount']} Qota Coin a été refusée : $note'
+            : 'Votre demande de ${payload['amount']} Qota Coin a été refusée';
+      case 'coin_purchase_message':
+        return 'Qota au sujet de votre demande de ${payload['amount']} Qota Coin : ${payload['message']}';
       default:
         return 'Nouvelle notification';
     }
@@ -72,6 +81,12 @@ class QotaNotification {
         return Icons.check_circle_outline_rounded;
       case 'entity_rejected':
         return Icons.cancel_outlined;
+      case 'coin_purchase_approved':
+        return Icons.monetization_on_outlined;
+      case 'coin_purchase_rejected':
+        return Icons.cancel_outlined;
+      case 'coin_purchase_message':
+        return Icons.chat_bubble_outline_rounded;
       default:
         return Icons.notifications_outlined;
     }
