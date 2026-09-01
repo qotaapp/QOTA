@@ -91,6 +91,15 @@ class _AdminCoinPurchasesScreenState extends State<AdminCoinPurchasesScreen> {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
           }
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Erreur : ${snapshot.error}',
+                    textAlign: TextAlign.center),
+              ),
+            );
+          }
           final requests = snapshot.data ?? [];
           if (requests.isEmpty) {
             return const Center(

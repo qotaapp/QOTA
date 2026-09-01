@@ -287,9 +287,14 @@ class AdminRepository {
 
   Future<List<AdminCoinPurchaseRequest>>
       getPendingCoinPurchaseRequests() async {
+    // `profiles!user_id(...)` précise explicitement QUELLE clé
+    // étrangère utiliser pour l'embed : coin_purchase_requests a
+    // deux FK vers profiles (user_id ET decided_by), ce qui rend
+    // l'embed implicite `profiles(...)` ambigu pour PostgREST — la
+    // requête échouait silencieusement (liste vide côté app).
     final rows = await _client
         .from('coin_purchase_requests')
-        .select('id, amount, created_at, profiles(first_name, last_name)')
+        .select('id, amount, created_at, profiles!user_id(first_name, last_name)')
         .eq('status', 'pending')
         .order('created_at');
 
