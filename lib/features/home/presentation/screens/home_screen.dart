@@ -10,6 +10,7 @@ import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
 import '../../../rating/presentation/widgets/rating_sheet.dart';
 import '../../../comments/presentation/screens/comments_screen.dart';
 import '../../../search/presentation/screens/search_screen.dart';
+import '../../../bon_plans/presentation/screens/bon_plans_screen.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../../profile/presentation/screens/add_user_item_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
@@ -148,27 +149,6 @@ class _HomeScreenState extends State<HomeScreen> {
     await _loadPage(reset: true);
   }
 
-  /// Comme _refresh(), mais SANS passer par _isLoadingInitial (qui
-  /// remplace toute la liste par un plein écran de chargement) — pour
-  /// les retours depuis une publication (image, avis, commentaires),
-  /// où l'utilisateur doit retrouver EXACTEMENT sa position de scroll,
-  /// pas être renvoyé en haut de page.
-  Future<void> _silentRefresh() async {
-    final newItems = await _repository.getFeed(
-      userLat: _userLat,
-      userLng: _userLng,
-      limit: _pageSize,
-      offset: 0,
-    );
-    if (!mounted) return;
-    setState(() {
-      _items
-        ..clear()
-        ..addAll(newItems);
-      _hasMore = newItems.length == _pageSize;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -180,11 +160,22 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const _QotaLogo(),
-                _SearchButton(onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const SearchScreen()),
-                  );
-                }),
+                Row(
+                  children: [
+                    _BonPlansButton(onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const BonPlansScreen()),
+                      );
+                    }),
+                    const SizedBox(width: 12),
+                    _SearchButton(onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const SearchScreen()),
+                      );
+                    }),
+                  ],
+                ),
               ],
             ),
           ),
@@ -237,14 +228,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 averageScore: item.averageScore,
                                 ratingsCount: item.ratingsCount,
                                 commentsCount: item.commentsCount,
-                                viewsCount: item.viewsCount,
                                 onOpenProfile: item.ownerId != null
                                     ? () => _openOwnerProfile(item.ownerId!)
                                     : null,
                                 onOpenRatingSheet: () => RatingSheet.show(
                                     context,
                                     entityId: item.id,
-                                    onSubmitted: _silentRefresh),
+                                    onSubmitted: _refresh),
                                 onOpenComments: () => Navigator.of(context)
                                     .push(MaterialPageRoute(
                                       builder: (_) => CommentsScreen(
@@ -252,22 +242,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                           entityKind: item.kind,
                                           entityOwnerId: item.ownerId),
                                     ))
-                                    .then((_) => _silentRefresh()),
+                                    .then((_) => _refresh()),
                                 onOpenImageFullscreen: () =>
-                                    Navigator.of(context)
-                                        .push(
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                FullscreenImageViewer(
-                                                    imageUrl: item.imageUrl),
-                                          ),
-                                        )
-                                        // Recharge pour refléter le nombre
-                                        // de vues mis à jour côté base
-                                        // (RPC increment_entity_views,
-                                        // §023) — sinon le chiffre affiché
-                                        // reste figé.
-                                        .then((_) => _silentRefresh()),
+                                    Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => FullscreenImageViewer(
+                                        imageUrl: item.imageUrl),
+                                  ),
+                                ),
                               );
                             }
 
@@ -278,19 +260,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                     builder: (_) =>
                                         ServiceDetailsScreen(entityId: item.id),
                                   ))
-                                  .then((_) => _silentRefresh()),
-                              onOpenRatingSheet: () => RatingSheet.show(
-                                context,
-                                entityId: item.id,
-                                onSubmitted: _silentRefresh,
-                              ),
+                                  .then((_) => _refresh()),
+                              onOpenRatingSheet: () => RatingSheet.show(context,
+                                  entityId: item.id, onSubmitted: _refresh),
                               onOpenComments: () => Navigator.of(context)
                                   .push(MaterialPageRoute(
                                     builder: (_) => CommentsScreen(
                                         entityId: item.id,
                                         entityKind: item.kind),
                                   ))
-                                  .then((_) => _silentRefresh()),
+                                  .then((_) => _refresh()),
                               onOpenImageFullscreen: () =>
                                   Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -344,6 +323,27 @@ class _SearchButton extends StatelessWidget {
         decoration: const BoxDecoration(
             color: AppColors.surfaceChip, shape: BoxShape.circle),
         child: const Icon(Icons.search_rounded, color: AppColors.iconDefault),
+      ),
+    );
+  }
+}
+
+class _BonPlansButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _BonPlansButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      customBorder: const CircleBorder(),
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: const BoxDecoration(
+            color: AppColors.surfaceChip, shape: BoxShape.circle),
+        child:
+            const Icon(Icons.local_offer_rounded, color: AppColors.iconDefault),
       ),
     );
   }

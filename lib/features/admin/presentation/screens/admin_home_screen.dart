@@ -8,6 +8,7 @@ import 'admin_coin_purchases_screen.dart';
 import 'admin_geography_screen.dart';
 import 'admin_entity_moderation_screen.dart';
 import 'admin_moderators_screen.dart';
+import 'admin_bon_plans_screen.dart';
 
 /// Dashboard — point d'entrée unique vers la gestion dynamique de la
 /// plateforme (§14, §16, §20, §22, §3), désormais accessible aussi
@@ -71,7 +72,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               _AdminSection(
                 icon: Icons.category_outlined,
                 title: 'Catégories',
-                subtitle: 'Créer, traduire, réordonner, supprimer',
+                subtitle: 'Créer, traduire, réordonner, désactiver',
                 builder: (_) => const AdminCategoriesScreen(),
               ),
             if (access.isSuperAdmin ||
@@ -95,6 +96,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 title: 'Achats Qota Coin',
                 subtitle: 'Valider les demandes de crédit',
                 builder: (_) => const AdminCoinPurchasesScreen(),
+              ),
+            if (access.isSuperAdmin)
+              _AdminSection(
+                icon: Icons.local_offer_outlined,
+                title: 'Bons plans',
+                subtitle: 'Publier les offres affichées côté utilisateur',
+                builder: (_) => const AdminBonPlansScreen(),
               ),
             if (access.isSuperAdmin)
               _AdminSection(

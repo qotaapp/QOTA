@@ -148,6 +148,33 @@ class AdminUserSearchResult {
       );
 }
 
+class AdminBonPlan {
+  final String id;
+  final String title;
+  final String? description;
+  final String imageUrl;
+  final String? linkUrl;
+  final bool active;
+
+  AdminBonPlan({
+    required this.id,
+    required this.title,
+    required this.imageUrl,
+    this.description,
+    this.linkUrl,
+    required this.active,
+  });
+
+  factory AdminBonPlan.fromMap(Map<String, dynamic> map) => AdminBonPlan(
+        id: map['id'] as String,
+        title: map['title'] as String,
+        description: map['description'] as String?,
+        imageUrl: map['image_url'] as String,
+        linkUrl: map['link_url'] as String?,
+        active: map['active'] as bool? ?? true,
+      );
+}
+
 class AdminRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
@@ -568,5 +595,45 @@ class AdminRepository {
       payload['image_url'] = imageUrl;
     }
     await _client.from('entities').update(payload).eq('id', entityId);
+  }
+
+  // ---------------- Bons plans ----------------
+
+  Future<List<AdminBonPlan>> getBonPlans() async {
+    final rows = await _client.from('bon_plans').select().order('order_index');
+    return (rows as List).map((r) => AdminBonPlan.fromMap(r)).toList();
+  }
+
+  Future<String> uploadBonPlanImage(
+      {required Uint8List bytes, required String fileExtension}) async {
+    final userId = _client.auth.currentUser!.id;
+    final path =
+        '$userId/bon_plans/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
+    await _client.storage.from('user-content').uploadBinary(path, bytes);
+    return _client.storage.from('user-content').getPublicUrl(path);
+  }
+
+  Future<void> createBonPlan({
+    required String title,
+    required String imageUrl,
+    String? description,
+    String? linkUrl,
+  }) async {
+    final userId = _client.auth.currentUser!.id;
+    await _client.from('bon_plans').insert({
+      'title': title,
+      'description': description,
+      'image_url': imageUrl,
+      'link_url': linkUrl,
+      'created_by': userId,
+    });
+  }
+
+  Future<void> toggleBonPlanActive(String id, bool active) async {
+    await _client.from('bon_plans').update({'active': active}).eq('id', id);
+  }
+
+  Future<void> deleteBonPlan(String id) async {
+    await _client.from('bon_plans').delete().eq('id', id);
   }
 }
