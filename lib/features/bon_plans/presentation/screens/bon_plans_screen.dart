@@ -51,8 +51,8 @@ class _BonPlansScreenState extends State<BonPlansScreen> {
       }
 
       final position = await Geolocator.getCurrentPosition();
-      final placemarks = await placemarkFromCoordinates(
-          position.latitude, position.longitude);
+      final placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
 
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
@@ -60,8 +60,7 @@ class _BonPlansScreenState extends State<BonPlansScreen> {
             .where((s) => s != null && s.isNotEmpty)
             .join(', ');
         setState(() {
-          _locationLabel =
-              label.isNotEmpty ? label : 'Position détectée';
+          _locationLabel = label.isNotEmpty ? label : 'Position détectée';
         });
       }
     } catch (_) {
