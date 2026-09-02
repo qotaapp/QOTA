@@ -46,18 +46,46 @@ class _AdminCoinPurchasesScreenState extends State<AdminCoinPurchasesScreen> {
   }
 
   Future<void> _openContact(AdminCoinPurchaseRequest request) async {
-    final controller = TextEditingController();
+    final messageController = TextEditingController();
+    final optionAController = TextEditingController();
+    final optionBController = TextEditingController();
     final sent = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Contacter ${request.userName}'),
-        content: TextField(
-          controller: controller,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            hintText: 'Ex : Contactez-moi au +216 XX XXX XXX pour convenir '
-                'du paiement.',
-            border: OutlineInputBorder(),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: messageController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: 'Ex : Comment souhaitez-vous payer ?',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text('Les 2 réponses proposées au demandeur :',
+                  style: TextStyle(fontSize: 12)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: optionAController,
+                decoration: const InputDecoration(
+                  labelText: 'Choix 1 (ex : Payé via D17)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: optionBController,
+                decoration: const InputDecoration(
+                  labelText: 'Choix 2 (ex : Pas encore payé)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
           ),
         ),
         actions: [
@@ -70,15 +98,27 @@ class _AdminCoinPurchasesScreenState extends State<AdminCoinPurchasesScreen> {
         ],
       ),
     );
-    if (sent == true && controller.text.trim().isNotEmpty) {
-      await _repository.sendCoinPurchaseMessage(
-          request.id, controller.text.trim());
+    if (sent != true) return;
+
+    final message = messageController.text.trim();
+    final optionA = optionAController.text.trim();
+    final optionB = optionBController.text.trim();
+    if (message.isEmpty || optionA.isEmpty || optionB.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Message envoyé.')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Message et les 2 choix sont obligatoires.')));
       }
+      return;
     }
+
+    await _repository.sendCoinPurchaseMessage(request.id, message,
+        optionA: optionA, optionB: optionB);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Message envoyé.')),
+      );
+    }
+    _reload();
   }
 
   @override
@@ -114,7 +154,9 @@ class _AdminCoinPurchasesScreenState extends State<AdminCoinPurchasesScreen> {
               return ListTile(
                 title: Text(request.userName),
                 subtitle: Text(
-                    '${request.amount.toStringAsFixed(0)} Qota Coin demandés'),
+                    '${request.amount.toStringAsFixed(0)} Qota Coin demandés'
+                    '${request.userResponse != null ? '\nRéponse : ${request.userResponse}' : ''}'),
+                isThreeLine: request.userResponse != null,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

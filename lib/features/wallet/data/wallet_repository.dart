@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../notifications/data/notifications_repository.dart';
 
 class WalletTransaction {
   final String id;
@@ -23,6 +24,37 @@ class WalletTransaction {
         reference: map['reference'] as String?,
         createdAt: DateTime.parse(map['created_at'] as String),
       );
+}
+
+/// État courant d'une demande d'achat, propre au demandeur — pour
+/// savoir si un message du Super Admin attend encore une réponse.
+class CoinPurchaseRequestState {
+  final String id;
+  final String? pendingMessage;
+  final String? pendingOptionA;
+  final String? pendingOptionB;
+  final String? userResponse;
+
+  CoinPurchaseRequestState({
+    required this.id,
+    this.pendingMessage,
+    this.pendingOptionA,
+    this.pendingOptionB,
+    this.userResponse,
+  });
+
+  bool get needsResponse => pendingMessage != null && userResponse == null;
+
+  factory CoinPurchaseRequestState.fromMap(Map<String, dynamic> map) {
+    final pending = map['pending_message'] as Map<String, dynamic>?;
+    return CoinPurchaseRequestState(
+      id: map['id'] as String,
+      pendingMessage: pending?['message'] as String?,
+      pendingOptionA: pending?['option_a'] as String?,
+      pendingOptionB: pending?['option_b'] as String?,
+      userResponse: map['user_response'] as String?,
+    );
+  }
 }
 
 class WalletRepository {
@@ -66,5 +98,49 @@ class WalletRepository {
       'p_amount': amount,
     });
     return result as Map<String, dynamic>;
+  }
+
+  /// Notifications liées au Wallet (achats/messages Qota Coin,
+  /// transferts reçus) — affichées dans l'Historique du Wallet
+  /// plutôt que dans l'écran Notifications général.
+  Future<List<QotaNotification>> getWalletNotifications() async {
+    final rows = await _client
+        .from('notifications')
+        .select()
+        .eq('user_id', currentUserId)
+        .inFilter('type', const [
+          'coin_purchase_message',
+          'coin_purchase_approved',
+          'coin_purchase_rejected',
+          'coin_received',
+        ])
+        .order('created_at', ascending: false)
+        .limit(50);
+    return (rows as List).map((r) => QotaNotification.fromMap(r)).toList();
+  }
+
+  /// État de mes propres demandes d'achat — pour savoir si un
+  /// message envoyé par le Super Admin attend encore une réponse.
+  Future<Map<String, CoinPurchaseRequestState>>
+      getMyCoinPurchaseRequestsState() async {
+    final rows = await _client
+        .from('coin_purchase_requests')
+        .select('id, pending_message, user_response')
+        .eq('user_id', currentUserId);
+    final states =
+        (rows as List).map((r) => CoinPurchaseRequestState.fromMap(r)).toList();
+    return {for (final s in states) s.id: s};
+  }
+
+  /// Répond à l'un des 2 choix envoyés par le Super Admin sur une
+  /// demande — visible ensuite dans Achats Qota Coin.
+  Future<void> respondToCoinPurchaseMessage({
+    required String requestId,
+    required String chosenOption,
+  }) async {
+    await _client.rpc('respond_coin_purchase_message', params: {
+      'p_request_id': requestId,
+      'p_chosen': chosenOption,
+    });
   }
 }

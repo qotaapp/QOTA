@@ -99,12 +99,24 @@ class QotaNotification {
 class NotificationsRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
+  /// Les notifications liées au Wallet (achats/messages Qota Coin,
+  /// transferts reçus) n'apparaissent plus ici — elles ont leur
+  /// place dans l'Historique de l'écran Wallet, avec les
+  /// transactions elles-mêmes.
+  static const _walletTypes = [
+    'coin_purchase_message',
+    'coin_purchase_approved',
+    'coin_purchase_rejected',
+    'coin_received',
+  ];
+
   Future<List<QotaNotification>> getNotifications() async {
     final userId = _client.auth.currentUser!.id;
     final rows = await _client
         .from('notifications')
         .select()
         .eq('user_id', userId)
+        .not('type', 'in', '(${_walletTypes.join(',')})')
         .order('created_at', ascending: false)
         .limit(100);
     return (rows as List).map((r) => QotaNotification.fromMap(r)).toList();
@@ -116,6 +128,7 @@ class NotificationsRepository {
         .from('notifications')
         .select('id')
         .eq('user_id', userId)
+        .not('type', 'in', '(${_walletTypes.join(',')})')
         .isFilter('read_at', null);
     return (rows as List).length;
   }

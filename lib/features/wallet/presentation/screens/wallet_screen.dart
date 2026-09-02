@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../notifications/data/notifications_repository.dart';
 import '../../data/wallet_repository.dart';
 import 'purchase_coin_screen.dart';
 import 'my_qr_code_screen.dart';
@@ -15,6 +16,7 @@ class WalletScreen extends StatefulWidget {
 class _WalletScreenState extends State<WalletScreen> {
   final _repository = WalletRepository();
   late Future<_WalletData> _futureData;
+  final Set<String> _respondingIds = {};
 
   @override
   void initState() {
@@ -25,10 +27,29 @@ class _WalletScreenState extends State<WalletScreen> {
   Future<_WalletData> _load() async {
     final balance = await _repository.getBalance();
     final transactions = await _repository.getTransactions();
-    return _WalletData(balance: balance, transactions: transactions);
+    final notifications = await _repository.getWalletNotifications();
+    final requestStates = await _repository.getMyCoinPurchaseRequestsState();
+    return _WalletData(
+      balance: balance,
+      transactions: transactions,
+      notifications: notifications,
+      requestStates: requestStates,
+    );
   }
 
   void _reload() => setState(() => _futureData = _load());
+
+  Future<void> _respond(QotaNotification notification, String chosen) async {
+    final requestId = notification.payload['request_id'] as String;
+    setState(() => _respondingIds.add(notification.id));
+    try {
+      await _repository.respondToCoinPurchaseMessage(
+          requestId: requestId, chosenOption: chosen);
+      if (mounted) _reload();
+    } finally {
+      if (mounted) setState(() => _respondingIds.remove(notification.id));
+    }
+  }
 
   String _label(WalletTransaction tx) {
     switch (tx.type) {
@@ -47,6 +68,80 @@ class _WalletScreenState extends State<WalletScreen> {
     }
   }
 
+  /// Un message du Super Admin nécessite une réponse à 2 choix
+  /// SEULEMENT s'il correspond au message actuellement en attente
+  /// sur la demande (les messages précédents, déjà remplacés ou déjà
+  /// répondus, s'affichent en simple historique).
+  bool _needsResponse(
+      QotaNotification n, Map<String, CoinPurchaseRequestState> states) {
+    if (n.type != 'coin_purchase_message') return false;
+    final requestId = n.payload['request_id'] as String?;
+    final state = requestId != null ? states[requestId] : null;
+    return state != null &&
+        state.needsResponse &&
+        state.pendingMessage == n.payload['message'] &&
+        state.pendingOptionA == n.payload['option_a'] &&
+        state.pendingOptionB == n.payload['option_b'];
+  }
+
+  Widget _buildNotificationEntry(
+      QotaNotification n, Map<String, CoinPurchaseRequestState> states) {
+    if (_needsResponse(n, states)) {
+      final optionA = n.payload['option_a'] as String;
+      final optionB = n.payload['option_b'] as String;
+      final busy = _respondingIds.contains(n.id);
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceChip,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(n.icon, color: AppColors.primaryOrange, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(n.message)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: busy ? null : () => _respond(n, optionA),
+                      child: Text(optionA),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primaryOrange),
+                      onPressed: busy ? null : () => _respond(n, optionB),
+                      child: Text(optionB),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListTile(
+      leading: Icon(n.icon, color: AppColors.iconDefault),
+      title: Text(n.message),
+      subtitle:
+          Text('${n.createdAt.day}/${n.createdAt.month}/${n.createdAt.year}'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,6 +154,10 @@ class _WalletScreenState extends State<WalletScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             final data = snapshot.data!;
+            final entries = [
+              ...data.transactions.map(_HistoryEntry.tx),
+              ...data.notifications.map(_HistoryEntry.notif),
+            ]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
             return RefreshIndicator(
               onRefresh: () async => _reload(),
@@ -136,16 +235,21 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (data.transactions.isEmpty)
+                  if (entries.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(24),
                       child: Center(
-                        child: Text('Aucune transaction pour le moment',
+                        child: Text('Aucune activité pour le moment',
                             style: TextStyle(color: AppColors.textSecondary)),
                       ),
                     )
                   else
-                    ...data.transactions.map((tx) {
+                    ...entries.map((entry) {
+                      if (entry.notification != null) {
+                        return _buildNotificationEntry(
+                            entry.notification!, data.requestStates);
+                      }
+                      final tx = entry.transaction!;
                       final positive = tx.amount >= 0;
                       return ListTile(
                         leading: Icon(
@@ -213,5 +317,32 @@ class _ActionButton extends StatelessWidget {
 class _WalletData {
   final double balance;
   final List<WalletTransaction> transactions;
-  _WalletData({required this.balance, required this.transactions});
+  final List<QotaNotification> notifications;
+  final Map<String, CoinPurchaseRequestState> requestStates;
+
+  _WalletData({
+    required this.balance,
+    required this.transactions,
+    required this.notifications,
+    required this.requestStates,
+  });
+}
+
+/// Entrée unifiée de l'Historique — soit une transaction wallet,
+/// soit une notification liée au Wallet (message, validation, refus,
+/// réception), triées ensemble par date.
+class _HistoryEntry {
+  final DateTime createdAt;
+  final WalletTransaction? transaction;
+  final QotaNotification? notification;
+
+  _HistoryEntry.tx(WalletTransaction tx)
+      : transaction = tx,
+        notification = null,
+        createdAt = tx.createdAt;
+
+  _HistoryEntry.notif(QotaNotification n)
+      : transaction = null,
+        notification = n,
+        createdAt = n.createdAt;
 }

@@ -34,12 +34,14 @@ class AdminCoinPurchaseRequest {
   final String userName;
   final double amount;
   final DateTime createdAt;
+  final String? userResponse;
 
   AdminCoinPurchaseRequest({
     required this.id,
     required this.userName,
     required this.amount,
     required this.createdAt,
+    this.userResponse,
   });
 
   factory AdminCoinPurchaseRequest.fromMap(Map<String, dynamic> map) =>
@@ -48,6 +50,34 @@ class AdminCoinPurchaseRequest {
         userName: map['user_name'] as String? ?? '',
         amount: (map['amount'] as num).toDouble(),
         createdAt: DateTime.parse(map['created_at'] as String),
+        userResponse: map['user_response'] as String?,
+      );
+}
+
+class AdminBonPlan {
+  final String id;
+  final String title;
+  final String? description;
+  final String imageUrl;
+  final String? linkUrl;
+  final bool active;
+
+  AdminBonPlan({
+    required this.id,
+    required this.title,
+    required this.imageUrl,
+    required this.active,
+    this.description,
+    this.linkUrl,
+  });
+
+  factory AdminBonPlan.fromMap(Map<String, dynamic> map) => AdminBonPlan(
+        id: map['id'] as String,
+        title: map['title'] as String,
+        description: map['description'] as String?,
+        imageUrl: map['image_url'] as String,
+        linkUrl: map['link_url'] as String?,
+        active: map['active'] as bool,
       );
 }
 
@@ -145,33 +175,6 @@ class AdminUserSearchResult {
         firstName: map['first_name'] as String,
         lastName: map['last_name'] as String,
         avatarUrl: map['avatar_url'] as String?,
-      );
-}
-
-class AdminBonPlan {
-  final String id;
-  final String title;
-  final String? description;
-  final String imageUrl;
-  final String? linkUrl;
-  final bool active;
-
-  AdminBonPlan({
-    required this.id,
-    required this.title,
-    required this.imageUrl,
-    this.description,
-    this.linkUrl,
-    required this.active,
-  });
-
-  factory AdminBonPlan.fromMap(Map<String, dynamic> map) => AdminBonPlan(
-        id: map['id'] as String,
-        title: map['title'] as String,
-        description: map['description'] as String?,
-        imageUrl: map['image_url'] as String,
-        linkUrl: map['link_url'] as String?,
-        active: map['active'] as bool? ?? true,
       );
 }
 
@@ -322,7 +325,7 @@ class AdminRepository {
     final rows = await _client
         .from('coin_purchase_requests')
         .select(
-            'id, amount, created_at, profiles!user_id(first_name, last_name)')
+            'id, amount, created_at, user_response, profiles!user_id(first_name, last_name)')
         .eq('status', 'pending')
         .order('created_at');
 
@@ -350,9 +353,20 @@ class AdminRepository {
   /// Communication avec le demandeur (négocier la méthode de
   /// paiement) — via une notification, sans changer le statut de la
   /// demande. Peut être appelée plusieurs fois avant la décision finale.
-  Future<void> sendCoinPurchaseMessage(String requestId, String message) async {
-    await _client.rpc('send_coin_purchase_message',
-        params: {'p_request_id': requestId, 'p_message': message});
+  /// Le demandeur devra choisir entre `optionA` et `optionB` — le
+  /// choix apparaît ensuite dans `AdminCoinPurchaseRequest.userResponse`.
+  Future<void> sendCoinPurchaseMessage(
+    String requestId,
+    String message, {
+    required String optionA,
+    required String optionB,
+  }) async {
+    await _client.rpc('send_coin_purchase_message', params: {
+      'p_request_id': requestId,
+      'p_message': message,
+      'p_option_a': optionA,
+      'p_option_b': optionB,
+    });
   }
 
   // ---------------- Villes ----------------
@@ -604,8 +618,18 @@ class AdminRepository {
     return (rows as List).map((r) => AdminBonPlan.fromMap(r)).toList();
   }
 
-  Future<String> uploadBonPlanImage(
-      {required Uint8List bytes, required String fileExtension}) async {
+  Future<void> toggleBonPlanActive(String id, bool active) async {
+    await _client.from('bon_plans').update({'active': active}).eq('id', id);
+  }
+
+  Future<void> deleteBonPlan(String id) async {
+    await _client.from('bon_plans').delete().eq('id', id);
+  }
+
+  Future<String> uploadBonPlanImage({
+    required Uint8List bytes,
+    required String fileExtension,
+  }) async {
     final userId = _client.auth.currentUser!.id;
     final path =
         '$userId/bon_plans/${DateTime.now().microsecondsSinceEpoch}.$fileExtension';
@@ -622,18 +646,10 @@ class AdminRepository {
     final userId = _client.auth.currentUser!.id;
     await _client.from('bon_plans').insert({
       'title': title,
-      'description': description,
       'image_url': imageUrl,
+      'description': description,
       'link_url': linkUrl,
       'created_by': userId,
     });
-  }
-
-  Future<void> toggleBonPlanActive(String id, bool active) async {
-    await _client.from('bon_plans').update({'active': active}).eq('id', id);
-  }
-
-  Future<void> deleteBonPlan(String id) async {
-    await _client.from('bon_plans').delete().eq('id', id);
   }
 }
