@@ -34,6 +34,9 @@ dependencies:
   # bonne version selon le SDK Flutter utilisé (local ou CI) — le
   # déclarer nous-mêmes ne fait que créer des conflits de version.
   geolocator: ^12.0.0
+  # Barre de localisation "Bons plans" : convertit lat/lng en nom de
+  # ville/quartier lisible (reverse geocoding).
+  geocoding: ^4.0.0
 
 dev_dependencies:
   flutter_test:
