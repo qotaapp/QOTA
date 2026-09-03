@@ -61,6 +61,8 @@ class AdminBonPlan {
   final String imageUrl;
   final String? linkUrl;
   final bool active;
+  final String? cityNameFr;
+  final String? zoneNameFr;
 
   AdminBonPlan({
     required this.id,
@@ -69,6 +71,8 @@ class AdminBonPlan {
     required this.active,
     this.description,
     this.linkUrl,
+    this.cityNameFr,
+    this.zoneNameFr,
   });
 
   factory AdminBonPlan.fromMap(Map<String, dynamic> map) => AdminBonPlan(
@@ -78,6 +82,10 @@ class AdminBonPlan {
         imageUrl: map['image_url'] as String,
         linkUrl: map['link_url'] as String?,
         active: map['active'] as bool,
+        cityNameFr:
+            (map['cities'] as Map<String, dynamic>?)?['name_fr'] as String?,
+        zoneNameFr:
+            (map['zones'] as Map<String, dynamic>?)?['name_fr'] as String?,
       );
 }
 
@@ -614,7 +622,10 @@ class AdminRepository {
   // ---------------- Bons plans ----------------
 
   Future<List<AdminBonPlan>> getBonPlans() async {
-    final rows = await _client.from('bon_plans').select().order('order_index');
+    final rows = await _client
+        .from('bon_plans')
+        .select('*, cities(name_fr), zones(name_fr)')
+        .order('order_index');
     return (rows as List).map((r) => AdminBonPlan.fromMap(r)).toList();
   }
 
@@ -642,6 +653,8 @@ class AdminRepository {
     required String imageUrl,
     String? description,
     String? linkUrl,
+    String? cityId,
+    String? zoneId,
   }) async {
     final userId = _client.auth.currentUser!.id;
     await _client.from('bon_plans').insert({
@@ -649,6 +662,8 @@ class AdminRepository {
       'image_url': imageUrl,
       'description': description,
       'link_url': linkUrl,
+      'city_id': cityId,
+      'zone_id': zoneId,
       'created_by': userId,
     });
   }

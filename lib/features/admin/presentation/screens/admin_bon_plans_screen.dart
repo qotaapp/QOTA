@@ -136,6 +136,48 @@ class _AddBonPlanScreenState extends State<_AddBonPlanScreen> {
   bool _isSubmitting = false;
   String? _errorMessage;
 
+  List<Map<String, dynamic>> _states = [];
+  List<Map<String, dynamic>> _cities = [];
+  List<Map<String, dynamic>> _zones = [];
+  String? _selectedStateId;
+  String? _selectedCityId;
+  String? _selectedZoneId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStates();
+  }
+
+  Future<void> _loadStates() async {
+    final states = await _repository.getAllStates();
+    if (mounted) setState(() => _states = states);
+  }
+
+  Future<void> _onStateChanged(String? stateId) async {
+    setState(() {
+      _selectedStateId = stateId;
+      _selectedCityId = null;
+      _selectedZoneId = null;
+      _cities = [];
+      _zones = [];
+    });
+    if (stateId == null) return;
+    final cities = await _repository.getCitiesForState(stateId);
+    if (mounted) setState(() => _cities = cities);
+  }
+
+  Future<void> _onCityChanged(String? cityId) async {
+    setState(() {
+      _selectedCityId = cityId;
+      _selectedZoneId = null;
+      _zones = [];
+    });
+    if (cityId == null) return;
+    final zones = await _repository.getZonesForCity(cityId);
+    if (mounted) setState(() => _zones = zones);
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -177,6 +219,8 @@ class _AddBonPlanScreenState extends State<_AddBonPlanScreen> {
         linkUrl: _linkController.text.trim().isEmpty
             ? null
             : _linkController.text.trim(),
+        cityId: _selectedCityId,
+        zoneId: _selectedZoneId,
       );
 
       if (mounted) Navigator.of(context).pop(true);
@@ -250,6 +294,55 @@ class _AddBonPlanScreenState extends State<_AddBonPlanScreen> {
                   decoration: const InputDecoration(
                       labelText: 'Lien (optionnel)',
                       border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                      'Localisation (optionnel — laisser vide = national)',
+                      style: TextStyle(fontSize: 12)),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _selectedStateId,
+                  decoration: const InputDecoration(
+                      labelText: 'État', border: OutlineInputBorder()),
+                  items: _states
+                      .map((s) => DropdownMenuItem(
+                            value: s['id'] as String,
+                            child: Text(s['name_fr'] as String),
+                          ))
+                      .toList(),
+                  onChanged: _onStateChanged,
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _selectedCityId,
+                  decoration: const InputDecoration(
+                      labelText: 'Ville', border: OutlineInputBorder()),
+                  items: _cities
+                      .map((c) => DropdownMenuItem(
+                            value: c['id'] as String,
+                            child: Text(c['name_fr'] as String),
+                          ))
+                      .toList(),
+                  onChanged: _selectedStateId == null ? null : _onCityChanged,
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _selectedZoneId,
+                  decoration: const InputDecoration(
+                      labelText: 'Zone (optionnel)',
+                      border: OutlineInputBorder()),
+                  items: _zones
+                      .map((z) => DropdownMenuItem(
+                            value: z['id'] as String,
+                            child: Text(z['name_fr'] as String),
+                          ))
+                      .toList(),
+                  onChanged: _selectedCityId == null
+                      ? null
+                      : (v) => setState(() => _selectedZoneId = v),
                 ),
                 if (_errorMessage != null) ...[
                   const SizedBox(height: 12),
