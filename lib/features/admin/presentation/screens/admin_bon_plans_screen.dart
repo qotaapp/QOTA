@@ -304,7 +304,7 @@ class _AddBonPlanScreenState extends State<_AddBonPlanScreen> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedStateId,
+                  initialValue: _selectedStateId,
                   decoration: const InputDecoration(
                       labelText: 'État', border: OutlineInputBorder()),
                   items: _states
@@ -317,7 +317,7 @@ class _AddBonPlanScreenState extends State<_AddBonPlanScreen> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedCityId,
+                  initialValue: _selectedCityId,
                   decoration: const InputDecoration(
                       labelText: 'Ville', border: OutlineInputBorder()),
                   items: _cities
@@ -330,7 +330,7 @@ class _AddBonPlanScreenState extends State<_AddBonPlanScreen> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedZoneId,
+                  initialValue: _selectedZoneId,
                   decoration: const InputDecoration(
                       labelText: 'Zone (optionnel)',
                       border: OutlineInputBorder()),
