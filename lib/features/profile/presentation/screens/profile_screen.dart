@@ -25,7 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _repository = ProfileRepository();
   final _picker = ImagePicker();
   late Future<_ProfileData> _futureData;
-  bool _hideBalance = false;
+  bool _hideBalance = true;
   bool _isUploadingAvatar = false;
 
   @override
