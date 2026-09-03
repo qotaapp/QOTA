@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/evaluer_category_button.dart';
 import 'evaluer_screen.dart';
-import 'admin_listing_list_screen.dart';
+import 'admin_listing_category_list_screen.dart';
 import '../../../figures/presentation/screens/figure_type_list_screen.dart';
 
 /// Nouveau point d'entrée de l'onglet ⭐ Évaluer — menu de catégories,
@@ -34,16 +34,17 @@ class EvaluerHomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const FigureTypeListScreen()),
               ),
             ),
-            // Alimentées exclusivement par le Super Admin (ou un
-            // modérateur avec la permission 'moderate_content') — voir
-            // AdminListingListScreen. Le slug identifie la section de
-            // façon stable (admin_listing_types, §022).
+            // Les 3 sections admin sont désormais organisées en
+            // catégories (créées/gérées EXCLUSIVEMENT par le Super
+            // Admin) — on passe d'abord par l'écran de
+            // sélection/gestion de catégorie, avant la liste des
+            // publications elle-même (AdminListingListScreen).
             EvaluerCategoryButton(
               icon: Icons.live_tv_outlined,
               label: 'Chaînes et programmes',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const AdminListingListScreen(
+                  builder: (_) => const AdminListingCategoryListScreen(
                     typeSlug: 'channels_programs',
                     fallbackLabel: 'Chaînes et programmes',
                   ),
@@ -55,7 +56,7 @@ class EvaluerHomeScreen extends StatelessWidget {
               label: 'Vente en ligne',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const AdminListingListScreen(
+                  builder: (_) => const AdminListingCategoryListScreen(
                     typeSlug: 'online_sales',
                     fallbackLabel: 'Vente en ligne',
                   ),
@@ -67,7 +68,7 @@ class EvaluerHomeScreen extends StatelessWidget {
               label: 'Autres',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const AdminListingListScreen(
+                  builder: (_) => const AdminListingCategoryListScreen(
                     typeSlug: 'other',
                     fallbackLabel: 'Autres',
                   ),

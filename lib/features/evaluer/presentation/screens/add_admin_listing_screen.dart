@@ -8,12 +8,21 @@ import '../../data/admin_listing_repository.dart';
 /// Autres) — accessible à tout utilisateur connecté, comme l'ajout
 /// d'une Figure Publique. La publication entre en modération
 /// (§022/§033) et n'apparaît qu'après approbation du Super Admin.
+///
+/// [categoryId] optionnel : si l'utilisateur est arrivé ici depuis
+/// une catégorie précise (AdminListingCategoryListScreen), la
+/// publication y est automatiquement rattachée.
 class AddAdminListingScreen extends StatefulWidget {
   final String typeId;
   final String typeLabel;
+  final String? categoryId;
 
-  const AddAdminListingScreen(
-      {super.key, required this.typeId, required this.typeLabel});
+  const AddAdminListingScreen({
+    super.key,
+    required this.typeId,
+    required this.typeLabel,
+    this.categoryId,
+  });
 
   @override
   State<AddAdminListingScreen> createState() => _AddAdminListingScreenState();
@@ -67,6 +76,7 @@ class _AddAdminListingScreenState extends State<AddAdminListingScreen> {
         name: _nameController.text.trim(),
         imageUrl: imageUrl,
         typeId: widget.typeId,
+        categoryId: widget.categoryId,
         description: _descriptionController.text.trim().isEmpty
             ? null
             : _descriptionController.text.trim(),

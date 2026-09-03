@@ -117,6 +117,35 @@ class AdminListingType {
       );
 }
 
+/// Catégorie À L'INTÉRIEUR d'une section admin (ex. "Vente en
+/// ligne") — gérée exclusivement par le Super Admin. Sert à
+/// organiser les publications de la section, comme QotaCategory
+/// pour les Services.
+class AdminListingCategory {
+  final String id;
+  final String adminListingTypeId;
+  final String nameFr;
+  final String nameAr;
+  final bool active;
+
+  AdminListingCategory({
+    required this.id,
+    required this.adminListingTypeId,
+    required this.nameFr,
+    required this.nameAr,
+    required this.active,
+  });
+
+  factory AdminListingCategory.fromMap(Map<String, dynamic> map) =>
+      AdminListingCategory(
+        id: map['id'] as String,
+        adminListingTypeId: map['admin_listing_type_id'] as String,
+        nameFr: map['name_fr'] as String,
+        nameAr: map['name_ar'] as String,
+        active: map['active'] as bool,
+      );
+}
+
 class QotaEntity {
   final String id;
   final String name;

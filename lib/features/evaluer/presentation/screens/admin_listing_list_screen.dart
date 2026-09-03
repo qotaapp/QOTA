@@ -14,13 +14,26 @@ import '../../../comments/presentation/screens/comments_screen.dart';
 /// publier ici (bouton "Ajouter"), exactement comme pour les
 /// Services et les Figures Publiques. Chaque publication passe par
 /// la modération du Super Admin avant d'apparaître.
+///
+/// [categoryId]/[categoryLabel] optionnels : quand une section est
+/// organisée en catégories (ex. "Vente en ligne", via
+/// AdminListingCategoryListScreen), cet écran affiche uniquement le
+/// contenu de la catégorie choisie, et toute nouvelle publication y
+/// est automatiquement rattachée.
 class AdminListingListScreen extends StatefulWidget {
   /// Identifiant stable (jamais l'UUID, voir admin_listing_types.slug).
   final String typeSlug;
   final String fallbackLabel;
+  final String? categoryId;
+  final String? categoryLabel;
 
-  const AdminListingListScreen(
-      {super.key, required this.typeSlug, required this.fallbackLabel});
+  const AdminListingListScreen({
+    super.key,
+    required this.typeSlug,
+    required this.fallbackLabel,
+    this.categoryId,
+    this.categoryLabel,
+  });
 
   @override
   State<AdminListingListScreen> createState() => _AdminListingListScreenState();
@@ -51,7 +64,8 @@ class _AdminListingListScreenState extends State<AdminListingListScreen> {
       }
       setState(() {
         _type = type;
-        _futureListings = _repository.getListings(type.id);
+        _futureListings =
+            _repository.getListings(type.id, categoryId: widget.categoryId);
       });
     } catch (e) {
       if (!mounted) return;
@@ -61,15 +75,19 @@ class _AdminListingListScreenState extends State<AdminListingListScreen> {
 
   void _reload() {
     if (_type == null) return;
-    setState(() => _futureListings = _repository.getListings(_type!.id));
+    setState(() => _futureListings =
+        _repository.getListings(_type!.id, categoryId: widget.categoryId));
   }
 
   Future<void> _openAdd() async {
     if (_type == null) return;
     final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) =>
-            AddAdminListingScreen(typeId: _type!.id, typeLabel: _type!.nameFr),
+        builder: (_) => AddAdminListingScreen(
+          typeId: _type!.id,
+          typeLabel: widget.categoryLabel ?? _type!.nameFr,
+          categoryId: widget.categoryId,
+        ),
       ),
     );
     if (created == true) _reload();
@@ -77,8 +95,9 @@ class _AdminListingListScreenState extends State<AdminListingListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final title = widget.categoryLabel ?? _type?.nameFr ?? widget.fallbackLabel;
     return Scaffold(
-      appBar: AppBar(title: Text(_type?.nameFr ?? widget.fallbackLabel)),
+      appBar: AppBar(title: Text(title)),
       body: _notFound
           ? const Center(child: Text('Cette section n\'est plus disponible.'))
           : _loadError != null
@@ -99,8 +118,7 @@ class _AdminListingListScreenState extends State<AdminListingListScreen> {
                     final listings = snapshot.data ?? [];
                     if (listings.isEmpty) {
                       return Center(
-                        child: Text(
-                            'Rien dans "${_type?.nameFr ?? widget.fallbackLabel}" pour le moment',
+                        child: Text('Rien dans "$title" pour le moment',
                             style: const TextStyle(
                                 color: AppColors.textSecondary)),
                       );
