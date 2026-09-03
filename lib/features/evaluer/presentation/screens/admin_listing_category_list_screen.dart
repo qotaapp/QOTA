@@ -57,7 +57,8 @@ class _AdminListingCategoryListScreenState
       }
       setState(() {
         _type = type;
-        _futureCategories = _repository.getCategories(type.id, activeOnly: false);
+        _futureCategories =
+            _repository.getCategories(type.id, activeOnly: false);
       });
     } catch (e) {
       if (!mounted) return;
@@ -196,7 +197,8 @@ class _AdminListingCategoryListScreenState
                           _isSuperAdmin
                               ? 'Aucune catégorie. Appuyez sur + pour en créer une.'
                               : 'Rien dans "${_type?.nameFr ?? widget.fallbackLabel}" pour le moment',
-                          style: const TextStyle(color: AppColors.textSecondary),
+                          style:
+                              const TextStyle(color: AppColors.textSecondary),
                           textAlign: TextAlign.center,
                         ),
                       );

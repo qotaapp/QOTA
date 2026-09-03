@@ -83,7 +83,8 @@ class AdminListingRepository {
 
   /// [categoryId] optionnel : filtre sur une catégorie précise de la
   /// section (null = toute la section, comportement d'origine).
-  Future<List<QotaEntity>> getListings(String typeId, {String? categoryId}) async {
+  Future<List<QotaEntity>> getListings(String typeId,
+      {String? categoryId}) async {
     final baseQuery = _client
         .from('entity_cards_view')
         .select()
