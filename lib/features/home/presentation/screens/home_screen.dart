@@ -16,6 +16,7 @@ import '../../../profile/presentation/screens/add_user_item_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../profile/presentation/screens/public_profile_screen.dart';
 import '../../../profile/presentation/widgets/user_item_post_card.dart';
+import '../../../stories/presentation/widgets/stories_row.dart';
 
 /// §9-12 : Home = logo Qota + loupe de recherche, puis le Feed
 /// algorithmique (§10), paginé, mêlant Services et User Items.
@@ -209,6 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
               avatarUrl: _avatarUrl,
               onTap: _openAddUserItem,
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: StoriesRow(myAvatarUrl: _avatarUrl),
           ),
           Expanded(
             child: _isLoadingInitial

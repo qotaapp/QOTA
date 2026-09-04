@@ -38,6 +38,8 @@ dependencies:
   # Barre de localisation "Bons plans" : convertit lat/lng en nom de
   # ville/quartier lisible (reverse geocoding).
   geocoding: ^4.0.0
+  # Lecture des vidéos de Stories (max 40s).
+  video_player: ^2.12.0
 
 dev_dependencies:
   flutter_test:
@@ -79,5 +81,3 @@ flutter:
 
   assets:
     - assets/icon/
-    - assets/branding/
-    
