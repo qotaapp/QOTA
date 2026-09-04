@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/entity_action_pills.dart';
 import '../../data/evaluer_models.dart';
 import '../../data/evaluer_repository.dart';
 import 'fullscreen_image_viewer.dart';
@@ -118,47 +119,20 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                       ],
                       const SizedBox(height: 14),
 
-                      // §25 : moyenne / nb évaluations / nb commentaires — pas de ❤️.
-                      Row(
-                        children: [
-                          InkWell(
-                            onTap: () => RatingSheet.show(context,
-                                entityId: entity.id, onSubmitted: _reload),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.star_rounded,
-                                    color: AppColors.starFilled, size: 22),
-                                const SizedBox(width: 4),
-                                Text(entity.averageScore.toStringAsFixed(1),
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16)),
-                                const SizedBox(width: 6),
-                                Text('(${entity.ratingsCount})',
-                                    style: const TextStyle(
-                                        color: AppColors.textSecondary)),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 24),
-                          InkWell(
-                            onTap: () => Navigator.of(context)
-                                .push(MaterialPageRoute(
-                                  builder: (_) => CommentsScreen(
-                                      entityId: entity.id,
-                                      entityKind: 'service'),
-                                ))
-                                .then((_) => _reload()),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.chat_bubble_outline_rounded,
-                                    size: 18),
-                                const SizedBox(width: 4),
-                                Text('${entity.commentsCount} commentaires'),
-                              ],
-                            ),
-                          ),
-                        ],
+                      // §25 : moyenne / nb évaluations / nb commentaires / nb vues — pas de ❤️.
+                      EntityActionPills(
+                        averageScore: entity.averageScore,
+                        ratingsCount: entity.ratingsCount,
+                        commentsCount: entity.commentsCount,
+                        viewsCount: entity.viewsCount,
+                        onTapRate: () => RatingSheet.show(context,
+                            entityId: entity.id, onSubmitted: _reload),
+                        onTapComment: () => Navigator.of(context)
+                            .push(MaterialPageRoute(
+                              builder: (_) => CommentsScreen(
+                                  entityId: entity.id, entityKind: 'service'),
+                            ))
+                            .then((_) => _reload()),
                       ),
 
                       if (entity.description != null &&

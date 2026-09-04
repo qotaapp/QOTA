@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
+import '../../../../core/widgets/entity_action_pills.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../data/evaluer_models.dart';
 
@@ -67,65 +68,13 @@ class ServiceCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: onOpenRatingSheet,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 4),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.star_rounded,
-                                  size: 18, color: AppColors.starFilled),
-                              const SizedBox(width: 4),
-                              Text(entity.averageScore.toStringAsFixed(1),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w600)),
-                              const SizedBox(width: 6),
-                              Text('${entity.ratingsCount}',
-                                  style: const TextStyle(
-                                      color: AppColors.textSecondary)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                      InkWell(
-                        onTap: onOpenComments,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 4),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.chat_bubble_outline_rounded,
-                                  size: 16, color: AppColors.iconDefault),
-                              const SizedBox(width: 4),
-                              Text('${entity.commentsCount}',
-                                  style: const TextStyle(
-                                      color: AppColors.textSecondary)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Pas de ❤️ ici — supprimé de la carte principale par règle §25.
-                      const Spacer(),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.visibility_outlined,
-                            size: 16,
-                            color: AppColors.iconInactive,
-                          ),
-                          const SizedBox(width: 4),
-                          Text('${entity.viewsCount}',
-                              style: const TextStyle(
-                                  color: AppColors.textSecondary)),
-                        ],
-                      ),
-                    ],
+                  EntityActionPills(
+                    averageScore: entity.averageScore,
+                    ratingsCount: entity.ratingsCount,
+                    commentsCount: entity.commentsCount,
+                    viewsCount: entity.viewsCount,
+                    onTapRate: onOpenRatingSheet,
+                    onTapComment: onOpenComments,
                   ),
                 ],
               ),

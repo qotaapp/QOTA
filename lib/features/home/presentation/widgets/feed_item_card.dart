@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
+import '../../../../core/widgets/entity_action_pills.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../data/feed_repository.dart';
 
@@ -74,56 +75,14 @@ class FeedItemCard extends StatelessWidget {
                         color: AppColors.textSecondary, fontSize: 13),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: onOpenRatingSheet,
-                        child: Row(
-                          children: [
-                            const Icon(Icons.star_rounded,
-                                size: 18, color: AppColors.starFilled),
-                            const SizedBox(width: 4),
-                            Text(item.averageScore.toStringAsFixed(1),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600)),
-                            const SizedBox(width: 6),
-                            Text('${item.ratingsCount}',
-                                style: const TextStyle(
-                                    color: AppColors.textSecondary)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                      InkWell(
-                        onTap: onOpenComments,
-                        child: Row(
-                          children: [
-                            const Icon(Icons.chat_bubble_outline_rounded,
-                                size: 16),
-                            const SizedBox(width: 4),
-                            Text('${item.commentsCount}',
-                                style: const TextStyle(
-                                    color: AppColors.textSecondary)),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.visibility_outlined,
-                            size: 16,
-                            color: AppColors.iconInactive,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatViews(item.viewsCount),
-                            style:
-                                const TextStyle(color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ],
+                  EntityActionPills(
+                    averageScore: item.averageScore,
+                    ratingsCount: item.ratingsCount,
+                    commentsCount: item.commentsCount,
+                    viewsCount: item.viewsCount,
+                    onTapRate: onOpenRatingSheet,
+                    onTapComment: onOpenComments,
+                    formatViews: _formatViews,
                   ),
                 ],
               ),
