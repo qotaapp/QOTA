@@ -33,8 +33,7 @@ class ActionPill extends StatelessWidget {
             const SizedBox(width: 6),
             Text(label,
                 style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary)),
+                    fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
           ],
         ),
       ),
