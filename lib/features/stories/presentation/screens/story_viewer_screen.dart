@@ -1,4 +1,4 @@
-import 'dart:async';
+/*import 'dart:async';*/
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -27,7 +27,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
   int _storyIndex = 0;
   VideoPlayerController? _videoController;
   AnimationController? _progressController;
-  final _repository = StoriesRepository();
+  /*final _repository = StoriesRepository();*/
 
   UserStories get _currentGroup => widget.groups[_groupIndex];
   Story get _currentStory => _currentGroup.stories[_storyIndex];

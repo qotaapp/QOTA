@@ -81,3 +81,5 @@ flutter:
 
   assets:
     - assets/icon/
+    - assets/branding/
+    
