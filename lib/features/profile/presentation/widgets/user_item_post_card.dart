@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
+import '../../../../core/widgets/entity_action_pills.dart';
 import '../../data/profile_repository.dart';
 
 /// Présentation façon "publication" : avatar + nom + date en tête,
@@ -193,49 +194,14 @@ class UserItemPostCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: onOpenRatingSheet,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.star_rounded,
-                          size: 20, color: AppColors.starFilled),
-                      const SizedBox(width: 4),
-                      Text(
-                        averageScore.toStringAsFixed(1),
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 22),
-                InkWell(
-                  onTap: onOpenComments,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.chat_bubble_outline_rounded, size: 18),
-                      const SizedBox(width: 4),
-                      Text('$commentsCount'),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.visibility_outlined,
-                      size: 18,
-                      color: AppColors.iconInactive,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _formatViews(viewsCount),
-                      style: const TextStyle(color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-              ],
+            child: EntityActionPills(
+              averageScore: averageScore,
+              ratingsCount: ratingsCount,
+              commentsCount: commentsCount,
+              viewsCount: viewsCount,
+              onTapRate: onOpenRatingSheet,
+              onTapComment: onOpenComments,
+              formatViews: _formatViews,
             ),
           ),
         ],

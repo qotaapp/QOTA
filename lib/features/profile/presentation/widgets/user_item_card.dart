@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/entity_action_pills.dart';
 import '../../data/profile_models.dart';
 
 /// Même esprit visuel que ServiceCard (§25), mais le nom du
@@ -55,40 +56,13 @@ class UserItemCard extends StatelessWidget {
                     style: const TextStyle(
                         color: AppColors.textSecondary, fontSize: 13)),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    InkWell(
-                      onTap: onOpenRatingSheet,
-                      child: Row(
-                        children: [
-                          const Icon(Icons.star_rounded,
-                              size: 18, color: AppColors.starFilled),
-                          const SizedBox(width: 4),
-                          Text(item.averageScore.toStringAsFixed(1),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600)),
-                          const SizedBox(width: 6),
-                          Text('${item.ratingsCount}',
-                              style: const TextStyle(
-                                  color: AppColors.textSecondary)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 18),
-                    InkWell(
-                      onTap: onOpenComments,
-                      child: Row(
-                        children: [
-                          const Icon(Icons.chat_bubble_outline_rounded,
-                              size: 16),
-                          const SizedBox(width: 4),
-                          Text('${item.commentsCount}',
-                              style: const TextStyle(
-                                  color: AppColors.textSecondary)),
-                        ],
-                      ),
-                    ),
-                  ],
+                EntityActionPills(
+                  averageScore: item.averageScore,
+                  ratingsCount: item.ratingsCount,
+                  commentsCount: item.commentsCount,
+                  viewsCount: item.viewsCount,
+                  onTapRate: onOpenRatingSheet,
+                  onTapComment: onOpenComments,
                 ),
               ],
             ),
