@@ -327,21 +327,10 @@ class _QotaLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Même dégradé que le "Q" du logo officiel (QotaBrandMark, écran
-    // de connexion) — AppColors.brandOrangeGradient, pour une identité
-    // visuelle cohérente entre le logo et le mot "Qota" de la Home.
-    return ShaderMask(
-      shaderCallback: (bounds) =>
-          AppColors.brandOrangeGradient.createShader(bounds),
-      child: const Text(
-        'Qota',
-        style: TextStyle(
-          fontSize: 34,
-          fontWeight: FontWeight.w900,
-          color: Colors.white, // requis par ShaderMask (masqué par le dégradé)
-          letterSpacing: -0.5,
-        ),
-      ),
+    return Image.asset(
+      'assets/branding/qota_wordmark.png',
+      height: 34, // même hauteur visuelle que l'ancien texte
+      fit: BoxFit.contain,
     );
   }
 }
