@@ -49,17 +49,37 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
   }
 
   Future<void> _pickVideo(ImageSource source) async {
-    final file = await _picker.pickVideo(
-      source: source,
-      maxDuration: const Duration(seconds: _kMaxStoryDurationSeconds),
-    );
+    XFile? file;
+    try {
+      file = await _picker.pickVideo(
+        source: source,
+        maxDuration: const Duration(seconds: _kMaxStoryDurationSeconds),
+      );
+    } catch (e) {
+      setState(() {
+        _errorMessage =
+            'Impossible d\'ouvrir la ${source == ImageSource.camera ? 'caméra' : 'galerie'} pour choisir une vidéo.';
+      });
+      return;
+    }
     if (file == null) return;
 
     // maxDuration ne limite que l'enregistrement caméra — une vidéo
     // choisie depuis la galerie peut être plus longue, on vérifie
     // donc systématiquement la durée réelle avant de l'accepter.
-    final controller = VideoPlayerController.file(File(file.path));
-    await controller.initialize();
+    VideoPlayerController? controller;
+    try {
+      controller = VideoPlayerController.file(File(file.path));
+      await controller.initialize();
+    } catch (e) {
+      controller?.dispose();
+      setState(() {
+        _errorMessage =
+            'Cette vidéo n\'a pas pu être lue (format non supporté). Essayez-en une autre.';
+      });
+      return;
+    }
+
     final durationSeconds = controller.value.duration.inSeconds;
 
     if (durationSeconds > _kMaxStoryDurationSeconds) {
@@ -75,7 +95,7 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
     setState(() {
       _pickedFile = file;
       _mediaType = 'video';
-      _videoController = controller
+      _videoController = controller!
         ..setLooping(true)
         ..play();
       _videoDurationSeconds = durationSeconds;

@@ -1,6 +1,6 @@
-/*import 'dart:async';*/
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/stories_repository.dart';
 
@@ -27,7 +27,6 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
   int _storyIndex = 0;
   VideoPlayerController? _videoController;
   AnimationController? _progressController;
-  /*final _repository = StoriesRepository();*/
 
   UserStories get _currentGroup => widget.groups[_groupIndex];
   Story get _currentStory => _currentGroup.stories[_storyIndex];
@@ -186,10 +185,13 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
                       CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.white24,
-                        backgroundImage: _currentGroup.userAvatarUrl != null
-                            ? NetworkImage(_currentGroup.userAvatarUrl!)
+                        backgroundImage: (_currentGroup.userAvatarUrl != null &&
+                                _currentGroup.userAvatarUrl!.isNotEmpty)
+                            ? CachedNetworkImageProvider(
+                                _currentGroup.userAvatarUrl!)
                             : null,
-                        child: _currentGroup.userAvatarUrl == null
+                        child: (_currentGroup.userAvatarUrl == null ||
+                                _currentGroup.userAvatarUrl!.isEmpty)
                             ? const Icon(Icons.person,
                                 size: 16, color: Colors.white)
                             : null,

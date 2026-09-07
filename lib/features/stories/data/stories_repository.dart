@@ -54,11 +54,14 @@ class StoriesRepository {
 
   /// Stories actives de tout le monde, groupées par auteur — la plus
   /// récente publication de chacun détermine l'ordre de la rangée.
+  /// Passe par `stories_view` (035) et non par un embed `profiles(...)`
+  /// sur `stories` : un embed PostgREST respecte les RLS de `profiles`
+  /// (lecture limitée à soi-même), ce qui masquait avatar/nom des
+  /// autres utilisateurs.
   Future<List<UserStories>> getActiveStoriesGroupedByUser() async {
     final rows = await _client
-        .from('stories')
-        .select('id, user_id, media_url, media_type, created_at, '
-            'profiles(first_name, last_name, avatar_url)')
+        .from('stories_view')
+        .select()
         .gte('created_at', _cutoff.toIso8601String())
         .order('created_at');
 
@@ -66,16 +69,19 @@ class StoriesRepository {
     for (final r in rows as List) {
       final userId = r['user_id'] as String;
       final story = Story.fromMap(r);
-      final profile = r['profiles'] as Map<String, dynamic>?;
+      final firstName = r['first_name'] as String?;
+      final lastName = r['last_name'] as String?;
+      final avatarUrl = r['avatar_url'] as String?;
 
       final existing = grouped[userId];
       if (existing == null) {
         grouped[userId] = UserStories(
           userId: userId,
-          userName: profile != null
-              ? '${profile['first_name']} ${profile['last_name']}'
-              : '',
-          userAvatarUrl: profile?['avatar_url'] as String?,
+          userName: [firstName, lastName]
+              .where((s) => s != null && s.isNotEmpty)
+              .join(' '),
+          userAvatarUrl:
+              (avatarUrl != null && avatarUrl.isNotEmpty) ? avatarUrl : null,
           stories: [story],
         );
       } else {

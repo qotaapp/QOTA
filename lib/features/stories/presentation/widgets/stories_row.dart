@@ -66,6 +66,10 @@ class StoriesRowState extends State<StoriesRow> {
           final myGroup = groups
               .cast<UserStories?>()
               .firstWhere((g) => g?.userId == myUserId, orElse: () => null);
+          final myAvatar = (myGroup?.userAvatarUrl != null &&
+                  myGroup!.userAvatarUrl!.isNotEmpty)
+              ? myGroup.userAvatarUrl
+              : widget.myAvatarUrl;
 
           return ListView(
             scrollDirection: Axis.horizontal,
@@ -73,7 +77,7 @@ class StoriesRowState extends State<StoriesRow> {
             children: [
               _StoryBubble(
                 label: 'Votre story',
-                avatarUrl: myGroup?.userAvatarUrl ?? widget.myAvatarUrl,
+                avatarUrl: myAvatar,
                 hasActiveStory: myGroup != null,
                 showAddBadge: true,
                 onTap: myGroup != null
@@ -83,7 +87,10 @@ class StoriesRowState extends State<StoriesRow> {
               ),
               ...others.map((group) => _StoryBubble(
                     label: group.userName,
-                    avatarUrl: group.userAvatarUrl,
+                    avatarUrl: (group.userAvatarUrl != null &&
+                            group.userAvatarUrl!.isNotEmpty)
+                        ? group.userAvatarUrl
+                        : null,
                     hasActiveStory: true,
                     onTap: () => _openViewer(groups, groups.indexOf(group)),
                   )),
