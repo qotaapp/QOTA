@@ -448,16 +448,24 @@ class AdminRepository {
   }
 
   // ---------------- Modération des publications ----------------
-  // Toujours limitée à kind in ('service', 'public_figure') — un
-  // User Item (contenu du profil personnel) n'apparaît JAMAIS ici,
-  // ni dans la file d'attente ni dans la liste "publiées".
+  // Inclut les Services, Figures publiques, et les 3 catégories
+  // "Chaînes et programmes"/"Vente en ligne"/"Autres" (§026). Un User
+  // Item (contenu du profil personnel) n'apparaît JAMAIS ici, ni dans
+  // la file d'attente ni dans la liste "publiées".
+  static const _moderatableKinds = [
+    'service',
+    'public_figure',
+    'chain_program',
+    'online_sale',
+    'other',
+  ];
 
   Future<List<AdminModeratableEntity>> getPendingEntities() async {
     final rows = await _client
         .from('entities')
         .select(
             'id, kind, name, description, image_url, status, created_at, profiles!entities_created_by_fkey(first_name, last_name)')
-        .inFilter('kind', ['service', 'public_figure'])
+        .inFilter('kind', _moderatableKinds)
         .eq('status', 'pending_review')
         .order('created_at');
     return (rows as List)
@@ -470,7 +478,7 @@ class AdminRepository {
         .from('entities')
         .select(
             'id, kind, name, description, image_url, status, created_at, profiles!entities_created_by_fkey(first_name, last_name)')
-        .inFilter('kind', ['service', 'public_figure'])
+        .inFilter('kind', _moderatableKinds)
         .eq('status', 'active')
         .order('created_at', ascending: false);
     return (rows as List)
