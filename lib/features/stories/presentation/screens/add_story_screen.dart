@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/stories_repository.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 const _kMaxStoryDurationSeconds = 40;
 
@@ -69,7 +70,11 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
     // donc systématiquement la durée réelle avant de l'accepter.
     VideoPlayerController? controller;
     try {
-      controller = VideoPlayerController.file(File(file.path));
+      // Sur le Web, XFile.path est une URL blob (pas un vrai chemin
+      // fichier) — VideoPlayerController.file() n'y fonctionne pas.
+      controller = kIsWeb
+          ? VideoPlayerController.networkUrl(Uri.parse(file.path))
+          : VideoPlayerController.file(File(file.path));
       await controller.initialize();
     } catch (e) {
       controller?.dispose();
