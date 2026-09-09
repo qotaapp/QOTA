@@ -187,6 +187,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 const _QotaLogo(),
                 Row(
                   children: [
+                    _RefreshButton(onTap: () => _refresh()),
+                    const SizedBox(width: 12),
+                    _DownloadButton(onTap: () {
+                      // Remplacez par votre lien AppStore/PlayStore
+                      // launch('https://play.google.com/store/apps/details?id=com.qota.app');
+                    }),
+                    const SizedBox(width: 12),
                     _BonPlansButton(onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -327,6 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+// Déplacement des classes à l'extérieur de _HomeScreenState
 class _QotaLogo extends StatelessWidget {
   const _QotaLogo();
 
@@ -376,6 +384,46 @@ class _BonPlansButton extends StatelessWidget {
             color: AppColors.surfaceChip, shape: BoxShape.circle),
         child:
             const Icon(Icons.local_offer_rounded, color: AppColors.iconDefault),
+      ),
+    );
+  }
+}
+
+class _RefreshButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _RefreshButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      customBorder: const CircleBorder(),
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: const BoxDecoration(
+            color: AppColors.surfaceChip, shape: BoxShape.circle),
+        child: const Icon(Icons.refresh_rounded, color: AppColors.iconDefault),
+      ),
+    );
+  }
+}
+
+class _DownloadButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _DownloadButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      customBorder: const CircleBorder(),
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: const BoxDecoration(
+            color: AppColors.surfaceChip, shape: BoxShape.circle),
+        child: const Icon(Icons.download_rounded, color: AppColors.iconDefault),
       ),
     );
   }
