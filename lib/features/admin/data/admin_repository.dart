@@ -455,9 +455,7 @@ class AdminRepository {
   static const _moderatableKinds = [
     'service',
     'public_figure',
-    'chain_program',
-    'online_sale',
-    'other',
+    'admin_listing', // Chaînes/programmes, Vente en ligne, Autres (§022) — un seul kind, distingué par admin_listing_type_id
   ];
 
   Future<List<AdminModeratableEntity>> getPendingEntities() async {
