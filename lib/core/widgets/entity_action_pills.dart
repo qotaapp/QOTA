@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// Bouton "pilule" orange clair pour une action sur une publication
-/// (Évaluer / Commenter / Vues) — même style partout dans l'app.
+/// Action (icône + valeur) sur une publication (Évaluer / Commenter /
+/// Vues) — icône contourée orange, sans fond, séparée des autres par
+/// un trait vertical (style capture fournie).
 class ActionPill extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -19,17 +20,13 @@ class ActionPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.primaryOrange.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(999),
-        ),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18, color: AppColors.primaryOrange),
+            Icon(icon, size: 20, color: AppColors.primaryOrange),
             const SizedBox(width: 6),
             Text(label,
                 style: const TextStyle(
@@ -68,24 +65,32 @@ class EntityActionPills extends StatelessWidget {
     this.formatViews,
   });
 
+  Widget _divider() => Container(
+        width: 1,
+        height: 20,
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        color: AppColors.divider,
+      );
+
   @override
   Widget build(BuildContext context) {
     final viewsLabel =
         formatViews != null ? formatViews!(viewsCount) : '$viewsCount';
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         ActionPill(
-          icon: Icons.star_rounded,
+          icon: Icons.star_border_rounded,
           label: '${averageScore.toStringAsFixed(1)} ($ratingsCount)',
           onTap: onTapRate,
         ),
+        _divider(),
         ActionPill(
           icon: Icons.chat_bubble_outline_rounded,
           label: '$commentsCount',
           onTap: onTapComment,
         ),
+        _divider(),
         ActionPill(
           icon: Icons.visibility_outlined,
           label: viewsLabel,
