@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
 import '../../data/profile_models.dart';
+import '../../../../core/widgets/rating_card_color.dart';
 
 /// Même esprit visuel que ServiceCard (§25), mais le nom du
 /// propriétaire est affiché — c'est la différence fondamentale
@@ -26,7 +27,7 @@ class UserItemCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ratingCardColor(item.averageScore, item.ratingsCount),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.divider),
       ),
