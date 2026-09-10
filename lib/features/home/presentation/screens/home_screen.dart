@@ -382,11 +382,8 @@ class _BonPlansButton extends StatelessWidget {
         height: 44,
         decoration: const BoxDecoration(
             color: AppColors.surfaceChip, shape: BoxShape.circle),
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: Image.asset('assets/icon/bon_plans_icon.png'),
-        ),
+        padding: const EdgeInsets.all(4),
+        child: Image.asset('assets/icon/bon_plans_icon.png'),
       ),
     );
   }
