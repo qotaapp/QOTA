@@ -93,6 +93,19 @@ class _AdminEntityModerationScreenState
     }
   }
 
+  /// Ouvre le formulaire de modification pour une publication DÉJÀ PUBLIÉE
+  /// La publication reste visible du public pendant l'édition (modération en direct).
+  Future<void> _editPublished(AdminModeratableEntity item) async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => _EditEntityScreen(entity: item),
+      ),
+    );
+    if (changed == true) {
+      _reload();
+    }
+  }
+
   Future<bool> _confirm(
       {required String title,
       required String message,
@@ -165,6 +178,10 @@ class _AdminEntityModerationScreenState
             kindLabel: _kindLabel,
             emptyLabel: 'Aucune publication en ligne pour le moment.',
             buildActions: (item) => [
+              TextButton(
+                onPressed: () => _editPublished(item),
+                child: const Text('Modifier'),
+              ),
               TextButton(
                 onPressed: () => _delete(item),
                 child: const Text('Supprimer',
