@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
 import '../../data/profile_repository.dart';
+import '../../../../core/widgets/rating_card_color.dart';
 
 /// Présentation façon "publication" : avatar + nom + date en tête,
 /// texte libre, image, puis la barre de stats (⭐ moyenne, 💬 commentaires).
@@ -105,7 +106,7 @@ class UserItemPostCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ratingCardColor(averageScore, ratingsCount),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.divider, width: 1.4),
       ),
