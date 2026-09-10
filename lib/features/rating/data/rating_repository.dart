@@ -29,6 +29,12 @@ class RatingRepository {
 
   /// §28 : UNIQUE(user_id, entity_id) — un upsert met à jour l'évaluation
   /// existante au lieu d'en créer une deuxième.
+  ///
+  /// Si un avis (texte) est écrit, il est aussi publié dans les
+  /// commentaires de l'entité — visible dans CommentsScreen, compté
+  /// dans comments_count. `ratings.comment_id` retient ce lien : si
+  /// l'utilisateur modifie sa note/son avis plus tard, le MÊME
+  /// commentaire est mis à jour plutôt qu'un nouveau republié.
   Future<void> submitRating({
     required String entityId,
     required int score,
@@ -36,6 +42,32 @@ class RatingRepository {
     String? imageUrl,
   }) async {
     final userId = _client.auth.currentUser!.id;
+    final existing = await getMyRating(entityId);
+
+    String? commentId = existing?.commentId;
+    final text = commentText?.trim();
+
+    if (text != null && text.isNotEmpty) {
+      if (commentId != null) {
+        await _client.from('comments').update({
+          'text': text,
+          'image_url': imageUrl,
+        }).eq('id', commentId);
+      } else {
+        final inserted = await _client
+            .from('comments')
+            .insert({
+              'entity_id': entityId,
+              'user_id': userId,
+              'text': text,
+              'image_url': imageUrl,
+            })
+            .select('id')
+            .single();
+        commentId = inserted['id'] as String;
+      }
+    }
+
     await _client.from('ratings').upsert(
       {
         'entity_id': entityId,
@@ -43,6 +75,7 @@ class RatingRepository {
         'score': score,
         'comment_text': commentText,
         'image_url': imageUrl,
+        'comment_id': commentId,
         'updated_at': DateTime.now().toIso8601String(),
       },
       onConflict: 'user_id,entity_id',

@@ -5,6 +5,7 @@ class QotaRating {
   final int score;
   final String? commentText;
   final String? imageUrl;
+  final String? commentId;
 
   QotaRating({
     required this.id,
@@ -13,6 +14,7 @@ class QotaRating {
     required this.score,
     this.commentText,
     this.imageUrl,
+    this.commentId,
   });
 
   factory QotaRating.fromMap(Map<String, dynamic> map) => QotaRating(
@@ -22,5 +24,6 @@ class QotaRating {
         score: map['score'] as int,
         commentText: map['comment_text'] as String?,
         imageUrl: map['image_url'] as String?,
+        commentId: map['comment_id'] as String?,
       );
 }
