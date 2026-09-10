@@ -4,6 +4,7 @@ import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../data/feed_repository.dart';
+import '../../../../core/widgets/rating_card_color.dart';
 
 /// §9/§25 : carte pour les Services affichées dans le Feed (jamais de
 /// propriétaire, §18). Les User Items utilisent UserItemPostCard.
@@ -42,7 +43,7 @@ class FeedItemCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: ratingCardColor(item.averageScore, item.ratingsCount),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.divider),
         ),
