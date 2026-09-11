@@ -161,12 +161,12 @@ class FeedRepository {
   }*/
 
   /// Récupère les commentaires d'une publication/entité
-  /// Récupère les commentaires d'une publication/entité
   Future<List<Comment>> getComments(String entityId) async {
     try {
       final rows = await _client
           .from('comments')
-          .select('id, user_id, text, created_at')
+          .select(
+              'id, user_id, text, created_at, profile:profiles(first_name, last_name, avatar_url)')
           .eq('entity_id', entityId)
           .order('created_at', ascending: false);
 
@@ -175,8 +175,11 @@ class FeedRepository {
           .map((r) => Comment.fromMap({
                 'id': r['id'] as String,
                 'user_id': r['user_id'] as String,
-                'user_name': 'Utilisateur',
-                'user_avatar_url': null,
+                'user_name':
+                    '${(r['profile'] as Map?)?['first_name'] ?? ''} ${(r['profile'] as Map?)?['last_name'] ?? ''}'
+                        .trim(),
+                'user_avatar_url':
+                    (r['profile'] as Map?)?['avatar_url'] as String?,
                 'content': r['text'] as String,
                 'created_at': r['created_at'] as String,
               }))
@@ -203,15 +206,19 @@ class FeedRepository {
             'user_id': userId,
             'text': content,
           })
-          .select('id, user_id, text, created_at')
+          .select(
+              'id, user_id, text, created_at, profile:profiles(first_name, last_name, avatar_url)')
           .single();
 
       /*print('✅ Commentaire ajouté');*/
       return Comment.fromMap({
         'id': response['id'] as String,
         'user_id': response['user_id'] as String,
-        'user_name': 'Utilisateur',
-        'user_avatar_url': null,
+        'user_name':
+            '${(response['profile'] as Map?)?['first_name'] ?? ''} ${(response['profile'] as Map?)?['last_name'] ?? ''}'
+                .trim(),
+        'user_avatar_url':
+            (response['profile'] as Map?)?['avatar_url'] as String?,
         'content': response['text'] as String,
         'created_at': response['created_at'] as String,
       });
