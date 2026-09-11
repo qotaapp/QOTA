@@ -111,81 +111,36 @@ class FeedRepository {
   }
 
   /// Récupère les commentaires d'une publication/entité
-  /* Future<List<Comment>> getComments(String entityId) async {
-    final rows = await _client
-        .from('comments')
-        .select(
-            'id, user_id, user:users(name, avatar_url), content, created_at')
-        .eq('entity_id', entityId)
-        .order('created_at', ascending: false);
-
-    return (rows as List)
-        .map((r) => Comment.fromMap({
-              'id': r['id'] as String,
-              'user_id': r['user_id'] as String,
-              'user_name': (r['user'] as Map)['name'] as String,
-              'user_avatar_url': (r['user'] as Map)['avatar_url'] as String?,
-              'content': r['content'] as String,
-              'created_at': r['created_at'] as String,
-            }))
-        .toList();
-  }*/
-
-  /// Ajoute un nouveau commentaire
-  /*Future<Comment> addComment({
-    required String entityId,
-    required String content,
-  }) async {
-    final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('Utilisateur non authentifié');
-
-    final response = await _client
-        .from('comments')
-        .insert({
-          'entity_id': entityId,
-          'user_id': userId,
-          'content': content,
-        })
-        .select(
-            'id, user_id, user:users(name, avatar_url), content, created_at')
-        .single();
-
-    return Comment.fromMap({
-      'id': response['id'] as String,
-      'user_id': response['user_id'] as String,
-      'user_name': (response['user'] as Map)['name'] as String,
-      'user_avatar_url': (response['user'] as Map)['avatar_url'] as String?,
-      'content': response['content'] as String,
-      'created_at': response['created_at'] as String,
-    });
-  }*/
-
-  /// Récupère les commentaires d'une publication/entité
   Future<List<Comment>> getComments(String entityId) async {
     try {
       final rows = await _client
           .from('comments')
-          .select(
-              'id, user_id, text, created_at, profile:profiles(first_name, last_name, avatar_url)')
+          .select('id, user_id, text, created_at')
           .eq('entity_id', entityId)
           .order('created_at', ascending: false);
 
-      /*print('✅ Commentaires récupérés: ${rows.length}');*/
-      return (rows as List)
-          .map((r) => Comment.fromMap({
-                'id': r['id'] as String,
-                'user_id': r['user_id'] as String,
-                'user_name':
-                    '${(r['profile'] as Map?)?['first_name'] ?? ''} ${(r['profile'] as Map?)?['last_name'] ?? ''}'
-                        .trim(),
-                'user_avatar_url':
-                    (r['profile'] as Map?)?['avatar_url'] as String?,
-                'content': r['text'] as String,
-                'created_at': r['created_at'] as String,
-              }))
-          .toList();
+      // Récupérer les profiles séparément
+      List<Comment> comments = [];
+      for (var row in rows as List) {
+        final profile = await _client
+            .from('profiles')
+            .select('first_name, last_name, avatar_url')
+            .eq('id', row['user_id'])
+            .maybeSingle();
+
+        comments.add(Comment.fromMap({
+          'id': row['id'] as String,
+          'user_id': row['user_id'] as String,
+          'user_name':
+              '${profile?['first_name'] ?? 'Utilisateur'} ${profile?['last_name'] ?? ''}'
+                  .trim(),
+          'user_avatar_url': profile?['avatar_url'] as String?,
+          'content': row['text'] as String,
+          'created_at': row['created_at'] as String,
+        }));
+      }
+      return comments;
     } catch (e) {
-      /*print('❌ Erreur getComments: $e');*/
       return [];
     }
   }
@@ -206,24 +161,27 @@ class FeedRepository {
             'user_id': userId,
             'text': content,
           })
-          .select(
-              'id, user_id, text, created_at, profile:profiles(first_name, last_name, avatar_url)')
+          .select('id, user_id, text, created_at')
           .single();
 
-      /*print('✅ Commentaire ajouté');*/
+      // Récupérer le profile de l'utilisateur
+      final profile = await _client
+          .from('profiles')
+          .select('first_name, last_name, avatar_url')
+          .eq('id', userId)
+          .maybeSingle();
+
       return Comment.fromMap({
         'id': response['id'] as String,
         'user_id': response['user_id'] as String,
         'user_name':
-            '${(response['profile'] as Map?)?['first_name'] ?? ''} ${(response['profile'] as Map?)?['last_name'] ?? ''}'
+            '${profile?['first_name'] ?? 'Utilisateur'} ${profile?['last_name'] ?? ''}'
                 .trim(),
-        'user_avatar_url':
-            (response['profile'] as Map?)?['avatar_url'] as String?,
+        'user_avatar_url': profile?['avatar_url'] as String?,
         'content': response['text'] as String,
         'created_at': response['created_at'] as String,
       });
     } catch (e) {
-      /*print('❌ Erreur addComment: $e');*/
       return null;
     }
   }
