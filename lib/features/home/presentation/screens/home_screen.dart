@@ -8,7 +8,7 @@ import '../widgets/feed_item_card.dart';
 import '../../../evaluer/presentation/screens/service_details_screen.dart';
 import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
 import '../../../rating/presentation/widgets/rating_sheet.dart';
-import '../../../comments/presentation/screens/comments_screen.dart';
+/*import '../../../comments/presentation/screens/comments_screen.dart';*/
 import '../../../search/presentation/screens/search_screen.dart';
 import '../../../bon_plans/presentation/screens/bon_plans_screen.dart';
 import '../../../profile/data/profile_repository.dart';
@@ -17,6 +17,7 @@ import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../profile/presentation/screens/public_profile_screen.dart';
 import '../../../profile/presentation/widgets/user_item_post_card.dart';
 import '../../../stories/presentation/widgets/stories_row.dart';
+import '../widgets/comments_popup.dart';
 
 /// §9-12 : Home = logo Qota + loupe de recherche, puis le Feed
 /// algorithmique (§10), paginé, mêlant Services et User Items.
@@ -272,14 +273,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context,
                                     entityId: item.id,
                                     onSubmitted: _refreshPreservingScroll),
-                                onOpenComments: () => Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                      builder: (_) => CommentsScreen(
-                                          entityId: item.id,
-                                          entityKind: item.kind,
-                                          entityOwnerId: item.ownerId),
-                                    ))
-                                    .then((_) => _refreshPreservingScroll()),
+                                onOpenComments: () => showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) => CommentsPopup(
+                                    entityId: item.id,
+                                    entityName: item.name,
+                                  ),
+                                ).then((_) => _refreshPreservingScroll()),
                                 onOpenImageFullscreen: () => Navigator.of(
                                         context)
                                     .push(
@@ -308,13 +308,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               onOpenRatingSheet: () => RatingSheet.show(context,
                                   entityId: item.id,
                                   onSubmitted: _refreshPreservingScroll),
-                              onOpenComments: () => Navigator.of(context)
-                                  .push(MaterialPageRoute(
-                                    builder: (_) => CommentsScreen(
-                                        entityId: item.id,
-                                        entityKind: item.kind),
-                                  ))
-                                  .then((_) => _refreshPreservingScroll()),
+                              onOpenComments: () => showModalBottomSheet(
+                                context: context,
+                                builder: (context) => CommentsPopup(
+                                  entityId: item.id,
+                                  entityName: item.name,
+                                ),
+                              ).then((_) => _refreshPreservingScroll()),
                               onOpenImageFullscreen: () => Navigator.of(context)
                                   .push(
                                     MaterialPageRoute(
