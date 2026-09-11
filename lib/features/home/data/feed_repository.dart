@@ -165,8 +165,7 @@ class FeedRepository {
     try {
       final rows = await _client
           .from('comments')
-          .select(
-              'id, user_id, content, created_at, user:users(name, avatar_url)')
+          .select('id, user_id, text, created_at, user:users(name, avatar_url)')
           .eq('entity_id', entityId)
           .order('created_at', ascending: false);
 
@@ -177,7 +176,7 @@ class FeedRepository {
                 'user_id': r['user_id'] as String,
                 'user_name': (r['user'] as Map)['name'] as String,
                 'user_avatar_url': (r['user'] as Map)['avatar_url'] as String?,
-                'content': r['content'] as String,
+                'content': r['text'] as String,
                 'created_at': r['created_at'] as String,
               }))
           .toList();
@@ -201,10 +200,9 @@ class FeedRepository {
           .insert({
             'entity_id': entityId,
             'user_id': userId,
-            'content': content,
+            'text': content,
           })
-          .select(
-              'id, user_id, content, created_at, user:users(name, avatar_url)')
+          .select('id, user_id, text, created_at, user:users(name, avatar_url)')
           .single();
 
       /*print('✅ Commentaire ajouté');*/
@@ -213,7 +211,7 @@ class FeedRepository {
         'user_id': response['user_id'] as String,
         'user_name': (response['user'] as Map)['name'] as String,
         'user_avatar_url': (response['user'] as Map)['avatar_url'] as String?,
-        'content': response['content'] as String,
+        'content': response['text'] as String,
         'created_at': response['created_at'] as String,
       });
     } catch (e) {
