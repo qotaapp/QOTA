@@ -111,7 +111,7 @@ class FeedRepository {
   }
 
   /// Récupère les commentaires d'une publication/entité
-  Future<List<Comment>> getComments(String entityId) async {
+  /* Future<List<Comment>> getComments(String entityId) async {
     final rows = await _client
         .from('comments')
         .select(
@@ -129,10 +129,10 @@ class FeedRepository {
               'created_at': r['created_at'] as String,
             }))
         .toList();
-  }
+  }*/
 
   /// Ajoute un nouveau commentaire
-  Future<Comment> addComment({
+  /*Future<Comment> addComment({
     required String entityId,
     required String content,
   }) async {
@@ -158,5 +158,67 @@ class FeedRepository {
       'content': response['content'] as String,
       'created_at': response['created_at'] as String,
     });
+  }*/
+
+  /// Récupère les commentaires d'une publication/entité
+  Future<List<Comment>> getComments(String entityId) async {
+    try {
+      final rows = await _client
+          .from('comments')
+          .select(
+              'id, user_id, content, created_at, user:users(name, avatar_url)')
+          .eq('entity_id', entityId)
+          .order('created_at', ascending: false);
+
+      /*print('✅ Commentaires récupérés: ${rows.length}');*/
+      return (rows as List)
+          .map((r) => Comment.fromMap({
+                'id': r['id'] as String,
+                'user_id': r['user_id'] as String,
+                'user_name': (r['user'] as Map)['name'] as String,
+                'user_avatar_url': (r['user'] as Map)['avatar_url'] as String?,
+                'content': r['content'] as String,
+                'created_at': r['created_at'] as String,
+              }))
+          .toList();
+    } catch (e) {
+      /*print('❌ Erreur getComments: $e');*/
+      return [];
+    }
+  }
+
+  /// Ajoute un nouveau commentaire
+  Future<Comment?> addComment({
+    required String entityId,
+    required String content,
+  }) async {
+    try {
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) throw Exception('Utilisateur non authentifié');
+
+      final response = await _client
+          .from('comments')
+          .insert({
+            'entity_id': entityId,
+            'user_id': userId,
+            'content': content,
+          })
+          .select(
+              'id, user_id, content, created_at, user:users(name, avatar_url)')
+          .single();
+
+      /*print('✅ Commentaire ajouté');*/
+      return Comment.fromMap({
+        'id': response['id'] as String,
+        'user_id': response['user_id'] as String,
+        'user_name': (response['user'] as Map)['name'] as String,
+        'user_avatar_url': (response['user'] as Map)['avatar_url'] as String?,
+        'content': response['content'] as String,
+        'created_at': response['created_at'] as String,
+      });
+    } catch (e) {
+      /*print('❌ Erreur addComment: $e');*/
+      return null;
+    }
   }
 }
