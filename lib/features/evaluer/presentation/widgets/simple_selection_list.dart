@@ -25,38 +25,40 @@ class SimpleSelectionList extends StatefulWidget {
 
 class _SimpleSelectionListState extends State<SimpleSelectionList> {
   final _searchController = TextEditingController();
-  late List<SelectionItem> _filteredItems;
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _filteredItems = widget.items;
-    _searchController.addListener(_filterItems);
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
 
-  void _filterItems() {
-    final query = _searchController.text.toLowerCase().trim();
-    setState(() {
-      _searchQuery = query;
-      if (query.isEmpty) {
-        _filteredItems = widget.items;
-      } else {
-        _filteredItems = widget.items.where((item) {
-          return item.label.toLowerCase().contains(query);
-        }).toList();
-      }
-    });
+  void _onSearchChanged() {
+    final q = _searchController.text.toLowerCase().trim();
+    if (q == _searchQuery) return; // évite les setState inutiles
+    setState(() => _searchQuery = q);
+  }
+
+  /// Calculé à la volée → toujours synchronisé avec `widget.items`,
+  /// peu importe comment / quand le parent met à jour la liste.
+  List<SelectionItem> get _visibleItems {
+    if (_searchQuery.isEmpty) return widget.items;
+    return widget.items
+        .where((item) => item.label.toLowerCase().contains(_searchQuery))
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final visible = _visibleItems;
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: Column(
@@ -109,7 +111,7 @@ class _SimpleSelectionListState extends State<SimpleSelectionList> {
                           style: TextStyle(color: AppColors.textSecondary),
                         ),
                       )
-                    : _filteredItems.isEmpty
+                    : visible.isEmpty
                         ? Center(
                             child: Padding(
                               padding: const EdgeInsets.all(24),
@@ -122,11 +124,11 @@ class _SimpleSelectionListState extends State<SimpleSelectionList> {
                             ),
                           )
                         : ListView.separated(
-                            itemCount: _filteredItems.length,
+                            itemCount: visible.length,
                             separatorBuilder: (_, __) =>
                                 const Divider(height: 1),
                             itemBuilder: (context, index) {
-                              final item = _filteredItems[index];
+                              final item = visible[index];
                               return ListTile(
                                 title: Text(item.label),
                                 trailing: const Icon(
