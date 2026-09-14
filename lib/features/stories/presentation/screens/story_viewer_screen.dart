@@ -14,8 +14,11 @@ class StoryViewerScreen extends StatefulWidget {
   final List<UserStories> groups;
   final int initialIndex;
 
-  const StoryViewerScreen(
-      {super.key, required this.groups, required this.initialIndex});
+  const StoryViewerScreen({
+    super.key,
+    required this.groups,
+    required this.initialIndex,
+  });
 
   @override
   State<StoryViewerScreen> createState() => _StoryViewerScreenState();
@@ -43,6 +46,26 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
     _videoController?.dispose();
     _progressController?.dispose();
     super.dispose();
+  }
+
+  Future<void> _addReaction(String reactionType) async {
+    final repository = StoriesRepository();
+    try {
+      await repository.addStoryReaction(
+        storyId: _currentStory.id,
+        reactionType: reactionType,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Réaction envoyée'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Erreur réaction: $e');
+    }
   }
 
   void _loadCurrentStory() {
@@ -213,6 +236,35 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
                 ],
               ),
             ),
+            // Boutons de réaction en bas
+            if (!isMine)
+              Positioned(
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _ReactionButton(
+                      icon: '❤️',
+                      label: 'Love',
+                      onTap: () => _addReaction('love'),
+                    ),
+                    const SizedBox(width: 24),
+                    _ReactionButton(
+                      icon: '🎁',
+                      label: 'Gift',
+                      onTap: () => _addReaction('gift'),
+                    ),
+                    const SizedBox(width: 24),
+                    _ReactionButton(
+                      icon: '👎',
+                      label: 'Dislike',
+                      onTap: () => _addReaction('dislike'),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
@@ -225,4 +277,67 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
           borderRadius: BorderRadius.circular(2),
         ),
       );
+} // ✅ FERMETURE de _StoryViewerScreenState
+
+// ✅ _ReactionButton est maintenant TOP-LEVEL, plus imbriqué
+class _ReactionButton extends StatefulWidget {
+  final String icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ReactionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  State<_ReactionButton> createState() => _ReactionButtonState();
+}
+
+class _ReactionButtonState extends State<_ReactionButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTap() {
+    _controller.forward(from: 0);
+    widget.onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _onTap,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 1, end: 1.3).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+        ),
+        child: Column(
+          children: [
+            Text(widget.icon, style: const TextStyle(fontSize: 32)),
+            const SizedBox(height: 4),
+            Text(
+              widget.label,
+              style: const TextStyle(color: Colors.white, fontSize: 11),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

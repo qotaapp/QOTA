@@ -129,4 +129,17 @@ class StoriesRepository {
       'duration_seconds': durationSeconds,
     });
   }
+
+  /// Ajouter une réaction à une story
+  Future<void> addStoryReaction({
+    required String storyId,
+    required String reactionType, // 'love' | 'gift' | 'dislike'
+  }) async {
+    final userId = _client.auth.currentUser!.id;
+    await _client.from('story_reactions').upsert({
+      'story_id': storyId,
+      'user_id': userId,
+      'reaction_type': reactionType,
+    }, onConflict: 'story_id,user_id');
+  }
 }
