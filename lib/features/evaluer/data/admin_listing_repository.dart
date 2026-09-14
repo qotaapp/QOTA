@@ -134,4 +134,23 @@ class AdminListingRepository {
       'status': 'pending_review',
     });
   }
+
+  /// Cherche les publications par nom (similarité)
+  Future<List<QotaEntity>> findPotentialDuplicates(String name,
+      {String? typeId}) async {
+    if (name.trim().isEmpty) return [];
+
+    var query = _client
+        .from('entity_cards_view')
+        .select()
+        .eq('kind', 'admin_listing')
+        .ilike('name', '%$name%');
+
+    if (typeId != null) {
+      query = query.eq('admin_listing_type_id', typeId);
+    }
+
+    final rows = await query.limit(5);
+    return (rows as List).map((r) => QotaEntity.fromMap(r)).toList();
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_listing_repository.dart';
+import 'duplicate_found_screen.dart';
 
 /// Ajout dans une section (Chaînes et programmes / Vente en ligne /
 /// Autres) — accessible à tout utilisateur connecté, comme l'ajout
@@ -67,13 +68,56 @@ class _AddAdminListingScreenState extends State<AddAdminListingScreen> {
     });
 
     try {
+      final name = _nameController.text.trim();
+
+      // Vérification de doublons
+      final duplicates = await _repository.findPotentialDuplicates(name,
+          typeId: widget.typeId);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (duplicates.isNotEmpty) {
+        setState(() => _isSubmitting = false);
+        // Importe DuplicateFoundScreen si ce n'est pas fait
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => DuplicateFoundScreen(
+              potentialDuplicates: duplicates,
+              onCreateAnyway: () {
+                Navigator.of(context).pop(); // ferme DuplicateFoundScreen
+                _createListing(name);
+              },
+            ),
+          ),
+        );
+        return;
+      }
+
+      // Aucun doublon -> publication directe
+      await _createListing(name);
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Une erreur est survenue. Réessayez.';
+        _isSubmitting = false;
+      });
+    }
+  }
+
+  Future<void> _createListing(String name) async {
+    if (!mounted) return;
+    setState(() => _isSubmitting = true);
+
+    try {
       final bytes = await _pickedImage!.readAsBytes();
       final extension = _pickedImage!.name.split('.').last;
       final imageUrl =
           await _repository.uploadImage(bytes: bytes, fileExtension: extension);
 
       await _repository.createListing(
-        name: _nameController.text.trim(),
+        name: name,
         imageUrl: imageUrl,
         typeId: widget.typeId,
         categoryId: widget.categoryId,
@@ -82,7 +126,8 @@ class _AddAdminListingScreenState extends State<AddAdminListingScreen> {
             : _descriptionController.text.trim(),
       );
 
-      if (mounted) Navigator.of(context).pop(true);
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
     } catch (e) {
       setState(() {
         _errorMessage = 'Impossible de publier. Réessayez.';
