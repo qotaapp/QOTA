@@ -41,8 +41,12 @@ class AdminListingListScreen extends StatefulWidget {
 
 class _AdminListingListScreenState extends State<AdminListingListScreen> {
   final _repository = AdminListingRepository();
+  final _searchController = TextEditingController();
   AdminListingType? _type;
   Future<List<QotaEntity>>? _futureListings;
+  List<QotaEntity> _allListings = [];
+  List<QotaEntity> _filteredListings = [];
+  String _searchQuery = '';
   bool _notFound = false;
   String? _loadError;
 
@@ -50,6 +54,29 @@ class _AdminListingListScreenState extends State<AdminListingListScreen> {
   void initState() {
     super.initState();
     _loadType();
+    _searchController.addListener(_filterListings);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterListings() {
+    final query = _searchController.text.toLowerCase().trim();
+    setState(() {
+      _searchQuery = query;
+      if (query.isEmpty) {
+        _filteredListings = _allListings;
+      } else {
+        _filteredListings = _allListings.where((listing) {
+          final name = listing.name.toLowerCase();
+          final description = (listing.description ?? '').toLowerCase();
+          return name.contains(query) || description.contains(query);
+        }).toList();
+      }
+    });
   }
 
   Future<void> _loadType() async {
@@ -75,8 +102,12 @@ class _AdminListingListScreenState extends State<AdminListingListScreen> {
 
   void _reload() {
     if (_type == null) return;
-    setState(() => _futureListings =
-        _repository.getListings(_type!.id, categoryId: widget.categoryId));
+    setState(() {
+      _futureListings =
+          _repository.getListings(_type!.id, categoryId: widget.categoryId);
+      _searchController.clear();
+      _filteredListings = [];
+    });
   }
 
   Future<void> _openAdd() async {
@@ -108,52 +139,109 @@ class _AdminListingListScreenState extends State<AdminListingListScreen> {
                         textAlign: TextAlign.center),
                   ),
                 )
-              : FutureBuilder<List<QotaEntity>>(
-                  future: _futureListings,
-                  builder: (context, snapshot) {
-                    if (_futureListings == null ||
-                        snapshot.connectionState != ConnectionState.done) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    final listings = snapshot.data ?? [];
-                    if (listings.isEmpty) {
-                      return Center(
-                        child: Text('Rien dans "$title" pour le moment',
-                            style: const TextStyle(
-                                color: AppColors.textSecondary)),
-                      );
-                    }
-                    return ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      itemCount: listings.length,
-                      itemBuilder: (context, index) {
-                        final entity = listings[index];
-                        return ServiceCard(
-                          entity: entity,
-                          onOpenDetails: () => Navigator.of(context)
-                              .push(MaterialPageRoute(
-                                  builder: (_) => ServiceDetailsScreen(
-                                      entityId: entity.id)))
-                              .then((_) => _reload()),
-                          onOpenRatingSheet: () => RatingSheet.show(context,
-                              entityId: entity.id, onSubmitted: _reload),
-                          onOpenComments: () => Navigator.of(context)
-                              .push(MaterialPageRoute(
-                                builder: (_) => CommentsScreen(
-                                    entityId: entity.id,
-                                    entityKind: 'admin_listing'),
-                              ))
-                              .then((_) => _reload()),
-                          onOpenImageFullscreen: () =>
-                              Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => FullscreenImageViewer(
-                                    imageUrl: entity.imageUrl)),
+              : Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Chercher dans $title...',
+                          prefixIcon: const Icon(Icons.search,
+                              color: AppColors.iconInactive),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear,
+                                      color: AppColors.iconInactive),
+                                  onPressed: () => _searchController.clear(),
+                                )
+                              : null,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide:
+                                const BorderSide(color: AppColors.divider),
                           ),
-                        );
-                      },
-                    );
-                  },
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: FutureBuilder<List<QotaEntity>>(
+                        future: _futureListings,
+                        builder: (context, snapshot) {
+                          if (_futureListings == null ||
+                              snapshot.connectionState !=
+                                  ConnectionState.done) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          _allListings = snapshot.data ?? [];
+                          if (_allListings.isEmpty) {
+                            return Center(
+                              child: Text('Rien dans "$title" pour le moment',
+                                  style: const TextStyle(
+                                      color: AppColors.textSecondary)),
+                            );
+                          }
+
+                          // Appliquer le filtre initial
+                          if (_filteredListings.isEmpty &&
+                              _searchQuery.isEmpty) {
+                            _filteredListings = _allListings;
+                          }
+
+                          if (_filteredListings.isEmpty) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Text(
+                                  'Aucun résultat pour "$_searchQuery"',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      color: AppColors.textSecondary),
+                                ),
+                              ),
+                            );
+                          }
+
+                          return ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            itemCount: _filteredListings.length,
+                            itemBuilder: (context, index) {
+                              final entity = _filteredListings[index];
+                              return ServiceCard(
+                                entity: entity,
+                                onOpenDetails: () => Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: (_) => ServiceDetailsScreen(
+                                            entityId: entity.id)))
+                                    .then((_) => _reload()),
+                                onOpenRatingSheet: () => RatingSheet.show(
+                                    context,
+                                    entityId: entity.id,
+                                    onSubmitted: _reload),
+                                onOpenComments: () => Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                      builder: (_) => CommentsScreen(
+                                          entityId: entity.id,
+                                          entityKind: 'admin_listing'),
+                                    ))
+                                    .then((_) => _reload()),
+                                onOpenImageFullscreen: () =>
+                                    Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (_) => FullscreenImageViewer(
+                                          imageUrl: entity.imageUrl)),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
       floatingActionButton: _type != null
           ? FloatingActionButton.extended(

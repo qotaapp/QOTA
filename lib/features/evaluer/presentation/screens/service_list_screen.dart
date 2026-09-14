@@ -32,7 +32,11 @@ class ServiceListScreen extends StatefulWidget {
 
 class _ServiceListScreenState extends State<ServiceListScreen> {
   final _repository = EvaluerRepository();
+  final _searchController = TextEditingController();
   late Future<List<QotaEntity>> _futureServices;
+  List<QotaEntity> _allServices = [];
+  List<QotaEntity> _filteredServices = [];
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -42,6 +46,29 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
       cityId: widget.cityId,
       zoneId: widget.zoneId,
     );
+    _searchController.addListener(_filterServices);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterServices() {
+    final query = _searchController.text.toLowerCase().trim();
+    setState(() {
+      _searchQuery = query;
+      if (query.isEmpty) {
+        _filteredServices = _allServices;
+      } else {
+        _filteredServices = _allServices.where((service) {
+          final name = service.name.toLowerCase();
+          final description = (service.description ?? '').toLowerCase();
+          return name.contains(query) || description.contains(query);
+        }).toList();
+      }
+    });
   }
 
   void _reloadServices() {
@@ -51,6 +78,8 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
         cityId: widget.cityId,
         zoneId: widget.zoneId,
       );
+      _searchController.clear();
+      _filteredServices = [];
     });
   }
 
@@ -87,6 +116,29 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                   style: const TextStyle(color: AppColors.textSecondary)),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Chercher dans ${widget.category.nameFr}...',
+                prefixIcon:
+                    const Icon(Icons.search, color: AppColors.iconInactive),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear,
+                            color: AppColors.iconInactive),
+                        onPressed: () => _searchController.clear(),
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: AppColors.divider),
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
           Expanded(
             child: FutureBuilder<List<QotaEntity>>(
               future: _futureServices,
@@ -94,18 +146,37 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                 if (snapshot.connectionState != ConnectionState.done) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final services = snapshot.data ?? [];
-                if (services.isEmpty) {
+                _allServices = snapshot.data ?? [];
+                if (_allServices.isEmpty) {
                   return const Center(
                     child: Text('Aucune service pour le moment',
                         style: TextStyle(color: AppColors.textSecondary)),
                   );
                 }
+
+                // Appliquer le filtre initial
+                if (_filteredServices.isEmpty && _searchQuery.isEmpty) {
+                  _filteredServices = _allServices;
+                }
+
+                if (_filteredServices.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'Aucun résultat pour "$_searchQuery"',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ),
+                  );
+                }
+
                 return ListView.builder(
                   padding: const EdgeInsets.only(bottom: 24),
-                  itemCount: services.length,
+                  itemCount: _filteredServices.length,
                   itemBuilder: (context, index) {
-                    final entity = services[index];
+                    final entity = _filteredServices[index];
                     return ServiceCard(
                       entity: entity,
                       onOpenDetails: () {
