@@ -219,10 +219,6 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: _openAddUserItem,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: StoriesRow(myAvatarUrl: _avatarUrl),
-          ),
           Expanded(
             child: _isLoadingInitial
                 ? const Center(child: CircularProgressIndicator())
@@ -236,9 +232,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ListView.builder(
                           controller: _scrollController,
                           padding: const EdgeInsets.only(bottom: 24),
-                          itemCount: _items.length + (_hasMore ? 1 : 0),
+                          itemCount: _items.length + (_hasMore ? 1 : 0) + 1,
                           itemBuilder: (context, index) {
-                            if (index >= _items.length) {
+                            // Index 0 = StoriesRow
+                            if (index == 0) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: StoriesRow(myAvatarUrl: _avatarUrl),
+                              );
+                            }
+
+                            final itemIndex = index - 1;
+                            if (itemIndex >= _items.length) {
                               return const Padding(
                                 padding: EdgeInsets.all(20),
                                 child: Center(
@@ -246,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         strokeWidth: 2)),
                               );
                             }
-                            final item = _items[index];
+                            final item = _items[itemIndex];
 
                             // User Item (§23) : même carte "publication"
                             // qu'au Profil (avatar/nom cliquables -> profil
