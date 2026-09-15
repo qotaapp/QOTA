@@ -88,6 +88,7 @@ class _UserItemDetailsScreenState extends State<UserItemDetailsScreen> {
         return Stack(
           children: [
             SingleChildScrollView(
+              //shrinkWrap: true,
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

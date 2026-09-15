@@ -79,6 +79,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
         return Stack(
           children: [
             SingleChildScrollView(
+              //shrinkWrap: true,
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
