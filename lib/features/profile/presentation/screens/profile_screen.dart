@@ -12,6 +12,7 @@ import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
 import '../../../rating/presentation/widgets/rating_sheet.dart';
 import '../../../comments/presentation/screens/comments_screen.dart';
 import '../../../wallet/presentation/screens/wallet_screen.dart';
+import 'user_item_details_screen.dart';
 
 /// §7 : profil public — photo, nom, prénom, User Items publiés.
 class ProfileScreen extends StatefulWidget {
@@ -437,6 +438,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           // — affiche le menu ⋮ -> "Supprimer" déjà
                           // prévu dans UserItemPostCard.
                           onDelete: () => _deleteItem(item),
+                          onOpenDetails: () => UserItemDetailsScreen.show(
+                            context,
+                            itemId: item.id,
+                            onDismiss: _reload,
+                          ),
                           onOpenRatingSheet: () => RatingSheet.show(
                             context,
                             entityId: item.id,

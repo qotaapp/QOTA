@@ -40,6 +40,10 @@ class UserItemPostCard extends StatelessWidget {
   /// naviguer depuis là.
   final VoidCallback? onOpenProfile;
 
+  /// Optionnel : taper n'importe où sur la carte SAUF l'avatar/nom du
+  /// propriétaire, l'image, et le menu ⋮ -> ouvre la fiche détaillée.
+  final VoidCallback? onOpenDetails;
+
   /// Optionnel : si fourni, affiche un menu ⋮ dans l'en-tête proposant
   /// la suppression de la publication. Fourni UNIQUEMENT quand la carte
   /// affiche une publication de l'utilisateur courant (son propre
@@ -64,6 +68,7 @@ class UserItemPostCard extends StatelessWidget {
     this.ownerId,
     this.ownerAvatarUrl,
     this.onOpenProfile,
+    this.onOpenDetails,
     this.onDelete,
   });
 
@@ -103,109 +108,118 @@ class UserItemPostCard extends StatelessWidget {
           : null,
     );
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: ratingCardColor(averageScore, ratingsCount),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.divider, width: 1.4),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
-            child: Row(
-              children: [
-                onOpenProfile != null
-                    ? GestureDetector(onTap: onOpenProfile, child: avatar)
-                    : avatar,
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: onOpenProfile,
-                        child: Text(
-                          ownerName,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      Text(
-                        _formatDate(createdAt),
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (onDelete != null)
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert,
-                        color: AppColors.iconInactive),
-                    itemBuilder: (context) => [
-                      const PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete_outline, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Supprimer',
-                                style: TextStyle(color: Colors.red)),
-                          ],
-                        ),
-                      ),
-                    ],
-                    onSelected: (_) => onDelete!(),
-                  ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 15),
-                ),
-                if (description != null && description!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(description!),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: () {
-              // Une vue = ouverture délibérée de l'image, pas juste un
-              // défilement dans la liste (évite de gonfler le compteur
-              // artificiellement à chaque scroll).
+    return InkWell(
+      onTap: onOpenDetails == null
+          ? null
+          : () {
               ProfileRepository().incrementViews(itemId);
-              onOpenImageFullscreen();
+              onOpenDetails!();
             },
-            child: AdaptiveNetworkImage(imageUrl: imageUrl),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-            child: EntityActionPills(
-              averageScore: averageScore,
-              ratingsCount: ratingsCount,
-              commentsCount: commentsCount,
-              viewsCount: viewsCount,
-              onTapRate: onOpenRatingSheet,
-              onTapComment: onOpenComments,
-              formatViews: _formatViews,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: ratingCardColor(averageScore, ratingsCount),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.divider, width: 1.4),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+              child: Row(
+                children: [
+                  onOpenProfile != null
+                      ? GestureDetector(onTap: onOpenProfile, child: avatar)
+                      : avatar,
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: onOpenProfile,
+                          child: Text(
+                            ownerName,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        Text(
+                          _formatDate(createdAt),
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (onDelete != null)
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert,
+                          color: AppColors.iconInactive),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Supprimer',
+                                  style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      onSelected: (_) => onDelete!(),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
+                  if (description != null && description!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(description!),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                // Une vue = ouverture délibérée de l'image, pas juste un
+                // défilement dans la liste (évite de gonfler le compteur
+                // artificiellement à chaque scroll).
+                ProfileRepository().incrementViews(itemId);
+                onOpenImageFullscreen();
+              },
+              child: AdaptiveNetworkImage(imageUrl: imageUrl),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+              child: EntityActionPills(
+                averageScore: averageScore,
+                ratingsCount: ratingsCount,
+                commentsCount: commentsCount,
+                viewsCount: viewsCount,
+                onTapRate: onOpenRatingSheet,
+                onTapComment: onOpenComments,
+                formatViews: _formatViews,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

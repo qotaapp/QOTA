@@ -18,6 +18,7 @@ import '../../../profile/presentation/screens/public_profile_screen.dart';
 import '../../../profile/presentation/widgets/user_item_post_card.dart';
 import '../../../stories/presentation/widgets/stories_row.dart';
 import '../widgets/comments_popup.dart';
+import '../../../profile/presentation/screens/user_item_details_screen.dart';
 
 /// §9-12 : Home = logo Qota + loupe de recherche, puis le Feed
 /// algorithmique (§10), paginé, mêlant Services et User Items.
@@ -274,6 +275,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onOpenProfile: item.ownerId != null
                                     ? () => _openOwnerProfile(item.ownerId!)
                                     : null,
+                                onOpenDetails: () => UserItemDetailsScreen.show(
+                                  context,
+                                  itemId: item.id,
+                                  onDismiss: _refreshPreservingScroll,
+                                  onOpenProfile: item.ownerId != null
+                                      ? () => _openOwnerProfile(item.ownerId!)
+                                      : null,
+                                ),
                                 onOpenRatingSheet: () => RatingSheet.show(
                                     context,
                                     entityId: item.id,

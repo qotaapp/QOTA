@@ -8,6 +8,7 @@ import '../widgets/user_item_post_card.dart';
 import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
 import '../../../rating/presentation/widgets/rating_sheet.dart';
 import '../../../comments/presentation/screens/comments_screen.dart';
+import 'user_item_details_screen.dart';
 
 /// Profil PUBLIC d'un autre utilisateur — accessible en tapant sur son
 /// nom/avatar depuis une publication (Home ou Profil). Lecture seule :
@@ -187,6 +188,11 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                           ratingsCount: item.ratingsCount,
                           commentsCount: item.commentsCount,
                           viewsCount: item.viewsCount,
+                          onOpenDetails: () => UserItemDetailsScreen.show(
+                            context,
+                            itemId: item.id,
+                            onDismiss: _reload,
+                          ),
                           onOpenRatingSheet: () => RatingSheet.show(
                             context,
                             entityId: item.id,

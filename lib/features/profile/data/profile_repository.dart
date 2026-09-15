@@ -83,6 +83,19 @@ class ProfileRepository {
     return (rows as List).map((r) => QotaUserItem.fromMap(r)).toList();
   }
 
+  /// §23 : un seul User Item par son id — utilisé par UserItemDetailsScreen.
+  Future<QotaUserItem?> getUserItemById(String itemId) async {
+    final rows = await _client
+        .from('user_items_view')
+        .select()
+        .eq('id', itemId)
+        .limit(1);
+    if ((rows as List).isEmpty) {
+      return null;
+    }
+    return QotaUserItem.fromMap(rows.first);
+  }
+
   /// §8 : la règle (1er gratuit, ensuite payant) est appliquée côté
   /// serveur via la RPC `change_user_name` — jamais côté client.
   Future<Map<String, dynamic>> changeName({
