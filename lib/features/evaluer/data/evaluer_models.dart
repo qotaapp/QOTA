@@ -154,6 +154,7 @@ class QotaEntity {
   final String? cityNameFr;
   final String? zoneNameFr;
   final String? figureTypeNameFr;
+  final String? categoryNameFr;
   final double averageScore;
   final int ratingsCount;
   final int commentsCount;
@@ -171,6 +172,7 @@ class QotaEntity {
     this.cityNameFr,
     this.zoneNameFr,
     this.figureTypeNameFr,
+    this.categoryNameFr,
   });
 
   factory QotaEntity.fromMap(Map<String, dynamic> map) => QotaEntity(
@@ -181,6 +183,7 @@ class QotaEntity {
         cityNameFr: map['city_name_fr'] as String?,
         zoneNameFr: map['zone_name_fr'] as String?,
         figureTypeNameFr: map['figure_type_name_fr'] as String?,
+        categoryNameFr: map['category_name_fr'] as String?,
         averageScore: (map['average_score'] as num?)?.toDouble() ?? 0,
         ratingsCount: (map['ratings_count'] as num?)?.toInt() ?? 0,
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,

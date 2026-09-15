@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
+//import '../../../../core/widgets/category_badge.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../data/feed_repository.dart';
 import '../../../../core/widgets/rating_card_color.dart';
@@ -38,7 +39,10 @@ class FeedItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onOpenDetails,
+      onTap: () {
+        ProfileRepository().incrementViews(item.id);
+        onOpenDetails();
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

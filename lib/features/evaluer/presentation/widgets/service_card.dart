@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
+import '../../../../core/widgets/category_badge.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../data/evaluer_models.dart';
 
@@ -29,7 +30,10 @@ class ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onOpenDetails,
+      onTap: () {
+        ProfileRepository().incrementViews(entity.id);
+        onOpenDetails();
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -42,12 +46,23 @@ class ServiceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                ProfileRepository().incrementViews(entity.id);
-                onOpenImageFullscreen();
-              },
-              child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
+            Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    ProfileRepository().incrementViews(entity.id);
+                    onOpenImageFullscreen();
+                  },
+                  child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
+                ),
+                if (entity.categoryNameFr != null &&
+                    entity.categoryNameFr!.isNotEmpty)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: CategoryBadge(label: entity.categoryNameFr!),
+                  ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
