@@ -179,14 +179,11 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                     final entity = _filteredServices[index];
                     return ServiceCard(
                       entity: entity,
-                      onOpenDetails: () {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(
-                              builder: (_) =>
-                                  ServiceDetailsScreen(entityId: entity.id),
-                            ))
-                            .then((_) => _reloadServices());
-                      },
+                      onOpenDetails: () => ServiceDetailsScreen.show(
+                        context,
+                        entityId: entity.id,
+                        onDismiss: _reloadServices,
+                      ),
                       onOpenRatingSheet: () {
                         // §29 : Rating Sheet — recharge la carte après publication
                         // pour refléter la nouvelle moyenne/nombre d'évaluations.

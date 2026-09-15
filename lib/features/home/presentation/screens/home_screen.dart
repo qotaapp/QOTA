@@ -304,12 +304,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             return FeedItemCard(
                               item: item,
-                              onOpenDetails: () => Navigator.of(context)
-                                  .push(MaterialPageRoute(
-                                    builder: (_) =>
-                                        ServiceDetailsScreen(entityId: item.id),
-                                  ))
-                                  .then((_) => _refreshPreservingScroll()),
+                              onOpenDetails: () => ServiceDetailsScreen.show(
+                                context,
+                                entityId: item.id,
+                                onDismiss: _refreshPreservingScroll,
+                              ),
                               onOpenRatingSheet: () => RatingSheet.show(context,
                                   entityId: item.id,
                                   onSubmitted: _refreshPreservingScroll),

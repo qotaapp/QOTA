@@ -213,11 +213,11 @@ class _AdminListingListScreenState extends State<AdminListingListScreen> {
                               final entity = _filteredListings[index];
                               return ServiceCard(
                                 entity: entity,
-                                onOpenDetails: () => Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                        builder: (_) => ServiceDetailsScreen(
-                                            entityId: entity.id)))
-                                    .then((_) => _reload()),
+                                onOpenDetails: () => ServiceDetailsScreen.show(
+                                  context,
+                                  entityId: entity.id,
+                                  onDismiss: _reload,
+                                ),
                                 onOpenRatingSheet: () => RatingSheet.show(
                                     context,
                                     entityId: entity.id,
