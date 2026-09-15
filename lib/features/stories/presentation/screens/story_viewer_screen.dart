@@ -28,8 +28,11 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
     with SingleTickerProviderStateMixin {
   late int _groupIndex;
   int _storyIndex = 0;
+  late Future<StoryReactionCounts> _reactionCountsFuture;
   VideoPlayerController? _videoController;
   AnimationController? _progressController;
+
+  final _repository = StoriesRepository();
 
   UserStories get _currentGroup => widget.groups[_groupIndex];
   Story get _currentStory => _currentGroup.stories[_storyIndex];
@@ -39,6 +42,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
     super.initState();
     _groupIndex = widget.initialIndex;
     _loadCurrentStory();
+    _reactionCountsFuture = _repository.getReactionCounts(_currentStory.id);
   }
 
   @override
@@ -49,13 +53,17 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
   }
 
   Future<void> _addReaction(String reactionType) async {
-    final repository = StoriesRepository();
     try {
-      await repository.addStoryReaction(
+      await _repository.addStoryReaction(
         storyId: _currentStory.id,
         reactionType: reactionType,
+        amount: 1, // 1 coin pour gift
       );
       if (mounted) {
+        setState(() {
+          _reactionCountsFuture =
+              _repository.getReactionCounts(_currentStory.id);
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Réaction envoyée'),
@@ -70,6 +78,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
 
   void _loadCurrentStory() {
     _progressController?.dispose();
+    _progressController = null;
     _videoController?.dispose();
     _videoController = null;
 
@@ -93,7 +102,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
         if (status == AnimationStatus.completed) _goNext();
       })
       ..forward();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _goNext() {
@@ -124,6 +133,13 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
     }
   }
 
+  Widget _filledBar() => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final myUserId = Supabase.instance.client.auth.currentUser?.id;
@@ -143,10 +159,21 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
                       child: VideoPlayer(_videoController!),
                     )
                   : _currentStory.mediaType == 'image'
-                      ? Image.network(_currentStory.mediaUrl,
-                          fit: BoxFit.contain)
+                      ? CachedNetworkImage(
+                          imageUrl: _currentStory.mediaUrl,
+                          fit: BoxFit.contain,
+                          placeholder: (_, __) => const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.white),
+                          ),
+                          errorWidget: (_, __, ___) => const Icon(
+                            Icons.broken_image,
+                            color: Colors.white,
+                          ),
+                        )
                       : const CircularProgressIndicator(color: Colors.white),
             ),
+
             // Zones tap gauche/droite pour naviguer manuellement.
             Positioned.fill(
               child: Row(
@@ -166,6 +193,8 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
                 ],
               ),
             ),
+
+            // Barres de progression + header
             Positioned(
               top: 8,
               left: 12,
@@ -236,33 +265,50 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
                 ],
               ),
             ),
+
             // Boutons de réaction en bas
             if (!isMine)
               Positioned(
                 bottom: 20,
                 left: 0,
                 right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _ReactionButton(
-                      icon: '❤️',
-                      label: 'Love',
-                      onTap: () => _addReaction('love'),
-                    ),
-                    const SizedBox(width: 24),
-                    _ReactionButton(
-                      icon: '🎁',
-                      label: 'Gift',
-                      onTap: () => _addReaction('gift'),
-                    ),
-                    const SizedBox(width: 24),
-                    _ReactionButton(
-                      icon: '👎',
-                      label: 'Dislike',
-                      onTap: () => _addReaction('dislike'),
-                    ),
-                  ],
+                child: FutureBuilder<StoryReactionCounts>(
+                  future: _reactionCountsFuture,
+                  builder: (context, snapshot) {
+                    final counts = snapshot.data ??
+                        StoryReactionCounts(
+                          loveCount: 0,
+                          giftCount: 0,
+                          dislikeCount: 0,
+                        );
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _ReactionButton(
+                          icon: '❤️',
+                          label: 'Love',
+                          count: counts.loveCount,
+                          onTap: () => _addReaction('love'),
+                        ),
+                        const SizedBox(width: 24),
+                        _ReactionButton(
+                          icon: '🎁',
+                          label: 'Donation',
+                          count: counts.giftCount,
+                          subtitle: 'coins',
+                          onTap: () => _addReaction('gift'),
+                        ),
+                        const SizedBox(width: 24),
+                        _ReactionButton(
+                          icon: '👎',
+                          label: 'Dislike',
+                          count: counts.dislikeCount,
+                          onTap: () => _addReaction('dislike'),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
           ],
@@ -270,25 +316,22 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
       ),
     );
   }
+}
 
-  Widget _filledBar() => Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      );
-} // ✅ FERMETURE de _StoryViewerScreenState
-
-// ✅ _ReactionButton est maintenant TOP-LEVEL, plus imbriqué
+// ✅ _ReactionButton TOP-LEVEL (hors de _StoryViewerScreenState)
 class _ReactionButton extends StatefulWidget {
   final String icon;
   final String label;
+  final int count;
+  final String? subtitle; // 'coins' pour gift
   final VoidCallback onTap;
 
   const _ReactionButton({
     required this.icon,
     required this.label,
+    required this.count,
     required this.onTap,
+    this.subtitle,
   });
 
   @override
@@ -314,7 +357,7 @@ class _ReactionButtonState extends State<_ReactionButton>
     super.dispose();
   }
 
-  void _onTap() {
+  void _handleTap() {
     _controller.forward(from: 0);
     widget.onTap();
   }
@@ -322,19 +365,36 @@ class _ReactionButtonState extends State<_ReactionButton>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _onTap,
+      onTap: _handleTap,
       child: ScaleTransition(
         scale: Tween<double>(begin: 1, end: 1.3).animate(
           CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(widget.icon, style: const TextStyle(fontSize: 32)),
+            Text(
+              widget.icon,
+              style: const TextStyle(fontSize: 32),
+            ),
             const SizedBox(height: 4),
             Text(
               widget.label,
               style: const TextStyle(color: Colors.white, fontSize: 11),
             ),
+            if (widget.count > 0) ...[
+              const SizedBox(height: 2),
+              Text(
+                widget.subtitle != null
+                    ? '${widget.count} ${widget.subtitle}'
+                    : '${widget.count}',
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ],
         ),
       ),

@@ -42,6 +42,19 @@ class UserStories {
   });
 }
 
+/// Compte des réactions pour une story
+class StoryReactionCounts {
+  final int loveCount;
+  final int giftCount;
+  final int dislikeCount;
+
+  StoryReactionCounts({
+    required this.loveCount,
+    required this.giftCount,
+    required this.dislikeCount,
+  });
+}
+
 /// Répertoire Stories : contenu éphémère (photo/vidéo ≤ 40s),
 /// masqué après 24h uniquement via le filtre `created_at` de la
 /// requête — jamais supprimé de la base (choix explicite : pas de
@@ -130,16 +143,50 @@ class StoriesRepository {
     });
   }
 
-  /// Ajouter une réaction à une story
+  /// Ajouter (ou mettre à jour) une réaction à une story.
+  /// `amount` sert uniquement pour les donations (gift).
   Future<void> addStoryReaction({
     required String storyId,
     required String reactionType, // 'love' | 'gift' | 'dislike'
+    int amount = 1,
   }) async {
     final userId = _client.auth.currentUser!.id;
     await _client.from('story_reactions').upsert({
       'story_id': storyId,
       'user_id': userId,
       'reaction_type': reactionType,
+      'amount': amount,
     }, onConflict: 'story_id,user_id');
+  }
+
+  /// Récupère les compteurs de réactions pour une story
+  Future<StoryReactionCounts> getReactionCounts(String storyId) async {
+    final rows = await _client
+        .from('story_reactions')
+        .select('reaction_type, amount')
+        .eq('story_id', storyId);
+
+    int loveCount = 0;
+    int giftCount = 0;
+    int dislikeCount = 0;
+
+    for (final r in rows as List) {
+      final type = r['reaction_type'] as String;
+      final amount = (r['amount'] as num?)?.toInt() ?? 1;
+
+      if (type == 'love') {
+        loveCount++;
+      } else if (type == 'gift') {
+        giftCount += amount;
+      } else if (type == 'dislike') {
+        dislikeCount++;
+      }
+    }
+
+    return StoryReactionCounts(
+      loveCount: loveCount,
+      giftCount: giftCount,
+      dislikeCount: dislikeCount,
+    );
   }
 }
