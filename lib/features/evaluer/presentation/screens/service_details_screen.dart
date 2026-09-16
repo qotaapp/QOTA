@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
+import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../data/evaluer_models.dart';
 import '../../data/evaluer_repository.dart';
 import 'fullscreen_image_viewer.dart';
@@ -16,9 +16,8 @@ class ServiceDetailsScreen extends StatefulWidget {
 
   const ServiceDetailsScreen({super.key, required this.entityId});
 
-  /// Ouvre la fiche en dialog centré. [onDismiss] est appelé à la
-  /// fermeture — même patron que RatingSheet.show(onSubmitted:...) —
-  /// pour rafraîchir la liste/le Feed sous-jacent.
+  /// Ouvre la fiche en dialog centré, dimensionné à son contenu
+  /// (IntrinsicHeight) et plafonné à 640px (scroll au-delà).
   static Future<void> show(
     BuildContext context, {
     required String entityId,
@@ -32,7 +31,9 @@ class ServiceDetailsScreen extends StatefulWidget {
         clipBehavior: Clip.antiAlias,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420, maxHeight: 640),
-          child: ServiceDetailsScreen(entityId: entityId),
+          child: IntrinsicHeight(
+            child: ServiceDetailsScreen(entityId: entityId),
+          ),
         ),
       ),
     );
@@ -79,7 +80,6 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
         return Stack(
           children: [
             SingleChildScrollView(
-              //shrinkWrap: true,
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,11 +94,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                               FullscreenImageViewer(imageUrl: entity.imageUrl),
                         ),
                       ),
-                      child: AspectRatio(
-                        aspectRatio: 16 / 10,
-                        child: CachedNetworkImage(
-                            imageUrl: entity.imageUrl, fit: BoxFit.cover),
-                      ),
+                      child: AdaptiveNetworkImage(imageUrl: entity.imageUrl),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -195,8 +191,6 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                 ],
               ),
             ),
-
-            // Bouton fermeture — au-dessus de l'image, en haut à droite.
             Positioned(
               top: 8,
               right: 8,

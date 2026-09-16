@@ -76,11 +76,6 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
         }
       },
       onError: (Object error, StackTrace? __) {
-        // TODO(debug): retirer ce print une fois la cause confirmée.
-        // Ça révèle la vraie raison (URL expirée/403, timeout réseau,
-        // 404...) au lieu de l'avaler silencieusement.
-        debugPrint(
-            'AdaptiveNetworkImage échec pour ${widget.imageUrl} : $error');
         if (mounted) {
           setState(() => _ratio = 1); // repli carré si l'image ne charge pas
         }
@@ -108,23 +103,7 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
       errorWidget: (_, url, error) => Container(
         color: AppColors.surfaceChip,
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.image_not_supported_outlined, size: 18),
-            // TODO(debug): retirer ce Text une fois la cause confirmée.
-            // Affiché à l'écran (pas juste en console) car le test se
-            // fait sur téléphone sans terminal branché.
-            Text(
-              '$error',
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 8, color: Colors.red),
-            ),
-          ],
-        ),
+        child: const Icon(Icons.image_not_supported_outlined, size: 18),
       ),
     );
 

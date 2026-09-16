@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
+import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../data/profile_models.dart';
 import '../../data/profile_repository.dart';
 import '../../../evaluer/presentation/screens/fullscreen_image_viewer.dart';
@@ -24,6 +25,8 @@ class UserItemDetailsScreen extends StatefulWidget {
     this.onOpenProfile,
   });
 
+  /// Ouvre la fiche en dialog centré, dimensionné à son contenu
+  /// (IntrinsicHeight) et plafonné à 640px (scroll au-delà).
   static Future<void> show(
     BuildContext context, {
     required String itemId,
@@ -38,9 +41,11 @@ class UserItemDetailsScreen extends StatefulWidget {
         clipBehavior: Clip.antiAlias,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420, maxHeight: 640),
-          child: UserItemDetailsScreen(
-            itemId: itemId,
-            onOpenProfile: onOpenProfile,
+          child: IntrinsicHeight(
+            child: UserItemDetailsScreen(
+              itemId: itemId,
+              onOpenProfile: onOpenProfile,
+            ),
           ),
         ),
       ),
@@ -88,14 +93,11 @@ class _UserItemDetailsScreenState extends State<UserItemDetailsScreen> {
         return Stack(
           children: [
             SingleChildScrollView(
-              //shrinkWrap: true,
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // §23 : propriétaire toujours affiché, cliquable si
-                  // onOpenProfile fourni.
                   InkWell(
                     onTap: widget.onOpenProfile == null
                         ? null
@@ -125,7 +127,6 @@ class _UserItemDetailsScreenState extends State<UserItemDetailsScreen> {
                     ),
                   ),
                   const SizedBox(height: 14),
-
                   ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: GestureDetector(
@@ -135,26 +136,19 @@ class _UserItemDetailsScreenState extends State<UserItemDetailsScreen> {
                               FullscreenImageViewer(imageUrl: item.imageUrl),
                         ),
                       ),
-                      child: AspectRatio(
-                        aspectRatio: 16 / 10,
-                        child: CachedNetworkImage(
-                            imageUrl: item.imageUrl, fit: BoxFit.cover),
-                      ),
+                      child: AdaptiveNetworkImage(imageUrl: item.imageUrl),
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   Text(item.name,
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.w800)),
-
                   if (item.description != null &&
                       item.description!.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(item.description!),
                   ],
                   const SizedBox(height: 16),
-
                   EntityActionPills(
                     averageScore: item.averageScore,
                     ratingsCount: item.ratingsCount,
@@ -172,7 +166,6 @@ class _UserItemDetailsScreenState extends State<UserItemDetailsScreen> {
                         ))
                         .then((_) => _reload()),
                   ),
-
                   const SizedBox(height: 24),
                   Row(
                     children: [
