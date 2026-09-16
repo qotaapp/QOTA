@@ -1,6 +1,19 @@
 import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Compte des réactions pour une story
+class StoryReactionCounts {
+  final int loveCount;
+  final int giftCount;
+  final int dislikeCount;
+
+  StoryReactionCounts({
+    required this.loveCount,
+    required this.giftCount,
+    required this.dislikeCount,
+  });
+}
+
 class Story {
   final String id;
   final String userId;
@@ -39,19 +52,6 @@ class UserStories {
     required this.userName,
     required this.userAvatarUrl,
     required this.stories,
-  });
-}
-
-/// Compte des réactions pour une story
-class StoryReactionCounts {
-  final int loveCount;
-  final int giftCount;
-  final int dislikeCount;
-
-  StoryReactionCounts({
-    required this.loveCount,
-    required this.giftCount,
-    required this.dislikeCount,
   });
 }
 
@@ -161,32 +161,36 @@ class StoriesRepository {
 
   /// Récupère les compteurs de réactions pour une story
   Future<StoryReactionCounts> getReactionCounts(String storyId) async {
-    final rows = await _client
-        .from('story_reactions')
-        .select('reaction_type, amount')
-        .eq('story_id', storyId);
+    try {
+      final rows = await _client
+          .from('story_reactions')
+          .select('reaction_type, amount')
+          .eq('story_id', storyId);
 
-    int loveCount = 0;
-    int giftCount = 0;
-    int dislikeCount = 0;
+      int loveCount = 0;
+      int giftCount = 0;
+      int dislikeCount = 0;
 
-    for (final r in rows as List) {
-      final type = r['reaction_type'] as String;
-      final amount = (r['amount'] as num?)?.toInt() ?? 1;
+      for (final r in rows as List) {
+        final type = r['reaction_type'] as String;
+        final amount = (r['amount'] as num?)?.toInt() ?? 1;
 
-      if (type == 'love') {
-        loveCount++;
-      } else if (type == 'gift') {
-        giftCount += amount;
-      } else if (type == 'dislike') {
-        dislikeCount++;
+        if (type == 'love') {
+          loveCount++;
+        } else if (type == 'gift') {
+          giftCount += amount;
+        } else if (type == 'dislike') {
+          dislikeCount++;
+        }
       }
-    }
 
-    return StoryReactionCounts(
-      loveCount: loveCount,
-      giftCount: giftCount,
-      dislikeCount: dislikeCount,
-    );
+      return StoryReactionCounts(
+        loveCount: loveCount,
+        giftCount: giftCount,
+        dislikeCount: dislikeCount,
+      );
+    } catch (e) {
+      return StoryReactionCounts(loveCount: 0, giftCount: 0, dislikeCount: 0);
+    }
   }
 }
