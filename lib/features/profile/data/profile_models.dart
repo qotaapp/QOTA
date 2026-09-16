@@ -29,6 +29,7 @@ class QotaProfile {
   final String firstName;
   final String lastName;
   final String? avatarUrl;
+  final String? phoneNumber; // format E.164, ex: +21612345678 — privé
   final int nameChangeCount;
 
   QotaProfile({
@@ -37,6 +38,7 @@ class QotaProfile {
     required this.lastName,
     required this.nameChangeCount,
     this.avatarUrl,
+    this.phoneNumber,
   });
 
   factory QotaProfile.fromMap(Map<String, dynamic> map) => QotaProfile(
@@ -44,6 +46,7 @@ class QotaProfile {
         firstName: map['first_name'] as String,
         lastName: map['last_name'] as String,
         avatarUrl: map['avatar_url'] as String?,
+        phoneNumber: map['phone_number'] as String?,
         nameChangeCount: (map['name_change_count'] as num?)?.toInt() ?? 0,
       );
 

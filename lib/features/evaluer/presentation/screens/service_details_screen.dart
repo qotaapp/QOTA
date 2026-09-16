@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
+import '../../../../core/widgets/call_phone_button.dart';
 import '../../data/evaluer_models.dart';
 import '../../data/evaluer_repository.dart';
 import 'fullscreen_image_viewer.dart';
@@ -136,6 +137,11 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                     const SizedBox(height: 4),
                     Text(entity.locationLabel,
                         style: const TextStyle(color: AppColors.textSecondary)),
+                  ],
+                  if (entity.phoneNumber != null &&
+                      entity.phoneNumber!.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    CallPhoneButton(phoneNumber: entity.phoneNumber!),
                   ],
                   const SizedBox(height: 14),
                   EntityActionPills(

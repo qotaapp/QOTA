@@ -6,6 +6,9 @@ import 'evaluer_models.dart';
 class EvaluerRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
+  /// Format E.164 : + suivi de 7 à 15 chiffres, pas de 0 en tête.
+  static final _phoneRegex = RegExp(r'^\+[1-9]\d{6,14}$');
+
   Future<List<QotaState>> getStates() async {
     final rows = await _client
         .from('states')
@@ -153,6 +156,9 @@ class EvaluerRepository {
   /// avec la permission 'moderate_content') ne l'a pas approuvée.
   /// Filet de sécurité redondant côté base (trigger, §019) : même si
   /// ce champ était altéré côté client, le statut serait re-forcé.
+  ///
+  /// [phoneNumber] doit être au format E.164 (ex: +21612345678), à
+  /// produire côté UI via IntlPhoneField.completeNumber. Optionnel.
   Future<String> createService({
     required String name,
     required String imageUrl,
@@ -162,8 +168,13 @@ class EvaluerRepository {
     String? zoneId,
     double? latitude,
     double? longitude,
+    String? phoneNumber,
   }) async {
     final userId = _client.auth.currentUser!.id;
+
+    if (phoneNumber != null && !_phoneRegex.hasMatch(phoneNumber)) {
+      throw const FormatException('Numéro de téléphone invalide');
+    }
 
     final row = await _client
         .from('entities')
@@ -177,6 +188,7 @@ class EvaluerRepository {
           'zone_id': zoneId,
           'latitude': latitude,
           'longitude': longitude,
+          'phone_number': phoneNumber,
           'created_by': userId,
           'owner_id': userId,
           'status': 'pending_review',
@@ -185,6 +197,22 @@ class EvaluerRepository {
         .single();
 
     return row['id'] as String;
+  }
+
+  /// Met à jour le numéro de téléphone d'une Service existante.
+  /// La RLS ("Owners update own entities" ou équivalent) refuse déjà
+  /// côté serveur toute tentative sur une entité qui n'appartient pas
+  /// à l'appelant.
+  Future<void> updateServicePhoneNumber({
+    required String entityId,
+    String? phoneNumber,
+  }) async {
+    if (phoneNumber != null && !_phoneRegex.hasMatch(phoneNumber)) {
+      throw const FormatException('Numéro de téléphone invalide');
+    }
+    await _client
+        .from('entities')
+        .update({'phone_number': phoneNumber}).eq('id', entityId);
   }
 
   /// §20/§22 : demande de propriété sur une Service existante.

@@ -7,6 +7,9 @@ class ProfileRepository {
 
   String get currentUserId => _client.auth.currentUser!.id;
 
+  /// Format E.164 : + suivi de 7 à 15 chiffres, pas de 0 en tête.
+  static final _phoneRegex = RegExp(r'^\+[1-9]\d{6,14}$');
+
   /// Compteur de vues — incrémenté côté serveur uniquement (RPC),
   /// jamais en écrivant directement sur la colonne depuis le client.
   Future<void> incrementViews(String entityId) async {
@@ -51,6 +54,19 @@ class ProfileRepository {
       'last_name': lastName,
       'age': age,
     }).eq('id', currentUserId);
+  }
+
+  /// Met à jour le numéro de téléphone du profil courant (privé —
+  /// jamais exposé via public_profiles_view). [phoneNumber] doit déjà
+  /// être au format E.164 (ex: +21612345678), à produire côté UI via
+  /// IntlPhoneField.completeNumber. Passer `null` pour effacer le champ.
+  Future<void> updatePhoneNumber(String? phoneNumber) async {
+    if (phoneNumber != null && !_phoneRegex.hasMatch(phoneNumber)) {
+      throw const FormatException('Numéro de téléphone invalide');
+    }
+    await _client
+        .from('profiles')
+        .update({'phone_number': phoneNumber}).eq('id', currentUserId);
   }
 
   /// Profil PUBLIC de n'importe quel utilisateur (nom + avatar
