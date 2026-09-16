@@ -105,14 +105,27 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
       imageUrl: widget.imageUrl,
       fit: BoxFit.cover,
       placeholder: (_, __) => Container(color: AppColors.surfaceChip),
-      errorWidget: (_, url, error) {
-        // TODO(debug): retirer ce print une fois la cause confirmée.
-        debugPrint('AdaptiveNetworkImage (build) échec pour $url : $error');
-        return Container(
-          color: AppColors.surfaceChip,
-          child: const Icon(Icons.image_not_supported_outlined),
-        );
-      },
+      errorWidget: (_, url, error) => Container(
+        color: AppColors.surfaceChip,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.image_not_supported_outlined, size: 18),
+            // TODO(debug): retirer ce Text une fois la cause confirmée.
+            // Affiché à l'écran (pas juste en console) car le test se
+            // fait sur téléphone sans terminal branché.
+            Text(
+              '$error',
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 8, color: Colors.red),
+            ),
+          ],
+        ),
+      ),
     );
 
     final content = AspectRatio(
