@@ -50,6 +50,15 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
   }
 
   void _resolveNaturalRatio() {
+    // Retire l'écouteur précédent avant d'en attacher un nouveau, sinon
+    // chaque changement d'URL (ex: nouveau token signé après un refresh)
+    // laisse un listener fantôme accroché à l'ancien stream.
+    if (_stream != null && _listener != null) {
+      _stream!.removeListener(_listener!);
+      _stream = null;
+      _listener = null;
+    }
+
     final provider = CachedNetworkImageProvider(widget.imageUrl);
     final stream = provider.resolve(const ImageConfiguration());
     final listener = ImageStreamListener(
@@ -66,7 +75,12 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
           setState(() => _ratio = clamped);
         }
       },
-      onError: (_, __) {
+      onError: (Object error, StackTrace? __) {
+        // TODO(debug): retirer ce print une fois la cause confirmée.
+        // Ça révèle la vraie raison (URL expirée/403, timeout réseau,
+        // 404...) au lieu de l'avaler silencieusement.
+        debugPrint(
+            'AdaptiveNetworkImage échec pour ${widget.imageUrl} : $error');
         if (mounted) {
           setState(() => _ratio = 1); // repli carré si l'image ne charge pas
         }
@@ -91,10 +105,14 @@ class _AdaptiveNetworkImageState extends State<AdaptiveNetworkImage> {
       imageUrl: widget.imageUrl,
       fit: BoxFit.cover,
       placeholder: (_, __) => Container(color: AppColors.surfaceChip),
-      errorWidget: (_, __, ___) => Container(
-        color: AppColors.surfaceChip,
-        child: const Icon(Icons.image_not_supported_outlined),
-      ),
+      errorWidget: (_, url, error) {
+        // TODO(debug): retirer ce print une fois la cause confirmée.
+        debugPrint('AdaptiveNetworkImage (build) échec pour $url : $error');
+        return Container(
+          color: AppColors.surfaceChip,
+          child: const Icon(Icons.image_not_supported_outlined),
+        );
+      },
     );
 
     final content = AspectRatio(

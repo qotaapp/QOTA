@@ -162,6 +162,22 @@ class _SearchScreenState extends State<SearchScreen> {
                                       width: 52,
                                       height: 52,
                                       fit: BoxFit.cover,
+                                      placeholder: (context, url) => Container(
+                                        width: 52,
+                                        height: 52,
+                                        color: AppColors.surfaceChip,
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Container(
+                                        width: 52,
+                                        height: 52,
+                                        color: AppColors.surfaceChip,
+                                        child: const Icon(
+                                          Icons.broken_image_rounded,
+                                          color: AppColors.textSecondary,
+                                          size: 20,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   title: Text(entity.name),
