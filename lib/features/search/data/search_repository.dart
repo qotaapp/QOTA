@@ -6,8 +6,10 @@ class SearchResultEntity {
   final String name;
   final String? description;
   final String imageUrl;
+  final String? stateNameFr;
   final String? cityNameFr;
   final String? zoneNameFr;
+  final String? categoryNameFr;
   final double averageScore;
   final int ratingsCount;
   final int commentsCount;
@@ -21,8 +23,10 @@ class SearchResultEntity {
     required this.ratingsCount,
     required this.commentsCount,
     this.description,
+    this.stateNameFr,
     this.cityNameFr,
     this.zoneNameFr,
+    this.categoryNameFr,
   });
 
   factory SearchResultEntity.fromMap(Map<String, dynamic> map) =>
@@ -32,14 +36,16 @@ class SearchResultEntity {
         name: map['name'] as String,
         description: map['description'] as String?,
         imageUrl: map['image_url'] as String,
+        stateNameFr: map['state_name_fr'] as String?,
         cityNameFr: map['city_name_fr'] as String?,
         zoneNameFr: map['zone_name_fr'] as String?,
+        categoryNameFr: map['category_name_fr'] as String?,
         averageScore: (map['average_score'] as num?)?.toDouble() ?? 0,
         ratingsCount: (map['ratings_count'] as num?)?.toInt() ?? 0,
         commentsCount: (map['comments_count'] as num?)?.toInt() ?? 0,
       );
 
-  String get locationLabel => [zoneNameFr, cityNameFr]
+  String get locationLabel => [zoneNameFr, cityNameFr, stateNameFr]
       .where((e) => e != null && e.isNotEmpty)
       .join(', ');
 }
