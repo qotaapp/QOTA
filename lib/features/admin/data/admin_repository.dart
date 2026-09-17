@@ -100,6 +100,7 @@ class AdminModeratableEntity {
   final String imageUrl;
   final String status; // 'pending_review' | 'active' | 'rejected'
   final String creatorName;
+  final String? phoneNumber; // pertinent surtout pour kind == 'service'
   final DateTime createdAt;
 
   AdminModeratableEntity({
@@ -111,6 +112,7 @@ class AdminModeratableEntity {
     required this.creatorName,
     required this.createdAt,
     this.description,
+    this.phoneNumber,
   });
 
   factory AdminModeratableEntity.fromMap(Map<String, dynamic> map) {
@@ -122,6 +124,7 @@ class AdminModeratableEntity {
       description: map['description'] as String?,
       imageUrl: map['image_url'] as String,
       status: map['status'] as String,
+      phoneNumber: map['phone_number'] as String?,
       creatorName: creator != null
           ? '${creator['first_name']} ${creator['last_name']}'
           : '',
@@ -188,6 +191,9 @@ class AdminUserSearchResult {
 
 class AdminRepository {
   final SupabaseClient _client = Supabase.instance.client;
+
+  /// Format E.164 : + suivi de 7 à 15 chiffres, pas de 0 en tête.
+  static final _phoneRegex = RegExp(r'^\+[1-9]\d{6,14}$');
 
   Future<bool> isCurrentUserSuperAdmin() async {
     final userId = _client.auth.currentUser?.id;
@@ -462,7 +468,7 @@ class AdminRepository {
     final rows = await _client
         .from('entities')
         .select(
-            'id, kind, name, description, image_url, status, created_at, profiles!entities_created_by_fkey(first_name, last_name)')
+            'id, kind, name, description, image_url, status, phone_number, created_at, profiles!entities_created_by_fkey(first_name, last_name)')
         .inFilter('kind', _moderatableKinds)
         .eq('status', 'pending_review')
         .order('created_at');
@@ -475,7 +481,7 @@ class AdminRepository {
     final rows = await _client
         .from('entities')
         .select(
-            'id, kind, name, description, image_url, status, created_at, profiles!entities_created_by_fkey(first_name, last_name)')
+            'id, kind, name, description, image_url, status, phone_number, created_at, profiles!entities_created_by_fkey(first_name, last_name)')
         .inFilter('kind', _moderatableKinds)
         .eq('status', 'active')
         .order('created_at', ascending: false);
@@ -608,12 +614,22 @@ class AdminRepository {
   /// modération, sur une Service ou une Figure Publique. `imageUrl`
   /// n'est envoyé que si une nouvelle image a été choisie (sinon
   /// l'image actuelle est conservée).
+  ///
+  /// [phoneNumber] : uniquement pertinent pour une Service. Passer un
+  /// nouveau numéro (format E.164) pour le modifier ; `null` signifie
+  /// "ne pas toucher au champ" (voir `clearEntityPhoneNumber` pour
+  /// l'effacer volontairement).
   Future<void> updateEntityDetails({
     required String entityId,
     required String name,
     String? description,
     String? imageUrl,
+    String? phoneNumber,
   }) async {
+    if (phoneNumber != null && !_phoneRegex.hasMatch(phoneNumber)) {
+      throw const FormatException('Numéro de téléphone invalide');
+    }
+
     final payload = <String, dynamic>{
       'name': name,
       'description': description,
@@ -622,7 +638,19 @@ class AdminRepository {
     if (imageUrl != null) {
       payload['image_url'] = imageUrl;
     }
+    if (phoneNumber != null) {
+      payload['phone_number'] = phoneNumber;
+    }
     await _client.from('entities').update(payload).eq('id', entityId);
+  }
+
+  /// Efface volontairement le téléphone d'une Service (distinct de
+  /// updateEntityDetails, où `phoneNumber: null` signifie "ne pas
+  /// toucher au champ" plutôt que "l'effacer").
+  Future<void> clearEntityPhoneNumber(String entityId) async {
+    await _client
+        .from('entities')
+        .update({'phone_number': null}).eq('id', entityId);
   }
 
   // ---------------- Bons plans ----------------

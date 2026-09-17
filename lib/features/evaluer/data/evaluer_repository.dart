@@ -203,9 +203,12 @@ class EvaluerRepository {
   }
 
   /// Met à jour le numéro de téléphone d'une Service existante.
-  /// La RLS ("Owners update own entities" ou équivalent) refuse déjà
-  /// côté serveur toute tentative sur une entité qui n'appartient pas
-  /// à l'appelant.
+  /// Utilisable par le propriétaire ET par un Super Admin/modérateur
+  /// avec la permission 'moderate_content' — la RLS sur `entities`
+  /// décide côté serveur qui a le droit (voir policy "Admins update
+  /// entities" dans migration_phone_number.sql). Ce même appel
+  /// fonctionne donc aussi bien depuis l'écran du propriétaire que
+  /// depuis un futur écran de modération.
   Future<void> updateServicePhoneNumber({
     required String entityId,
     String? phoneNumber,

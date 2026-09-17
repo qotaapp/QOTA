@@ -31,6 +31,8 @@ class Comment {
 /// Représente un élément du Feed, quel que soit son kind (§9).
 /// ownerName n'est renseigné que pour les User Items (§23) — jamais
 /// pour les Services (§18), cohérent avec le reste de l'app.
+/// phoneNumber : symétrique — renseigné uniquement pour les Services,
+/// jamais pour un User Item (pas de téléphone "propriétaire" public).
 class FeedItem {
   final String id;
   final String kind; // 'service' | 'user_item'
@@ -42,6 +44,7 @@ class FeedItem {
   final String? ownerId;
   final String? ownerName;
   final String? ownerAvatarUrl;
+  final String? phoneNumber; // Services uniquement
   final DateTime createdAt;
   final double averageScore;
   final int ratingsCount;
@@ -64,6 +67,7 @@ class FeedItem {
     this.ownerId,
     this.ownerName,
     this.ownerAvatarUrl,
+    this.phoneNumber,
   });
 
   factory FeedItem.fromMap(Map<String, dynamic> map) => FeedItem(
@@ -77,6 +81,7 @@ class FeedItem {
         ownerId: map['owner_id'] as String?,
         ownerName: map['owner_name'] as String?,
         ownerAvatarUrl: map['owner_avatar_url'] as String?,
+        phoneNumber: map['phone_number'] as String?,
         createdAt: DateTime.parse(map['created_at'] as String),
         averageScore: (map['average_score'] as num?)?.toDouble() ?? 0,
         ratingsCount: (map['ratings_count'] as num?)?.toInt() ?? 0,

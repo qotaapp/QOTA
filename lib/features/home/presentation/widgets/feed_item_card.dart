@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/adaptive_network_image.dart';
 import '../../../../core/widgets/entity_action_pills.dart';
+import '../../../../core/widgets/call_phone_button.dart';
 //import '../../../../core/widgets/category_badge.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../data/feed_repository.dart';
@@ -79,6 +80,14 @@ class FeedItemCard extends StatelessWidget {
                     style: const TextStyle(
                         color: AppColors.textSecondary, fontSize: 13),
                   ),
+                  // Téléphone : uniquement sur les Services (jamais sur un
+                  // User Item), symétrique à ownerName ci-dessus.
+                  if (item.kind == 'service' &&
+                      item.phoneNumber != null &&
+                      item.phoneNumber!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    CallPhoneButton(phoneNumber: item.phoneNumber!),
+                  ],
                   const SizedBox(height: 10),
                   EntityActionPills(
                     averageScore: item.averageScore,
