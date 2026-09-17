@@ -38,6 +38,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   final _formKey = GlobalKey<FormState>();
   final _repository = EvaluerRepository();
   final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
   final _picker = ImagePicker();
 
   XFile? _pickedImage;
@@ -51,6 +52,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -130,6 +132,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       final imageUrl =
           await _repository.uploadImage(bytes: bytes, fileExtension: extension);
 
+      final description = _descriptionController.text.trim();
+
       await _repository.createService(
         name: name,
         imageUrl: imageUrl,
@@ -138,6 +142,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         cityId: widget.cityId,
         zoneId: widget.zoneId,
         phoneNumber: _phoneNumber,
+        description: description.isEmpty ? null : description,
       );
 
       if (!mounted) {
@@ -217,6 +222,17 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   ),
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: _descriptionController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Description (optionnel)',
+                    border: OutlineInputBorder(),
+                    alignLabelWithHint: true,
+                  ),
                 ),
                 const SizedBox(height: 16),
 

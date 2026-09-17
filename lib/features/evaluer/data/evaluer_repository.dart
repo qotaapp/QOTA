@@ -158,7 +158,8 @@ class EvaluerRepository {
   /// ce champ était altéré côté client, le statut serait re-forcé.
   ///
   /// [phoneNumber] doit être au format E.164 (ex: +21612345678), à
-  /// produire côté UI via IntlPhoneField.completeNumber. Optionnel.
+  /// produire côté UI via IntlPhoneField.completeNumber. Optionnel,
+  /// tout comme [description].
   Future<String> createService({
     required String name,
     required String imageUrl,
@@ -169,6 +170,7 @@ class EvaluerRepository {
     double? latitude,
     double? longitude,
     String? phoneNumber,
+    String? description,
   }) async {
     final userId = _client.auth.currentUser!.id;
 
@@ -181,6 +183,7 @@ class EvaluerRepository {
         .insert({
           'kind': 'service',
           'name': name,
+          'description': description,
           'image_url': imageUrl,
           'category_id': categoryId,
           'state_id': stateId,
