@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_repository.dart';
 
@@ -79,9 +80,9 @@ class _AdminEntityModerationScreenState
     }
   }
 
-  /// Ouvre le formulaire de modification (nom / description / photo)
-  /// AVANT approbation — permet au Super Admin de corriger une
-  /// publication plutôt que de devoir la rejeter.
+  /// Ouvre le formulaire de modification (nom / description / photo /
+  /// téléphone) AVANT approbation — permet au Super Admin de corriger
+  /// une publication plutôt que de devoir la rejeter.
   Future<void> _openEdit(AdminModeratableEntity item) async {
     final changed = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
@@ -281,6 +282,24 @@ class _EntityList extends StatelessWidget {
                     Text(item.description!,
                         maxLines: 2, overflow: TextOverflow.ellipsis),
                   ],
+                  // Téléphone : visible ici pour que le Super Admin
+                  // repère en un coup d'œil qu'une Service en a un
+                  // (ou pas), sans devoir ouvrir "Modifier".
+                  if (item.kind == 'service' &&
+                      item.phoneNumber != null &&
+                      item.phoneNumber!.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.call_rounded,
+                            size: 14, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Text(item.phoneNumber!,
+                            style: const TextStyle(
+                                fontSize: 12, color: AppColors.textSecondary)),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -297,10 +316,10 @@ class _EntityList extends StatelessWidget {
 }
 
 /// Formulaire de modification d'une publication en attente —
-/// nom, description, photo. Le Super Admin doit ensuite revenir sur
-/// la liste et taper "Approuver" séparément : modifier n'approuve
-/// jamais automatiquement, pour garder les deux actions distinctes
-/// et volontaires.
+/// nom, description, photo, et téléphone (Services uniquement). Le
+/// Super Admin doit ensuite revenir sur la liste et taper "Approuver"
+/// séparément : modifier n'approuve jamais automatiquement, pour
+/// garder les deux actions distinctes et volontaires.
 class _EditEntityScreen extends StatefulWidget {
   final AdminModeratableEntity entity;
 
@@ -316,10 +335,21 @@ class _EditEntityScreenState extends State<_EditEntityScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
 
+  // Numéro au format E.164 (ex: +21612345678), rempli par
+  // IntlPhoneField. `null` signifie "ne pas toucher au champ" pour
+  // updateEntityDetails — voir _clearPhone pour l'effacer.
+  String? _phoneNumber;
+  // IntlPhoneField ignore les changements de `initialValue` sur un
+  // simple setState (son état interne ne les observe pas) — on force
+  // sa reconstruction complète après un "Effacer" en changeant sa clé.
+  int _phoneFieldKeySeed = 0;
+
   XFile? _pickedImage;
   String? _currentImageUrl;
   bool _isSaving = false;
   String? _errorMessage;
+
+  bool get _isService => widget.entity.kind == 'service';
 
   @override
   void initState() {
@@ -328,6 +358,7 @@ class _EditEntityScreenState extends State<_EditEntityScreen> {
     _descriptionController =
         TextEditingController(text: widget.entity.description ?? '');
     _currentImageUrl = widget.entity.imageUrl;
+    _phoneNumber = widget.entity.phoneNumber;
   }
 
   @override
@@ -342,6 +373,23 @@ class _EditEntityScreenState extends State<_EditEntityScreen> {
         await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (image != null) {
       setState(() => _pickedImage = image);
+    }
+  }
+
+  /// Efface explicitement le téléphone existant — distinct de "ne
+  /// rien saisir" dans IntlPhoneField, qui laisse le champ inchangé
+  /// côté `updateEntityDetails` (voir doc de la méthode).
+  Future<void> _clearPhone() async {
+    setState(() {
+      _phoneNumber = null;
+      _phoneFieldKeySeed++;
+    });
+    try {
+      await _repository.clearEntityPhoneNumber(widget.entity.id);
+    } catch (_) {
+      // Non bloquant : si l'utilisateur enregistre ensuite via
+      // "Enregistrer" sans ressaisir de numéro, le champ reste tel
+      // qu'il était avant l'appel ci-dessus. Retenter au besoin.
     }
   }
 
@@ -373,6 +421,7 @@ class _EditEntityScreenState extends State<_EditEntityScreen> {
             ? null
             : _descriptionController.text.trim(),
         imageUrl: newImageUrl,
+        phoneNumber: _phoneNumber,
       );
 
       if (!mounted) return;
@@ -451,6 +500,33 @@ class _EditEntityScreenState extends State<_EditEntityScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
+              // Téléphone : uniquement pour une Service (pas de sens
+              // pour une Figure publique, ni pour les autres kinds
+              // modérables). L'admin peut le créer, le remplacer, ou
+              // l'effacer explicitement.
+              if (_isService) ...[
+                const SizedBox(height: 12),
+                IntlPhoneField(
+                  key: ValueKey(_phoneFieldKeySeed),
+                  initialValue: _phoneNumber,
+                  decoration: InputDecoration(
+                    labelText: 'Téléphone (optionnel)',
+                    border: const OutlineInputBorder(),
+                    suffixIcon: _phoneNumber != null && _phoneNumber!.isNotEmpty
+                        ? IconButton(
+                            tooltip: 'Effacer le numéro',
+                            icon: const Icon(Icons.clear_rounded),
+                            onPressed: _clearPhone,
+                          )
+                        : null,
+                  ),
+                  initialCountryCode: 'TN',
+                  onChanged: (phone) {
+                    _phoneNumber =
+                        phone.number.isEmpty ? null : phone.completeNumber;
+                  },
+                ),
+              ],
               if (_errorMessage != null) ...[
                 const SizedBox(height: 12),
                 Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
