@@ -6,6 +6,7 @@ import 'core/routing/root_shell.dart';
 import 'core/constants/supabase_constants.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/auth/presentation/screens/complete_profile_screen.dart';
+import 'features/auth/presentation/screens/reset_password_screen.dart';
 import 'features/profile/data/profile_repository.dart';
 import 'l10n/app_localizations.dart';
 
@@ -109,9 +110,9 @@ class QotaApp extends StatelessWidget {
   }
 }
 
-/// Bascule automatiquement entre LoginScreen et RootShell (Home) selon
-/// l'état de la session Supabase — pas de logique de navigation manuelle
-/// à dupliquer dans chaque écran d'auth.
+/// Bascule automatiquement entre LoginScreen, ResetPasswordScreen et
+/// RootShell (Home) selon l'état de la session Supabase — pas de
+/// logique de navigation manuelle à dupliquer dans chaque écran d'auth.
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -120,6 +121,18 @@ class AuthGate extends StatelessWidget {
     return StreamBuilder<AuthState>(
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
+        // Mot de passe oublié : quand l'utilisateur clique sur le lien
+        // reçu par e-mail, Supabase authentifie automatiquement une
+        // session "recovery" et émet AuthChangeEvent.passwordRecovery.
+        // On intercepte précisément cet événement pour l'envoyer vers
+        // l'écran de nouveau mot de passe plutôt que directement sur
+        // Home. Une fois le mot de passe changé, Supabase émet
+        // AuthChangeEvent.userUpdated : ce bloc ne matche plus, et le
+        // flux normal (session != null -> _ProfileGate) reprend.
+        if (snapshot.data?.event == AuthChangeEvent.passwordRecovery) {
+          return const ResetPasswordScreen();
+        }
+
         final session = Supabase.instance.client.auth.currentSession;
         if (session == null) {
           return const LoginScreen();

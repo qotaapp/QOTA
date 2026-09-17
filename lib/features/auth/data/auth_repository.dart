@@ -43,14 +43,27 @@ class AuthRepository {
     );
   }
 
+  /// Mot de passe oublié : `redirectTo` est INDISPENSABLE, sinon
+  /// Supabase renvoie vers l'URL par défaut du Dashboard et le lien
+  /// ne revient jamais correctement dans l'app. On réutilise le même
+  /// deep link que Google Sign-In (déjà enregistré dans
+  /// AndroidManifest.xml, Info.plist et Supabase Dashboard >
+  /// Authentication > URL Configuration > Redirect URLs) — aucune
+  /// config supplémentaire nécessaire. Quand l'utilisateur clique sur
+  /// le lien reçu par e-mail, Supabase ouvre l'app avec une session
+  /// "recovery" et émet AuthChangeEvent.passwordRecovery, intercepté
+  /// par AuthGate (main.dart) pour afficher ResetPasswordScreen.
   Future<void> sendPasswordResetEmail(String email) async {
-    await _client.auth.resetPasswordForEmail(email);
+    await _client.auth.resetPasswordForEmail(
+      email,
+      redirectTo:
+          kIsWeb ? Uri.base.toString() : SupabaseConstants.oauthRedirectUrl,
+    );
   }
 
   /// Définit (ou remplace) le mot de passe du compte actuellement
-  /// connecté — utilisé par CompleteProfileScreen pour qu'un compte
-  /// créé via Google puisse AUSSI se connecter plus tard par e-mail +
-  /// mot de passe, sans créer de second compte.
+  /// connecté — utilisé par CompleteProfileScreen (compte créé via
+  /// Google) ET par ResetPasswordScreen (mot de passe oublié).
   Future<void> setPassword(String password) async {
     await _client.auth.updateUser(UserAttributes(password: password));
   }

@@ -55,11 +55,22 @@ class _LoginScreenState extends State<LoginScreen> {
           'Saisissez votre e-mail pour réinitialiser le mot de passe.');
       return;
     }
-    await _authRepository.sendPasswordResetEmail(email);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('E-mail de réinitialisation envoyé.')),
-      );
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      await _authRepository.sendPasswordResetEmail(email);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('E-mail de réinitialisation envoyé.')),
+        );
+      }
+    } catch (e) {
+      setState(() => _errorMessage =
+          'Impossible d\'envoyer l\'e-mail de réinitialisation. Vérifiez l\'adresse et réessayez.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -134,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // §4 : "Mot de passe oublié ?"
                 TextButton(
-                  onPressed: _handleForgotPassword,
+                  onPressed: _isLoading ? null : _handleForgotPassword,
                   child: const Text('Mot de passe oublié ?'),
                 ),
 
