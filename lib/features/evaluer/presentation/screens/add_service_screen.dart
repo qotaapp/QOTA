@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/evaluer_models.dart';
 import '../../data/evaluer_repository.dart';
@@ -40,6 +41,10 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   final _picker = ImagePicker();
 
   XFile? _pickedImage;
+  // Numéro au format E.164 (ex: +21612345678), rempli par IntlPhoneField.
+  // Le champ étant optionnel, il reste `null` tant que l'utilisateur n'a
+  // saisi aucun chiffre.
+  String? _phoneNumber;
   bool _isSubmitting = false;
   String? _errorMessage;
 
@@ -132,6 +137,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         stateId: widget.stateId,
         cityId: widget.cityId,
         zoneId: widget.zoneId,
+        phoneNumber: _phoneNumber,
       );
 
       if (!mounted) {
@@ -211,6 +217,23 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   ),
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Numéro de contact — affiché publiquement sur la fiche
+                // Service (contrairement au téléphone du profil, privé).
+                // Optionnel : une Service peut ne pas avoir de contact
+                // téléphonique direct.
+                IntlPhoneField(
+                  decoration: const InputDecoration(
+                    labelText: 'Téléphone (optionnel)',
+                    border: OutlineInputBorder(),
+                  ),
+                  initialCountryCode: 'TN',
+                  onChanged: (phone) {
+                    _phoneNumber =
+                        phone.number.isEmpty ? null : phone.completeNumber;
+                  },
                 ),
 
                 if (_errorMessage != null) ...[

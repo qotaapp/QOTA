@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/routing/root_shell.dart';
 import '../../../profile/data/profile_repository.dart';
@@ -30,6 +31,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  // Numéro au format E.164 (ex: +21612345678), rempli par
+  // IntlPhoneField. Champ privé (jamais exposé publiquement) et
+  // optionnel : reste `null` si l'utilisateur ne saisit rien.
+  String? _phoneNumber;
+
   bool _isLoadingProfile = true;
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -48,6 +54,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       final profile = await _profileRepository.getMyProfile();
       _lastNameController.text = profile.lastName;
       _firstNameController.text = profile.firstName;
+      _phoneNumber = profile.phoneNumber;
     } catch (_) {
       // Champs vides si le pré-remplissage échoue — l'utilisateur les
       // saisit simplement lui-même, ce n'est pas bloquant.
@@ -82,6 +89,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         lastName: _lastNameController.text.trim(),
         age: int.parse(_ageController.text.trim()),
       );
+      await _profileRepository.updatePhoneNumber(_phoneNumber);
       await _authRepository.setPassword(_passwordController.text);
 
       if (!mounted) {
@@ -160,6 +168,25 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                             return 'Âge invalide';
                           }
                           return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      // Privé — jamais exposé via public_profiles_view,
+                      // visible uniquement par l'utilisateur lui-même.
+                      IntlPhoneField(
+                        initialValue: _phoneNumber,
+                        decoration: const InputDecoration(
+                          labelText: 'Téléphone (optionnel)',
+                          border: OutlineInputBorder(),
+                          helperText: 'Privé — jamais visible par les autres '
+                              'utilisateurs.',
+                          helperMaxLines: 2,
+                        ),
+                        initialCountryCode: 'TN',
+                        onChanged: (phone) {
+                          _phoneNumber = phone.number.isEmpty
+                              ? null
+                              : phone.completeNumber;
                         },
                       ),
                       const SizedBox(height: 16),
