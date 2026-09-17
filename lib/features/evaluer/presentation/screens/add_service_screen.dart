@@ -248,8 +248,12 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   initialCountryCode: 'TN',
                   disableLengthCheck: true,
                   onChanged: (phone) {
-                    _phoneNumber =
-                        phone.number.isEmpty ? null : phone.completeNumber;
+                    _phoneNumber = phone.number.isEmpty
+                        ? null
+                        // completeNumber peut contenir des espaces
+                        // (formatage visuel du package) — on les
+                        // retire pour rester en E.164 strict.
+                        : phone.completeNumber.replaceAll(RegExp(r'\s'), '');
                   },
                 ),
 

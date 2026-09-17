@@ -187,7 +187,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                         onChanged: (phone) {
                           _phoneNumber = phone.number.isEmpty
                               ? null
-                              : phone.completeNumber;
+                              // completeNumber peut contenir des espaces
+                              // (formatage visuel du package) — on les
+                              // retire pour rester en E.164 strict.
+                              : phone.completeNumber
+                                  .replaceAll(RegExp(r'\s'), '');
                         },
                       ),
                       const SizedBox(height: 16),
