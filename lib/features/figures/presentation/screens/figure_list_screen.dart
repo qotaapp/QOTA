@@ -148,11 +148,11 @@ class _FigureListScreenState extends State<FigureListScreen> {
                     final entity = _filteredFigures[index];
                     return ServiceCard(
                       entity: entity,
-                      onOpenDetails: () => Navigator.of(context)
-                          .push(MaterialPageRoute(
-                              builder: (_) =>
-                                  ServiceDetailsScreen(entityId: entity.id)))
-                          .then((_) => _reload()),
+                      onOpenDetails: () => ServiceDetailsScreen.show(
+                        context,
+                        entityId: entity.id,
+                        onDismiss: _reload,
+                      ),
                       onOpenRatingSheet: () => RatingSheet.show(context,
                           entityId: entity.id, onSubmitted: _reload),
                       onOpenComments: () => Navigator.of(context)
