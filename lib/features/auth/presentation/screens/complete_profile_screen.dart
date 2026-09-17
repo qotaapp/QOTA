@@ -183,6 +183,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                           helperMaxLines: 2,
                         ),
                         initialCountryCode: 'TN',
+                        disableLengthCheck: true,
                         onChanged: (phone) {
                           _phoneNumber = phone.number.isEmpty
                               ? null

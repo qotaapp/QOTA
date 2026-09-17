@@ -246,6 +246,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     border: OutlineInputBorder(),
                   ),
                   initialCountryCode: 'TN',
+                  disableLengthCheck: true,
                   onChanged: (phone) {
                     _phoneNumber =
                         phone.number.isEmpty ? null : phone.completeNumber;

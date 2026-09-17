@@ -521,6 +521,7 @@ class _EditEntityScreenState extends State<_EditEntityScreen> {
                         : null,
                   ),
                   initialCountryCode: 'TN',
+                  disableLengthCheck: true,
                   onChanged: (phone) {
                     _phoneNumber =
                         phone.number.isEmpty ? null : phone.completeNumber;
