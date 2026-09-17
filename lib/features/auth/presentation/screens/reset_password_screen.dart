@@ -20,6 +20,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _confirmController = TextEditingController();
   bool _isLoading = false;
   bool _isDone = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirm = true;
   String? _errorMessage;
 
   @override
@@ -95,19 +97,33 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   const SizedBox(height: 32),
                   TextField(
                     controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
                       labelText: 'Nouveau mot de passe',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined),
+                        onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _confirmController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
+                    obscureText: _obscureConfirm,
+                    decoration: InputDecoration(
                       labelText: 'Confirmer le mot de passe',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscureConfirm
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined),
+                        onPressed: () =>
+                            setState(() => _obscureConfirm = !_obscureConfirm),
+                      ),
                     ),
                   ),
                   if (_errorMessage != null) ...[
