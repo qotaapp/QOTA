@@ -46,7 +46,7 @@ Widget resolveEntityIcon({
 
   if (availableSvgIcons.contains(value)) {
     return SvgPicture.asset(
-      'assets/icons/$value.svg',
+      'assets/icon/$value.svg',
       width: size,
       height: size,
       colorFilter:
