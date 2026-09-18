@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/icon_picker_field.dart';
+import '../../../../core/widgets/icon_resolver.dart';
 import '../../data/admin_repository.dart';
 
 /// §16 : créer/modifier/traduire/réordonner/activer-désactiver une catégorie.
@@ -27,33 +29,46 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
         TextEditingController(text: existing?['name_fr'] ?? '');
     final nameArController =
         TextEditingController(text: existing?['name_ar'] ?? '');
+    // ignore: prefer_final_locals — modifiée par le picker dans le dialogue
+    String? selectedIcon = existing?['icon'] as String?;
 
     final saved = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-            existing == null ? 'Nouvelle catégorie' : 'Modifier la catégorie'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-                controller: nameFrController,
-                decoration: const InputDecoration(labelText: 'Nom (Français)')),
-            const SizedBox(height: 8),
-            TextField(
-                controller: nameArController,
-                decoration: const InputDecoration(labelText: 'الاسم (Arabe)'),
-                textDirection: TextDirection.rtl),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(existing == null
+              ? 'Nouvelle catégorie'
+              : 'Modifier la catégorie'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                  controller: nameFrController,
+                  decoration:
+                      const InputDecoration(labelText: 'Nom (Français)')),
+              const SizedBox(height: 8),
+              TextField(
+                  controller: nameArController,
+                  decoration: const InputDecoration(labelText: 'الاسم (Arabe)'),
+                  textDirection: TextDirection.rtl),
+              const SizedBox(height: 12),
+              IconPickerField(
+                value: selectedIcon,
+                fallbackIcon: Icons.category_outlined,
+                onChanged: (value) =>
+                    setDialogState(() => selectedIcon = value),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Annuler')),
+            FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Enregistrer')),
           ],
         ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Annuler')),
-          FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Enregistrer')),
-        ],
       ),
     );
 
@@ -64,11 +79,13 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
     if (existing == null) {
       await _repository.createCategory(
           nameFr: nameFrController.text.trim(),
-          nameAr: nameArController.text.trim());
+          nameAr: nameArController.text.trim(),
+          icon: selectedIcon);
     } else {
       await _repository.updateCategory(existing['id'] as String,
           nameFr: nameFrController.text.trim(),
-          nameAr: nameArController.text.trim());
+          nameAr: nameArController.text.trim(),
+          icon: selectedIcon);
     }
     _reload();
   }
@@ -127,6 +144,12 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
               final category = categories[index];
               final active = category['active'] as bool;
               return ListTile(
+                leading: resolveEntityIcon(
+                  iconValue: category['icon'] as String?,
+                  fallback: Icons.category_outlined,
+                  size: 24,
+                  color: AppColors.iconDefault,
+                ),
                 title: Text(category['name_fr'] as String),
                 subtitle: Text(category['name_ar'] as String,
                     textDirection: TextDirection.rtl),

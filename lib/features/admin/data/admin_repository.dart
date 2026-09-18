@@ -262,10 +262,12 @@ class AdminRepository {
   }
 
   Future<void> updateCategory(String id,
-      {required String nameFr, required String nameAr}) async {
-    await _client
-        .from('categories')
-        .update({'name_fr': nameFr, 'name_ar': nameAr}).eq('id', id);
+      {required String nameFr, required String nameAr, String? icon}) async {
+    await _client.from('categories').update({
+      'name_fr': nameFr,
+      'name_ar': nameAr,
+      'icon': icon,
+    }).eq('id', id);
   }
 
   Future<void> toggleCategoryActive(String id, bool active) async {
