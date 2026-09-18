@@ -40,6 +40,7 @@ class _EvaluerScreenState extends State<EvaluerScreen> {
       title: 'État',
       isLoading: _isLoading,
       items: _items,
+      fallbackIcon: Icons.public_outlined, // AJOUT — icône par défaut des États
       onSelect: (item) {
         Navigator.of(context).push(
           MaterialPageRoute(

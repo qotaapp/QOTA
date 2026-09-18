@@ -29,6 +29,7 @@ class EvaluerHomeScreen extends StatelessWidget {
             // §35-37 : Figures Publiques, déjà entièrement construites.
             EvaluerCategoryButton(
               icon: Icons.workspace_premium_outlined,
+              iconValue: 'person', // AJOUT -> assets/icons/person.svg
               label: 'Personnages publique',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const FigureTypeListScreen()),
@@ -41,6 +42,7 @@ class EvaluerHomeScreen extends StatelessWidget {
             // publications elle-même (AdminListingListScreen).
             EvaluerCategoryButton(
               icon: Icons.live_tv_outlined,
+              iconValue: 'tv', // AJOUT -> assets/icons/tv.svg
               label: 'Chaînes et programmes',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
@@ -53,6 +55,7 @@ class EvaluerHomeScreen extends StatelessWidget {
             ),
             EvaluerCategoryButton(
               icon: Icons.shopping_cart_outlined,
+              iconValue: 'store', // AJOUT -> assets/icons/store.svg
               label: 'Vente en ligne',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
@@ -65,6 +68,7 @@ class EvaluerHomeScreen extends StatelessWidget {
             ),
             EvaluerCategoryButton(
               icon: Icons.inventory_2_outlined,
+              iconValue: 'category', // AJOUT -> assets/icons/category.svg
               label: 'Autres',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
