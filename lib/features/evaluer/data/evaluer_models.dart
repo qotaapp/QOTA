@@ -137,6 +137,7 @@ class AdminListingCategory {
   final String nameFr;
   final String nameAr;
   final bool active;
+  final String? icon;
 
   AdminListingCategory({
     required this.id,
@@ -144,8 +145,10 @@ class AdminListingCategory {
     required this.nameFr,
     required this.nameAr,
     required this.active,
+    this.icon,
   });
 
+  // `icon` : colonne optionnelle — voir remarque QotaCity ci-dessus.
   factory AdminListingCategory.fromMap(Map<String, dynamic> map) =>
       AdminListingCategory(
         id: map['id'] as String,
@@ -153,6 +156,7 @@ class AdminListingCategory {
         nameFr: map['name_fr'] as String,
         nameAr: map['name_ar'] as String,
         active: map['active'] as bool,
+        icon: map['icon'] as String?,
       );
 }
 

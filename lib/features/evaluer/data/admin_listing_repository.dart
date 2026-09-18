@@ -45,15 +45,19 @@ class AdminListingRepository {
     return (rows as List).map((r) => AdminListingCategory.fromMap(r)).toList();
   }
 
+  /// [icon] : nom du SVG (voir icon_resolver.dart), même format que
+  /// partout ailleurs dans l'app. null = pas d'icône personnalisée.
   Future<void> createCategory({
     required String typeId,
     required String nameFr,
     required String nameAr,
+    String? icon,
   }) async {
     await _client.from('admin_listing_categories').insert({
       'admin_listing_type_id': typeId,
       'name_fr': nameFr,
       'name_ar': nameAr,
+      'icon': icon,
     });
   }
 
@@ -61,10 +65,12 @@ class AdminListingRepository {
     String id, {
     required String nameFr,
     required String nameAr,
+    String? icon,
   }) async {
     await _client.from('admin_listing_categories').update({
       'name_fr': nameFr,
       'name_ar': nameAr,
+      'icon': icon,
     }).eq('id', id);
   }
 

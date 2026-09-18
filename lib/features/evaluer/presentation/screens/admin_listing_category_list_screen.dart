@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/icon_resolver.dart';
+import '../../../../core/widgets/icon_picker_field.dart';
 import '../../data/admin_listing_repository.dart';
 import '../../data/evaluer_models.dart';
 import '../../../admin/data/admin_repository.dart';
@@ -78,33 +80,46 @@ class _AdminListingCategoryListScreenState
         TextEditingController(text: existing?.nameFr ?? '');
     final nameArController =
         TextEditingController(text: existing?.nameAr ?? '');
+    String? selectedIcon = existing?.icon;
 
     final saved = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-            existing == null ? 'Nouvelle catégorie' : 'Modifier la catégorie'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-                controller: nameFrController,
-                decoration: const InputDecoration(labelText: 'Nom (Français)')),
-            const SizedBox(height: 8),
-            TextField(
-                controller: nameArController,
-                decoration: const InputDecoration(labelText: 'الاسم (Arabe)'),
-                textDirection: TextDirection.rtl),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(existing == null
+              ? 'Nouvelle catégorie'
+              : 'Modifier la catégorie'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                  controller: nameFrController,
+                  decoration:
+                      const InputDecoration(labelText: 'Nom (Français)')),
+              const SizedBox(height: 8),
+              TextField(
+                  controller: nameArController,
+                  decoration: const InputDecoration(labelText: 'الاسم (Arabe)'),
+                  textDirection: TextDirection.rtl),
+              const SizedBox(height: 8),
+              IconPickerField(
+                value: selectedIcon,
+                onChanged: (value) =>
+                    setDialogState(() => selectedIcon = value),
+                fallbackIcon: Icons.category_outlined,
+                label: 'Icône de la catégorie',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Annuler')),
+            FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Enregistrer')),
           ],
         ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Annuler')),
-          FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Enregistrer')),
-        ],
       ),
     );
 
@@ -117,12 +132,14 @@ class _AdminListingCategoryListScreenState
         typeId: _type!.id,
         nameFr: nameFrController.text.trim(),
         nameAr: nameArController.text.trim(),
+        icon: selectedIcon,
       );
     } else {
       await _repository.updateCategory(
         existing.id,
         nameFr: nameFrController.text.trim(),
         nameAr: nameArController.text.trim(),
+        icon: selectedIcon,
       );
     }
     _reload();
@@ -209,6 +226,12 @@ class _AdminListingCategoryListScreenState
                       itemBuilder: (context, index) {
                         final category = categories[index];
                         return ListTile(
+                          leading: resolveEntityIcon(
+                            iconValue: category.icon,
+                            fallback: Icons.category_outlined,
+                            size: 22,
+                            color: AppColors.iconDefault,
+                          ),
                           title: Text(
                             category.nameFr,
                             style: TextStyle(
