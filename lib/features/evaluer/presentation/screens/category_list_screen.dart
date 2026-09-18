@@ -43,7 +43,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
       setState(() {
         _categoriesById = {for (final c in categories) c.id: c};
         _items = categories
-            .map((c) => SelectionItem(id: c.id, label: c.nameFr))
+            .map((c) => SelectionItem(id: c.id, label: c.nameFr, icon: c.icon))
             .toList();
         _isLoading = false;
       });
@@ -62,6 +62,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
       subtitle: 'Évaluer',
       isLoading: _isLoading,
       items: _items,
+      fallbackIcon: Icons.category_outlined,
       onSelect: (item) {
         final category = _categoriesById[item.id];
         Navigator.of(context).push(

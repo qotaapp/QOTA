@@ -21,18 +21,24 @@ class QotaCity {
   final String stateId;
   final String nameFr;
   final String nameAr;
+  final String? icon;
 
   QotaCity(
       {required this.id,
       required this.stateId,
       required this.nameFr,
-      required this.nameAr});
+      required this.nameAr,
+      this.icon});
 
+  // `icon` : colonne optionnelle, absente en base tant qu'elle n'a
+  // pas été ajoutée par migration — map['icon'] renvoie alors null
+  // sans casser le parsing.
   factory QotaCity.fromMap(Map<String, dynamic> map) => QotaCity(
         id: map['id'] as String,
         stateId: map['state_id'] as String,
         nameFr: map['name_fr'] as String,
         nameAr: map['name_ar'] as String,
+        icon: map['icon'] as String?,
       );
 }
 
@@ -41,18 +47,22 @@ class QotaZone {
   final String cityId;
   final String nameFr;
   final String nameAr;
+  final String? icon;
 
   QotaZone(
       {required this.id,
       required this.cityId,
       required this.nameFr,
-      required this.nameAr});
+      required this.nameAr,
+      this.icon});
 
+  // `icon` : même remarque que QotaCity ci-dessus.
   factory QotaZone.fromMap(Map<String, dynamic> map) => QotaZone(
         id: map['id'] as String,
         cityId: map['city_id'] as String,
         nameFr: map['name_fr'] as String,
         nameAr: map['name_ar'] as String,
+        icon: map['icon'] as String?,
       );
 }
 

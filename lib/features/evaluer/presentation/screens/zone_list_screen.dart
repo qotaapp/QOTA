@@ -53,8 +53,9 @@ class _ZoneListScreenState extends State<ZoneListScreen> {
     }
 
     setState(() {
-      _items =
-          zones.map((z) => SelectionItem(id: z.id, label: z.nameFr)).toList();
+      _items = zones
+          .map((z) => SelectionItem(id: z.id, label: z.nameFr, icon: z.icon))
+          .toList();
       _isLoading = false;
     });
   }
@@ -66,6 +67,7 @@ class _ZoneListScreenState extends State<ZoneListScreen> {
       subtitle: 'Évaluer',
       isLoading: _isLoading,
       items: _items,
+      fallbackIcon: Icons.map_outlined,
       onSelect: (item) {
         Navigator.of(context).push(
           MaterialPageRoute(

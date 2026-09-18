@@ -27,9 +27,11 @@ class _CityListScreenState extends State<CityListScreen> {
 
   Future<void> _load() async {
     final cities = await _repository.getCities(widget.stateId);
+    if (!mounted) return;
     setState(() {
-      _items =
-          cities.map((c) => SelectionItem(id: c.id, label: c.nameFr)).toList();
+      _items = cities
+          .map((c) => SelectionItem(id: c.id, label: c.nameFr, icon: c.icon))
+          .toList();
       _isLoading = false;
     });
   }
@@ -41,6 +43,7 @@ class _CityListScreenState extends State<CityListScreen> {
       subtitle: 'Évaluer',
       isLoading: _isLoading,
       items: _items,
+      fallbackIcon: Icons.location_city_outlined,
       onSelect: (item) {
         Navigator.of(context).push(
           MaterialPageRoute(
