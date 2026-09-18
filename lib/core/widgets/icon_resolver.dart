@@ -1,4 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+/// Noms des fichiers réellement présents dans assets/icons/ (sans
+/// l'extension .svg). À TENIR À JOUR : ajoute le nom ici dès qu'un
+/// nouveau SVG est déposé dans ce dossier, sinon `resolveEntityIcon`
+/// ignorera le fichier et retombera sur le mapping Material ci-dessous.
+const availableSvgIcons = <String>{
+  'restaurant',
+  'local_cafe',
+  'store',
+  'tv',
+  'person',
+  'category',
+};
 
 /// Résout la valeur du champ `icon` (categories/villes/zones, rempli
 /// par le Super Admin) en widget affichable. Tant que ce champ n'est
@@ -7,8 +21,9 @@ import 'package:flutter/material.dart';
 ///
 /// Formats acceptés dans `iconValue`, essayés dans cet ordre :
 /// 1. Emoji ou caractère isolé (ex: "🍴") -> affiché tel quel
-/// 2. Nom d'icône Material connu (ex: "restaurant") -> IconData mappé
-/// 3. Sinon (null, vide, ou nom non reconnu) -> `fallback`
+/// 2. Nom présent dans assets/icons/ (ex: "restaurant") -> SVG du dossier
+/// 3. Nom d'icône Material connu (ex: "fitness_center") -> IconData mappé
+/// 4. Sinon (null, vide, ou nom non reconnu) -> `fallback`
 Widget resolveEntityIcon({
   required String? iconValue,
   required IconData fallback,
@@ -21,12 +36,22 @@ Widget resolveEntityIcon({
 
   final value = iconValue.trim();
 
-  // Un nom d'icône Material valide ne contient que des lettres
-  // minuscules et des underscores — tout le reste (emoji compris)
-  // est donc forcément autre chose, à afficher tel quel.
+  // Un nom d'icône valide (SVG ou Material) ne contient que des
+  // lettres minuscules et des underscores — tout le reste (emoji
+  // compris) est donc forcément autre chose, à afficher tel quel.
   final looksLikeIconName = RegExp(r'^[a-z_]+$').hasMatch(value);
   if (!looksLikeIconName) {
     return Text(value, style: TextStyle(fontSize: size));
+  }
+
+  if (availableSvgIcons.contains(value)) {
+    return SvgPicture.asset(
+      'assets/icons/$value.svg',
+      width: size,
+      height: size,
+      colorFilter:
+          color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+    );
   }
 
   final mapped = materialIconsByName[value];
